@@ -1,0 +1,1 @@
+export default function Home(){return <div style={{padding:20,fontSize:24}}>Minimal Next.js is LIVE ✅</div>}
