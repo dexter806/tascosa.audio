@@ -1,1 +1,1 @@
-export default function Home(){return <div style={{padding:20,fontSize:24}}>Minimal Next.js is LIVE ✅</div>}
+export default function Home(){return <div className='text-center text-3xl p-10'>Tascosa Audio Site Loaded ✅</div>}
