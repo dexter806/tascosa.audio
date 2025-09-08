@@ -57,7 +57,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
               <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                Service that will<span className="text-amber-400">make your event</span> unforgettable.
+                Service that will <span className="text-amber-400">make your event</span> unforgettable.
               </h1>
               <p className="mt-5 text-neutral-300 text-lg max-w-prose">
                 Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
