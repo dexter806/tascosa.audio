@@ -200,7 +200,7 @@ export default function Home() {
             <h3 className="text-xl font-semibold">Business Info</h3>
             <ul className="mt-4 space-y-2 text-sm text-neutral-300">
               <li><strong>Service area:</strong> Amarillo & Texas Panhandle</li>
-              <li><strong>Email:</strong> dexter806@gmail.com</li>
+              <li><strong>Email:</strong> info@tascosaaduio.com</li>
               <li><strong>Hours:</strong> By appointment</li>
               <li><strong>Insurance:</strong> Certificate available upon request</li>
             </ul>
