@@ -185,8 +185,8 @@ export default function Home() {
               <div>
                 <select name="service" value={form.service} onChange={handleChange} className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500">
                   <option>DJ Services</option>
-                  <option>Audio Rentals</option>
-                  <option>Both (DJ + Rentals)</option>
+                 {/* <option>Audio Rentals</option>
+                  <option>Both (DJ + Rentals)</option> */}
                 </select>
               </div>
               <textarea name="message" value={form.message} onChange={handleChange} rows={5} placeholder="Event details, venue, hours, special requests..." className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500" />
