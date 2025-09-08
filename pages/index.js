@@ -57,7 +57,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
               <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                Service that <span className="text-amber-400">make your event</span> unforgettable.
+                Service that will<span className="text-amber-400">make your event</span> unforgettable.
               </h1>
               <p className="mt-5 text-neutral-300 text-lg max-w-prose">
                 Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
@@ -102,7 +102,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="rentals" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+     {/* <section id="rentals" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
         <h2 className="text-3xl md:text-4xl font-bold">Audio Rentals</h2>
         <p className="mt-2 text-neutral-300">Reliable gear for DIY events. Daily/weekly rates available.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
@@ -122,7 +122,7 @@ export default function Home() {
           ))}
         </div>
         <p className="mt-6 text-sm text-neutral-400">Need something specific? Ask—we source specialty gear on request.</p>
-      </section>
+      </section> */}
 
       <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
         <h2 className="text-3xl md:text-4xl font-bold">Simple Pricing</h2>
