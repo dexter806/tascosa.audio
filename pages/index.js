@@ -42,7 +42,7 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
             <a href="#services" className="hover:text-white">Services</a>
-            <a href="#rentals" className="hover:text-white">Rentals</a>
+           {/* <a href="#rentals" className="hover:text-white">Rentals</a> */}
             <a href="#pricing" className="hover:text-white">Pricing</a>
             <a href="#about" className="hover:text-white">About</a>
             <a href="#contact" className="hover:text-white">Contact</a>
@@ -74,7 +74,6 @@ export default function Home() {
                 <div className="h-full w-full grid place-items-center text-neutral-400"></div>
               </div>
               <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
-                <p className="text-sm">Next-level vibes for weddings, quinceañeras, school dances, and more.</p>
               </div>
             </div>
           </div>
@@ -202,10 +201,8 @@ export default function Home() {
               <li><strong>Service area:</strong> Amarillo & Texas Panhandle</li>
               <li><strong>Email:</strong> info@tascosaaduio.com</li>
               <li><strong>Hours:</strong> By appointment</li>
-              <li><strong>Insurance:</strong> Certificate available upon request</li>
             </ul>
             <div className="mt-6 text-sm text-neutral-400">
-              Ready for invoices & online payment (Stripe/Square) when you’re ready to connect.
             </div>
           </div>
         </div>
