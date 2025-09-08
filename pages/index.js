@@ -28,7 +28,7 @@ export default function Home() {
         `Service: ${form.service}\n` +
         `Details: ${form.message}\n`
     );
-    window.location.href = `mailto:dexter806@gmail.com?subject=Tascosa%20Audio%20Inquiry&body=${body}`;
+    window.location.href = `mailto:info@tascosaauido.com?subject=Tascosa%20Audio%20Inquiry&body=${body}`;
     setSent(true);
   }
 
@@ -57,7 +57,7 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <div>
               <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                Sound & Music that <span className="text-amber-400">make your event</span> unforgettable.
+                Service that <span className="text-amber-400">make your event</span> unforgettable.
               </h1>
               <p className="mt-5 text-neutral-300 text-lg max-w-prose">
                 Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
@@ -71,7 +71,7 @@ export default function Home() {
             </div>
             <div className="relative">
               <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                <div className="h-full w-full grid place-items-center text-neutral-400">Your photo or hero image here</div>
+                <div className="h-full w-full grid place-items-center text-neutral-400"></div>
               </div>
               <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
                 <p className="text-sm">Next-level vibes for weddings, quinceañeras, school dances, and more.</p>
