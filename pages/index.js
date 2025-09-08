@@ -125,13 +125,13 @@ export default function Home() {
       </section> */}
 
       <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-        <h2 className="text-3xl md:text-4xl font-bold">Simple Pricing</h2>
+        <h2 className="text-3xl md:text-4xl font-bold">Wedding DJ Pricing</h2>
         <p className="mt-2 text-neutral-300">Transparent base packages. Add-ons available.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {[
-            { tier: "Essential", price: "$599", features: ["Up to 4 hours", "2 speakers", "1 wireless mic", "Basic lighting"] },
-            { tier: "Popular", price: "$899", features: ["Up to 6 hours", "3 speakers", "2 wireless mics", "Dance lighting"], highlight: true },
-            { tier: "Signature", price: "$1299", features: ["Up to 8 hours", "4 speakers + sub", "2 handheld + 1 lapel", "Premium lighting"] },
+            { tier: "Essential", price: "$800", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
+            { tier: "Popular", price: "$1250", features: ["Up to 6 hours of DJ Service", "Cremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
+            { tier: "Signature", price: "$1500", features: ["Up to 8 hours of DJ Service", "Cremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"] },
           ].map((p) => (
             <div key={p.tier} className={`rounded-3xl border ${p.highlight ? 'border-amber-500' : 'border-neutral-800'} bg-neutral-900 p-6 shadow-lg`}>
               <div className="flex items-baseline justify-between">
