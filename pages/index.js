@@ -85,9 +85,9 @@ export default function Home() {
         <p className="mt-2 text-neutral-300">Pick what fits your event. We can customize any package.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {[
-            { title: "Wedding DJ", desc: "Ceremony audio + reception MC + curated dance set.", items: ["Wireless mics", "Dance lighting", "Timeline coordination"]},
-            { title: "Private Parties", desc: "Birthdays, quinceañeras, reunions—bring the party.", items: ["Custom playlists", "MC services", "Setup & teardown included"]},
-            { title: "Corporate/School", desc: "Conferences, pep rallies, fundraisers—polished and on-time.", items: ["Pro audio rig", "Stage mics", "Background music"]},
+            { title: "Wedding DJ Services", desc: "Ceremony audio + reception MC + curated dance set.", items: ["Wireless mics", "Dance lighting", "Timeline coordination"]},
+            { title: "Private Parties", desc: "Birthdays, quinceañeras, reunions—bring the party.", items: ["Custom playlists", "MC services", "Dance lighting"]},
+            { title: "Corporate/School", desc: "Conferences, pep rallies, fundraisers—polished and on-time.", items: ["Speakers", "Wireless mics", "Dance lighting"]},
           ].map((card) => (
             <div key={card.title} className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6 shadow">
               <h3 className="text-xl font-semibold">{card.title}</h3>
@@ -123,29 +123,33 @@ export default function Home() {
         <p className="mt-6 text-sm text-neutral-400">Need something specific? Ask—we source specialty gear on request.</p>
       </section> */}
 
-      <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-        <h2 className="text-3xl md:text-4xl font-bold">Wedding DJ Pricing</h2>
-        <p className="mt-2 text-neutral-300">Transparent base packages. Add-ons available.</p>
-        <div className="mt-8 grid md:grid-cols-3 gap-6">
-          {[
-            { tier: "Essential", price: "$800", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
-            { tier: "Popular", price: "$1250", features: ["Up to 6 hours of DJ Service", "Cremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
-            { tier: "Signature", price: "$1500", features: ["Up to 8 hours of DJ Service", "Cremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"] },
-          ].map((p) => (
-            <div key={p.tier} className={`rounded-3xl border ${p.highlight ? 'border-amber-500' : 'border-neutral-800'} bg-neutral-900 p-6 shadow-lg`}>
-              <div className="flex items-baseline justify-between">
-                <h3 className="text-xl font-semibold">{p.tier}</h3>
-                <span className={`text-2xl font-extrabold ${p.highlight ? 'text-amber-400' : ''}`}>{p.price}</span>
-              </div>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-                {p.features.map(f => <li key={f}>{f}</li>)}
-              </ul>
-              <a href="#contact" className={`mt-6 inline-block rounded-xl px-4 py-2 ${p.highlight ? 'bg-amber-500 text-black hover:bg-amber-400' : 'border border-neutral-700 hover:border-neutral-500'}`}>Choose</a>
-            </div>
-          ))}
+     <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+  <h2 className="text-3xl md:text-4xl font-bold">Wedding DJ Pricing</h2>
+  <p className="mt-2 text-neutral-300">Transparent base packages. Add-ons available.</p>
+  
+  <div className="mt-8 grid md:grid-cols-2 gap-6 justify-center">
+    {[
+      { tier: "Essential", price: "$800", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
+      { tier: "Popular", price: "$1250", features: ["Up to 6 hours of DJ Service", "Ceremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
+    ].map((p) => (
+      <div key={p.tier} className={`rounded-3xl border ${p.highlight ? 'border-amber-500' : 'border-neutral-800'} bg-neutral-900 p-6 shadow-lg`}>
+        <div className="flex items-baseline justify-between">
+          <h3 className="text-xl font-semibold">{p.tier}</h3>
+          <span className={`text-2xl font-extrabold ${p.highlight ? 'text-amber-400' : ''}`}>{p.price}</span>
         </div>
-        <p className="mt-4 text-xs text-neutral-500">Final quote depends on venue, travel, and add-ons. Sales tax where applicable.</p>
-      </section>
+        <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
+          {p.features.map(f => <li key={f}>{f}</li>)}
+        </ul>
+        <a href="#contact" className={`mt-6 inline-block rounded-xl px-4 py-2 ${p.highlight ? 'bg-amber-500 text-black hover:bg-amber-400' : 'border border-neutral-700 hover:border-neutral-500'}`}>Choose</a>
+      </div>
+    ))}
+  </div>
+
+  <p className="mt-4 text-xs text-neutral-500">
+    Final quote depends on venue, travel, and add-ons. Sales tax where applicable.
+  </p>
+</section>
+
 
       <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
         <div className="grid md:grid-cols-2 gap-10 items-center">
