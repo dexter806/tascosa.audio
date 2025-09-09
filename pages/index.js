@@ -65,9 +65,9 @@ export default function Home() {
               </p>
               <div className="mt-8 flex gap-3">
                 <a href="#contact" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">Book a DJ</a>
-                {\* <a href="#rentals" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">Rent Equipment</a> */}
+                {/* <a href="#rentals" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">Rent Equipment</a> */}
               </div>
-              <div className="mt-6 text-sm text-neutral-400">Fully insured • Professional gear • Easy scheduling</div>
+              <div className="mt-6 text-sm text-neutral-400">Professional service • Professional gear • Easy scheduling</div>
             </div>
             <div className="relative">
               <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
