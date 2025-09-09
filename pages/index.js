@@ -70,6 +70,7 @@ export default function Home() {
               <div className="mt-6 text-sm text-neutral-400">Professional service • Professional gear • Easy scheduling</div>
             </div>
             <div className="relative">
+<div className="relative">
   <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
     <img 
       src="/Lights.jpg" 
