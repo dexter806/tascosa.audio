@@ -74,7 +74,7 @@ export default function Home() {
           </a>
         </div>
         <div className="mt-6 text-sm text-neutral-400">
-          Fully insured • Professional gear • Easy scheduling
+          Years of experience • Professional gear • Easy scheduling
         </div>
       </div>
 
@@ -88,7 +88,7 @@ export default function Home() {
           />
         </div>
         <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
-          <p className="text-sm">Next-level vibes for weddings, quinceañeras, school dances, and more.</p>
+          <p className="text-sm">Next-level vibes for weddings, private parties, school dances, and more.</p>
         </div>
       </div>
     </div>
