@@ -51,40 +51,50 @@ export default function Home() {
         </nav>
       </header>
 
-      <section className="relative isolate overflow-hidden">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                Service that will <span className="text-amber-400">make your event</span> unforgettable.
-              </h1>
-              <p className="mt-5 text-neutral-300 text-lg max-w-prose">
-                Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
-                private parties, and corporate events across the Texas Panhandle.
-              </p>
-              <div className="mt-8 flex gap-3">
-                <a href="#contact" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">Book a DJ</a>
-                {/* <a href="#rentals" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">Rent Equipment</a> */}
-              </div>
-              <div className="mt-6 text-sm text-neutral-400">Professional service • Professional gear • Easy scheduling</div>
-            </div>
-            <div className="relative">
-<div className="relative">
-  <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-    <img 
-      src="/Lights.jpg" 
-      alt="DJ setup" 
-      className="h-full w-full object-cover"
-    />
-  </div>
-</div>
-              <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
-              </div>
-            </div>
-          </div>
+   {/* HERO */}
+<section className="relative isolate overflow-hidden">
+  <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+    <div className="grid md:grid-cols-2 gap-10 items-center">
+      {/* Left: Headline + copy + buttons */}
+      <div>
+        <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
+          Service that will <span className="text-amber-400">make your event</span> unforgettable.
+        </h1>
+        <p className="mt-5 text-neutral-300 text-lg max-w-prose">
+          Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
+          private parties, and corporate events across the Texas Panhandle.
+        </p>
+        <div className="mt-8 flex gap-3">
+          <a href="#contact" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
+            Book a DJ
+          </a>
+          <a href="#pricing" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">
+            See Pricing
+          </a>
         </div>
-      </section>
+        <div className="mt-6 text-sm text-neutral-400">
+          Fully insured • Professional gear • Easy scheduling
+        </div>
+      </div>
+
+      {/* Right: Image (Lights.jpg) */}
+      <div className="relative">
+        <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
+          <img
+            src="/Lights.jpg"            /* <-- Put Lights.jpg in /public exactly with this capital L */
+            alt="Event lighting and DJ setup"
+            className="h-full w-full object-cover"
+          />
+        </div>
+        <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
+          <p className="text-sm">Next-level vibes for weddings, quinceañeras, school dances, and more.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
       <section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
