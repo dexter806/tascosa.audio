@@ -167,7 +167,7 @@ export default function Home() {
             </ul>
           </div>
           <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square grid place-items-center text-neutral-400">
-            Add a crew photo / logo here
+            <img src="/Party 2025.jpg" alt="DJ setup" className="h-full w-full object-cover" />
           </div>
         </div>
       </section>
