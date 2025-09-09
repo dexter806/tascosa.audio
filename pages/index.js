@@ -70,9 +70,14 @@ export default function Home() {
               <div className="mt-6 text-sm text-neutral-400">Professional service • Professional gear • Easy scheduling</div>
             </div>
             <div className="relative">
-              <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                <div className="h-full w-full grid place-items-center text-neutral-400"></div>
-              </div>
+  <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
+    <img 
+      src="/Lights.jpg" 
+      alt="DJ setup" 
+      className="h-full w-full object-cover"
+    />
+  </div>
+</div>
               <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
               </div>
             </div>
