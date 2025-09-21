@@ -62,8 +62,8 @@ export default function Home() {
           Audio solutions <span className="text-amber-400">made simple</span> for you.
         </h1>
         <p className="mt-5 text-neutral-300 text-lg max-w-prose">
-          Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
-          private parties, and corporate events across the Texas Panhandle.
+          Tascosa Audio provides professional DJ services, reliable audio rentals,
+          and troubleshooting & setup support across the Texas Panhandle.
         </p>
         <div className="mt-8 flex gap-3">
           <a href="#contact" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
@@ -101,9 +101,22 @@ export default function Home() {
         <p className="mt-2 text-neutral-300">Pick what fits your event. We can customize any package.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {[
-            { title: "DJ Services", desc: "Ceremony audio + reception MC + curated dance set.", items: ["Wireless mics", "Dance lighting", "Timeline coordination"]},
-            { title: "PA Rentals", desc: "Birthdays, quinceañeras, reunions—bring the party.", items: ["Custom playlists", "MC services", "Dance lighting"]},
-            { title: "Troubleshooting Services", desc: "Conferences, pep rallies, fundraisers—polished and on-time.", items: ["Speakers", "Wireless mics", "Dance lighting"]},
+           { 
+  title: "DJ Services", 
+  desc: "Weddings, Private Parties, School Events.", 
+  items: ["Wireless mics", "Dance lighting", "MC Services"] 
+},
+{ 
+  title: "PA Rentals", 
+  desc: "Birthdays, quinceañeras, reunions—bring the party.", 
+  items: ["Portable sound systems", "Mixers & microphones", "Delivery & setup available"] 
+},
+{ 
+  title: "Audio Troubleshooting", 
+  desc: "Get your sound system fixed, set up, or tuned right—fast and reliable.", 
+  items: ["On-site diagnostics & repair", "System setup & walkthrough", "Feedback & wiring fixes"] 
+},
+
           ].map((card) => (
             <div key={card.title} className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6 shadow">
               <h3 className="text-xl font-semibold">{card.title}</h3>
