@@ -192,7 +192,7 @@ export default function Home() {
       With dependable equipment, clear communication, and local roots you can trust, Tascosa Audio makes audio solutions simple for every occasion.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-              <li>Fully insured for venues and events</li>
+              <li>knowledgeable staff for any situation </li>
               <li>Transparent pricing—no surprises</li>
               <li>On-time setup & professional appearance</li>
             </ul>
