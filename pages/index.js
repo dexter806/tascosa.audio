@@ -65,7 +65,7 @@ export default function Home() {
           and troubleshooting & setup support across the Texas Panhandle.
         </p>
         <div className="mt-8 flex gap-3">
-          <a href="#Servies" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
+          <a href="#services" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
             See Services
           </a>
           <a href="#pricing" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">
