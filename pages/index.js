@@ -109,7 +109,7 @@ export default function Home() {
 { 
   title: "PA Rentals", 
   desc: "Birthdays, quinceañeras, reunions—bring the party.", 
-  items: ["Portable sound systems", "Mixers & microphones", "Delivery & setup available"] 
+  items: ["Portable sound systems", "Mixers & microphones", "Delivery, setup, & tear down"] 
 },
 { 
   title: "Audio Troubleshooting", 
@@ -185,9 +185,11 @@ export default function Home() {
           <div>
             <h2 className="text-3xl md:text-4xl font-bold">About Tascosa Audio</h2>
             <p className="mt-4 text-neutral-300 leading-relaxed">
-              We’re a local, owner-operated audio company based in Amarillo, TX. With years of event experience,
-              we bring dependable gear, clear communication, and a crowd-reading DJ to every show. Whether you need
-              a full reception package or just a solid speaker setup, we’ll make it easy.
+      We’re a proud, owner-operated audio company born and raised right here in Amarillo, Texas. 
+      Serving the Panhandle with years of event experience, we provide everything from crowd-reading 
+      DJs and full wedding receptions to reliable PA rentals for parties, reunions, and community events. 
+      Already have your own gear? Our on-site troubleshooting and setup support will keep your sound running smoothly. 
+      With dependable equipment, clear communication, and local roots you can trust, Tascosa Audio makes audio solutions simple for every occasion.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
               <li>Fully insured for venues and events</li>
