@@ -59,7 +59,7 @@ export default function Home() {
       {/* Left: Headline + copy + buttons */}
       <div>
         <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-          Service that will <span className="text-amber-400">make your event</span> unforgettable.
+          Audio solutions <span className="text-amber-400">made simple</span> for you.
         </h1>
         <p className="mt-5 text-neutral-300 text-lg max-w-prose">
           Tascosa Audio provides professional DJ services and reliable audio rentals for weddings,
@@ -101,9 +101,9 @@ export default function Home() {
         <p className="mt-2 text-neutral-300">Pick what fits your event. We can customize any package.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {[
-            { title: "Wedding DJ Services", desc: "Ceremony audio + reception MC + curated dance set.", items: ["Wireless mics", "Dance lighting", "Timeline coordination"]},
-            { title: "Private Parties", desc: "Birthdays, quinceañeras, reunions—bring the party.", items: ["Custom playlists", "MC services", "Dance lighting"]},
-            { title: "Corporate/School", desc: "Conferences, pep rallies, fundraisers—polished and on-time.", items: ["Speakers", "Wireless mics", "Dance lighting"]},
+            { title: "DJ Services", desc: "Ceremony audio + reception MC + curated dance set.", items: ["Wireless mics", "Dance lighting", "Timeline coordination"]},
+            { title: "PA Rentals", desc: "Birthdays, quinceañeras, reunions—bring the party.", items: ["Custom playlists", "MC services", "Dance lighting"]},
+            { title: "Troubleshooting Services", desc: "Conferences, pep rallies, fundraisers—polished and on-time.", items: ["Speakers", "Wireless mics", "Dance lighting"]},
           ].map((card) => (
             <div key={card.title} className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6 shadow">
               <h3 className="text-xl font-semibold">{card.title}</h3>
