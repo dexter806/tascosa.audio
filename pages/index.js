@@ -123,7 +123,7 @@ export default function Home() {
               <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
                 {card.items.map(item => <li key={item}>{item}</li>)}
               </ul>
-              <a href="#contact" className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400">Request Quote</a>
+              <a href="#pricing" className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400">Go To Service</a>
             </div>
           ))}
         </div>
@@ -174,7 +174,7 @@ export default function Home() {
   </div>
 
   <p className="mt-4 text-xs text-neutral-500">
-    Final quote depends on venue, travel, and add-ons. Sales tax where applicable.
+  
   </p>
 </section>
 
