@@ -47,7 +47,6 @@ export default function Home() {
             <a href="#about" className="hover:text-white">About</a>
             <a href="#contact" className="hover:text-white">Contact</a>
           </div>
-          <a href="#contact" className="inline-flex items-center rounded-2xl px-4 py-2 text-sm font-medium bg-amber-500 hover:bg-amber-400 text-black shadow">Get a Quote</a>
         </nav>
       </header>
 
@@ -66,8 +65,8 @@ export default function Home() {
           and troubleshooting & setup support across the Texas Panhandle.
         </p>
         <div className="mt-8 flex gap-3">
-          <a href="#contact" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
-            Request Service
+          <a href="#Servies" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
+            See Services
           </a>
           <a href="#pricing" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">
             See Pricing
