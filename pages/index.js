@@ -59,7 +59,7 @@ export default function Home() {
       {/* Left: Headline + copy + buttons */}
       <div>
         <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-          Audio solutions <span className="text-amber-400">made simple</span> for you.
+          Audio solutions <span className="text-amber-400">made simple.</span>
         </h1>
         <p className="mt-5 text-neutral-300 text-lg max-w-prose">
           Tascosa Audio provides professional DJ services, reliable audio rentals,
