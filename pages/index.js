@@ -67,7 +67,7 @@ export default function Home() {
         </p>
         <div className="mt-8 flex gap-3">
           <a href="#contact" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
-            Book a DJ
+            Request Service
           </a>
           <a href="#pricing" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">
             See Pricing
@@ -98,7 +98,7 @@ export default function Home() {
 
       <section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
         <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
-        <p className="mt-2 text-neutral-300">Pick what fits your event. We can customize any package.</p>
+        <p className="mt-2 text-neutral-300">Pick what fits your need.</p>
         <div className="mt-8 grid md:grid-cols-3 gap-6">
           {[
            { 
@@ -153,13 +153,13 @@ export default function Home() {
       </section> */}
 
      <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-  <h2 className="text-3xl md:text-4xl font-bold">Wedding DJ Pricing</h2>
+  <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
   <p className="mt-2 text-neutral-300">Transparent base packages. Add-ons available.</p>
   
   <div className="mt-8 grid md:grid-cols-2 gap-6 justify-center">
     {[
-      { tier: "Essential", price: "$800", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
-      { tier: "Popular", price: "$1250", features: ["Up to 6 hours of DJ Service", "Ceremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
+      { tier: "Wedding Reception", price: "$800", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
+      { tier: "Wedding Full Service", price: "$1250", features: ["Up to 6 hours of DJ Service", "Ceremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
     ].map((p) => (
       <div key={p.tier} className={`rounded-3xl border ${p.highlight ? 'border-amber-500' : 'border-neutral-800'} bg-neutral-900 p-6 shadow-lg`}>
         <div className="flex items-baseline justify-between">
@@ -192,7 +192,7 @@ export default function Home() {
       With dependable equipment, clear communication, and local roots you can trust, Tascosa Audio makes audio solutions simple for every occasion.
             </p>
             <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-              <li>knowledgeable staff for any situation </li>
+              <li>Knowledgeable staff for any situation </li>
               <li>Transparent pricing—no surprises</li>
               <li>On-time setup & professional appearance</li>
             </ul>
