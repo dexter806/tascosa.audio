@@ -105,14 +105,14 @@ export default function Home() {
   desc: "Weddings, Private Parties, School Events.", 
   items: ["Wireless mics", "Dance lighting", "MC Services"] 
 },
+// {
+//   title: "PA Rentals", 
+//   desc: "Birthdays, quinceañeras, reunions—bring the party.", 
+//   items: ["Portable sound systems", "Mixers & microphones", "Delivery, setup, & tear down"] 
+// },
 { 
-  title: "PA Rentals", 
-  desc: "Birthdays, quinceañeras, reunions—bring the party.", 
-  items: ["Portable sound systems", "Mixers & microphones", "Delivery, setup, & tear down"] 
-},
-{ 
-  title: "Audio Troubleshooting", 
-  desc: "Get your sound system fixed, set up, or tuned right—fast and reliable.", 
+  title: "Diagnostic, Repair, Education", 
+  desc: "Get your system diagnosed, fixed, and let us teach you how to keep it running.", 
   items: ["On-site diagnostics & repair", "System setup & walkthrough", "Feedback & wiring fixes"] 
 },
 
