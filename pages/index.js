@@ -154,82 +154,110 @@ export default function Home() {
         </section>
 
         {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-          <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
-          <p className="mt-2 text-neutral-300">
-            Transparent base packages. All packages run until 12:00&nbsp;AM. Per-hour add-on available for the 6-hour package only.
-          </p>
+<section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+  <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
+  <p className="mt-2 text-neutral-300">
+    Transparent base packages. All packages run until 12:00&nbsp;AM. Per-hour add-on available for the 6-hour package only.
+  </p>
 
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto px-4">
-            {[
-              {
-                tier: "Private Party",
-                price: "$750",
-                features: [
-                  "Up to 3 hours of DJ Service",
-                  "Dinner/Party Music",
-                  "Wireless mic",
-                  "Dance lighting"
-                ]
-              },
-              {
-                tier: "Wedding Reception",
-                price: "$900",
-                features: [
-                  "Up to 4 hours of DJ Service",
-                  "Reception/Dinner Music",
-                  "Wireless mic",
-                  "Dance lighting"
-                ]
-              },
-              {
-                tier: "Wedding Full Service",
-                price: "$1250",
-                features: [
-                  "Up to 6 hours of DJ Service",
-                  "Ceremony Music",
-                  "Reception/Dinner Music",
-                  "Wireless mics",
-                  "Dance lighting"
-                ],
-                highlight: true
-              }
-            ].map((p) => (
-              <div
-                key={p.tier}
-                className={`rounded-3xl border ${
-                  p.highlight ? "border-amber-500" : "border-neutral-800"
-                } bg-neutral-900 p-6 shadow-lg flex flex-col`}
-              >
-                <div className="flex items-baseline justify-between">
-                  <h3 className="text-xl font-semibold">{p.tier}</h3>
-                  <span className={`text-2xl font-extrabold ${p.highlight ? "text-amber-400" : ""}`}>
-                    {p.price}
-                  </span>
-                </div>
+  {/* DJ Tiers */}
+  <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto px-4">
+    {[
+      {
+        tier: "Private Party",
+        price: "$750",
+        features: [
+          "Up to 3 hours of DJ Service",
+          "Dinner/Party Music",
+          "Wireless mic",
+          "Dance lighting"
+        ]
+      },
+      {
+        tier: "Wedding Reception",
+        price: "$900",
+        features: [
+          "Up to 4 hours of DJ Service",
+          "Reception/Dinner Music",
+          "Wireless mic",
+          "Dance lighting"
+        ]
+      },
+      {
+        tier: "Wedding Full Service",
+        price: "$1250",
+        features: [
+          "Up to 6 hours of DJ Service",
+          "Ceremony Music",
+          "Reception/Dinner Music",
+          "Wireless mics",
+          "Dance lighting"
+        ],
+        highlight: true
+      }
+    ].map((p) => (
+      <div
+        key={p.tier}
+        className={`rounded-3xl border ${
+          p.highlight ? "border-amber-500" : "border-neutral-800"
+        } bg-neutral-900 p-6 shadow-lg flex flex-col`}
+      >
+        <div className="flex items-baseline justify-between">
+          <h3 className="text-xl font-semibold">{p.tier}</h3>
+          <span className={`text-2xl font-extrabold ${p.highlight ? "text-amber-400" : ""}`}>
+            {p.price}
+          </span>
+        </div>
 
-                <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-                  {p.features.map((f) => (
-                    <li key={f}>{f}</li>
-                  ))}
-                </ul>
+        <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
+          {p.features.map((f) => (
+            <li key={f}>{f}</li>
+          ))}
+        </ul>
 
-                <a
-                  href="#contact"
-                  className={`mt-6 inline-block rounded-xl px-4 py-2 ${
-                    p.highlight
-                      ? "bg-amber-500 text-black hover:bg-amber-400"
-                      : "border border-neutral-700 hover:border-neutral-500"
-                  }`}
-                >
-                  Choose
-                </a>
-              </div>
-            ))}
-          </div>
+        <a
+          href="#contact"
+          className={`mt-6 inline-block rounded-xl px-4 py-2 ${
+            p.highlight
+              ? "bg-amber-500 text-black hover:bg-amber-400"
+              : "border border-neutral-700 hover:border-neutral-500"
+          }`}
+        >
+          Choose
+        </a>
+      </div>
+    ))}
+  </div>
 
-          <p className="mt-4 text-xs text-neutral-500">{/* reserved for legal notes or disclaimers */}</p>
-        </section>
+  {/* Diagnostic, Repair, Education */}
+  <div className="mt-16 flex justify-center">
+    <div className="rounded-3xl border border-amber-500 bg-neutral-900 p-8 shadow-xl max-w-md text-center">
+      <h3 className="text-2xl font-semibold text-amber-400">Diagnostic, Repair & Education</h3>
+      <p className="mt-2 text-lg font-bold text-white">$100 per hour (1-hour minimum)</p>
+      <p className="mt-4 text-neutral-300 text-sm leading-relaxed">
+        On-site service for diagnosing, repairing, and optimizing your PA system, mixer, or event audio setup.
+        Great for venues, churches, and individuals who want to learn how to maintain their own system with confidence.
+      </p>
+      <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside text-left inline-block">
+        <li>On-site system diagnostics & minor repairs</li>
+        <li>Signal flow & feedback troubleshooting</li>
+        <li>Equipment setup & wiring organization</li>
+        <li>1-on-1 audio education & best practices</li>
+      </ul>
+      <a
+        href="#contact"
+        className="mt-6 inline-block rounded-xl px-5 py-3 bg-amber-500 text-black font-semibold hover:bg-amber-400"
+      >
+        Schedule Service
+      </a>
+    </div>
+  </div>
+
+  <p className="mt-4 text-xs text-neutral-500 text-center">
+    Travel fees may apply for locations outside Amarillo city limits.
+  </p>
+</section>
+
 
         {/* ABOUT */}
         <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
