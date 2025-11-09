@@ -155,6 +155,7 @@ export default function Home() {
 
         {/* PRICING */}
 <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+  {/* DJ Services Header */}
   <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
   <p className="mt-2 text-neutral-300">
     Transparent base packages. All packages run until 12:00&nbsp;AM. Per-hour add-on available for the 6-hour package only.
@@ -229,14 +230,22 @@ export default function Home() {
     ))}
   </div>
 
-  {/* Diagnostic, Repair, Education */}
-  <div className="mt-16 flex justify-center">
+  {/* Diagnostic Section Header */}
+  <div className="mt-20 text-center">
+    <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
+    <p className="mt-2 text-neutral-300">
+      On-site troubleshooting, system optimization, and hands-on learning for venues, churches, and individuals.
+    </p>
+  </div>
+
+  {/* Diagnostic, Repair, Education Card */}
+  <div className="mt-8 flex justify-center">
     <div className="rounded-3xl border border-amber-500 bg-neutral-900 p-8 shadow-xl max-w-md text-center">
-      <h3 className="text-2xl font-semibold text-amber-400">Diagnostic, Repair & Education</h3>
+      <h3 className="text-2xl font-semibold text-amber-400">Audio System Service</h3>
       <p className="mt-2 text-lg font-bold text-white">$100 per hour (1-hour minimum)</p>
       <p className="mt-4 text-neutral-300 text-sm leading-relaxed">
-        On-site service for diagnosing, repairing, and optimizing your PA system, mixer, or event audio setup.
-        Great for venues, churches, and individuals who want to learn how to maintain their own system with confidence.
+        Comprehensive service covering diagnostics, small repairs, and personalized education. Perfect for improving
+        your live sound setup or learning best practices for managing your own system.
       </p>
       <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside text-left inline-block">
         <li>On-site system diagnostics & minor repairs</li>
@@ -257,6 +266,7 @@ export default function Home() {
     Travel fees may apply for locations outside Amarillo city limits.
   </p>
 </section>
+
 
 
         {/* ABOUT */}
