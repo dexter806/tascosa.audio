@@ -142,12 +142,7 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
-                <a
-                  href="#pricing"
-                  className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400"
-                >
-                  Go To Service
-                </a>
+          <a href="#diagnostic" className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400">Go To Service</a>
               </div>
             ))}
           </div>
@@ -231,7 +226,7 @@ export default function Home() {
   </div>
 
   {/* Diagnostic Section Header */}
-  <div className="mt-20 text-center">
+ <div id="diagnostic" className="mt-20 text-center">
     <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
     <p className="mt-2 text-neutral-300">
       On-site troubleshooting, system optimization, and hands-on learning for venues, churches, and individuals.
