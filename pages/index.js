@@ -242,9 +242,11 @@ export default function Home() {
           <div className="mt-8 flex justify-center">
             <div className="rounded-3xl border border-amber-500 bg-neutral-900 p-8 shadow-xl max-w-md text-center">
               <h3 className="text-2xl font-semibold text-amber-400">Audio System Service</h3>
-              <p className="mt-2 text-lg font-bold text-white">$100 per hour - first two hours 
-            $50 per hour after two hours
-              (2-hour minimum)</p>
+           <p className="mt-2 text-lg font-bold text-white">
+  $100 per hour - first two hours <br />
+  $50 per hour after two hours <br />
+  (2-hour minimum)
+</p>
               <p className="mt-4 text-neutral-300 text-sm leading-relaxed">
                 Comprehensive service covering diagnostics, small repairs, and personalized education. Perfect for improving
                 your live sound setup or learning best practices for managing your own system.
