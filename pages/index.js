@@ -157,7 +157,8 @@ export default function Home() {
   
   <div className="mt-8 grid md:grid-cols-2 gap-6 justify-center">
     {[
-      { tier: "Wedding Reception", price: "$900", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
+    {tier: "Private Party", price: "$750", features: ["Up to 3 hours of DJ Service", "Dinner/Party Music", "Wireless mic", "Dance lighting"]},
+    { tier: "Wedding Reception", price: "$900", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
       { tier: "Wedding Full Service", price: "$1250", features: ["Up to 6 hours of DJ Service", "Ceremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
     ].map((p) => (
       <div key={p.tier} className={`rounded-3xl border ${p.highlight ? 'border-amber-500' : 'border-neutral-800'} bg-neutral-900 p-6 shadow-lg`}>
