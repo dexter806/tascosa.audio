@@ -32,19 +32,17 @@ export default function Home() {
       `Service: ${form.service}`,
       `Details: ${form.message}`
     ];
-
     const body = encodeURIComponent(bodyLines.join("\n"));
-    // Use Reply-To hint for many clients
     const to = "info@tascosaaudio.com";
     const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${body}`;
 
-    // Prefer window.open to avoid single-page-app navigation edge cases
     window.open(mailto, "_self");
     setSent(true);
   }
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
+      {/* NAV */}
       <header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -93,7 +91,7 @@ export default function Home() {
               <div className="relative">
                 <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
                   <img
-                    src="/Lights.jpg" /* Ensure exact filename and location in /public */
+                    src="/Lights.jpg" /* ensure exact filename & in /public */
                     alt="Event lighting and DJ setup"
                     className="h-full w-full object-cover"
                   />
@@ -142,127 +140,132 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
-          <a href="#diagnostic" className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400">Go To Service</a>
+                <a
+                  href={card.title === "DJ Services" ? "#dj-packages" : "#diagnostic"}
+                  className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400"
+                >
+                  Go To Service
+                </a>
               </div>
             ))}
           </div>
         </section>
 
         {/* PRICING */}
-<section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-  {/* DJ Services Header */}
-  <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
-  <p className="mt-2 text-neutral-300">
-    Transparent base packages. All packages run until 12:00&nbsp;AM. Per-hour add-on available for the 6-hour package only.
-  </p>
+        <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+          {/* DJ Services Header */}
+          <div id="dj-packages">
+            <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
+            <p className="mt-2 text-neutral-300">
+              Transparent base packages. All packages run until 12:00&nbsp;AM. Per-hour add-on available for the 6-hour package only.
+            </p>
+          </div>
 
-  {/* DJ Tiers */}
-  <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto px-4">
-    {[
-      {
-        tier: "Private Party",
-        price: "$750",
-        features: [
-          "Up to 3 hours of DJ Service",
-          "Dinner/Party Music",
-          "Wireless mic",
-          "Dance lighting"
-        ]
-      },
-      {
-        tier: "Wedding Reception",
-        price: "$900",
-        features: [
-          "Up to 4 hours of DJ Service",
-          "Reception/Dinner Music",
-          "Wireless mic",
-          "Dance lighting"
-        ]
-      },
-      {
-        tier: "Wedding Full Service",
-        price: "$1250",
-        features: [
-          "Up to 6 hours of DJ Service",
-          "Ceremony Music",
-          "Reception/Dinner Music",
-          "Wireless mics",
-          "Dance lighting"
-        ],
-        highlight: true
-      }
-    ].map((p) => (
-      <div
-        key={p.tier}
-        className={`rounded-3xl border ${
-          p.highlight ? "border-amber-500" : "border-neutral-800"
-        } bg-neutral-900 p-6 shadow-lg flex flex-col`}
-      >
-        <div className="flex items-baseline justify-between">
-          <h3 className="text-xl font-semibold">{p.tier}</h3>
-          <span className={`text-2xl font-extrabold ${p.highlight ? "text-amber-400" : ""}`}>
-            {p.price}
-          </span>
-        </div>
+          {/* DJ Packages Grid */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto px-4">
+            {[
+              {
+                tier: "Private Party",
+                price: "$750",
+                features: [
+                  "Up to 3 hours of DJ Service",
+                  "Dinner/Party Music",
+                  "Wireless mic",
+                  "Dance lighting"
+                ]
+              },
+              {
+                tier: "Wedding Reception",
+                price: "$900",
+                features: [
+                  "Up to 4 hours of DJ Service",
+                  "Reception/Dinner Music",
+                  "Wireless mic",
+                  "Dance lighting"
+                ]
+              },
+              {
+                tier: "Wedding Full Service",
+                price: "$1250",
+                features: [
+                  "Up to 6 hours of DJ Service",
+                  "Ceremony Music",
+                  "Reception/Dinner Music",
+                  "Wireless mics",
+                  "Dance lighting"
+                ],
+                highlight: true
+              }
+            ].map((p) => (
+              <div
+                key={p.tier}
+                className={`rounded-3xl border ${
+                  p.highlight ? "border-amber-500" : "border-neutral-800"
+                } bg-neutral-900 p-6 shadow-lg flex flex-col`}
+              >
+                <div className="flex items-baseline justify-between">
+                  <h3 className="text-xl font-semibold">{p.tier}</h3>
+                  <span className={`text-2xl font-extrabold ${p.highlight ? "text-amber-400" : ""}`}>
+                    {p.price}
+                  </span>
+                </div>
 
-        <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-          {p.features.map((f) => (
-            <li key={f}>{f}</li>
-          ))}
-        </ul>
+                <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
+                  {p.features.map((f) => (
+                    <li key={f}>{f}</li>
+                  ))}
+                </ul>
 
-        <a
-          href="#contact"
-          className={`mt-6 inline-block rounded-xl px-4 py-2 ${
-            p.highlight
-              ? "bg-amber-500 text-black hover:bg-amber-400"
-              : "border border-neutral-700 hover:border-neutral-500"
-          }`}
-        >
-          Choose
-        </a>
-      </div>
-    ))}
-  </div>
+                <a
+                  href="#contact"
+                  className={`mt-6 inline-block rounded-xl px-4 py-2 ${
+                    p.highlight
+                      ? "bg-amber-500 text-black hover:bg-amber-400"
+                      : "border border-neutral-700 hover:border-neutral-500"
+                  }`}
+                >
+                  Choose
+                </a>
+              </div>
+            ))}
+          </div>
 
-  {/* Diagnostic Section Header */}
- <div id="diagnostic" className="mt-20 text-center">
-    <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
-    <p className="mt-2 text-neutral-300">
-      On-site troubleshooting, system optimization, and hands-on learning for venues, churches, and individuals.
-    </p>
-  </div>
+          {/* Diagnostic Header */}
+          <div id="diagnostic" className="mt-20 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
+            <p className="mt-2 text-neutral-300">
+              On-site troubleshooting, system optimization, and hands-on learning for venues, churches, and individuals.
+            </p>
+          </div>
 
-  {/* Diagnostic, Repair, Education Card */}
-  <div className="mt-8 flex justify-center">
-    <div className="rounded-3xl border border-amber-500 bg-neutral-900 p-8 shadow-xl max-w-md text-center">
-      <h3 className="text-2xl font-semibold text-amber-400">Audio System Service</h3>
-      <p className="mt-2 text-lg font-bold text-white">$100 per hour (1-hour minimum)</p>
-      <p className="mt-4 text-neutral-300 text-sm leading-relaxed">
-        Comprehensive service covering diagnostics, small repairs, and personalized education. Perfect for improving
-        your live sound setup or learning best practices for managing your own system.
-      </p>
-      <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside text-left inline-block">
-        <li>On-site system diagnostics & minor repairs</li>
-        <li>Signal flow & feedback troubleshooting</li>
-        <li>Equipment setup & wiring organization</li>
-        <li>1-on-1 audio education & best practices</li>
-      </ul>
-      <a
-        href="#contact"
-        className="mt-6 inline-block rounded-xl px-5 py-3 bg-amber-500 text-black font-semibold hover:bg-amber-400"
-      >
-        Schedule Service
-      </a>
-    </div>
-  </div>
+          {/* Diagnostic Card */}
+          <div className="mt-8 flex justify-center">
+            <div className="rounded-3xl border border-amber-500 bg-neutral-900 p-8 shadow-xl max-w-md text-center">
+              <h3 className="text-2xl font-semibold text-amber-400">Audio System Service</h3>
+              <p className="mt-2 text-lg font-bold text-white">$100 per hour (1-hour minimum)</p>
+              <p className="mt-4 text-neutral-300 text-sm leading-relaxed">
+                Comprehensive service covering diagnostics, small repairs, and personalized education. Perfect for improving
+                your live sound setup or learning best practices for managing your own system.
+              </p>
+              <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside text-left inline-block">
+                <li>On-site system diagnostics & minor repairs</li>
+                <li>Signal flow & feedback troubleshooting</li>
+                <li>Equipment setup & wiring organization</li>
+                <li>1-on-1 audio education & best practices</li>
+              </ul>
+              <a
+                href="#contact"
+                className="mt-6 inline-block rounded-xl px-5 py-3 bg-amber-500 text-black font-semibold hover:bg-amber-400"
+              >
+                Schedule Service
+              </a>
+            </div>
+          </div>
 
-  <p className="mt-4 text-xs text-neutral-500 text-center">
-    Travel fees may apply for locations outside Amarillo city limits.
-  </p>
-</section>
-
-
+          <p className="mt-4 text-xs text-neutral-500 text-center">
+            Travel fees may apply for locations outside Amarillo city limits.
+          </p>
+        </section>
 
         {/* ABOUT */}
         <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
@@ -284,7 +287,7 @@ export default function Home() {
             </div>
             <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden">
               <img
-                src="/Party 2025.jpg" /* Consider renaming to 'party-2025.jpg' (no space) */
+                src="/Party 2025.jpg" /* consider renaming to 'party-2025.jpg' (no space) */
                 alt="DJ booth and lighting at a party"
                 className="h-full w-full object-cover"
               />
@@ -331,7 +334,7 @@ export default function Home() {
                     placeholder="Phone"
                     aria-label="Phone"
                     inputMode="tel"
-                    pattern="^[0-9()*#+.\-\s]{7,}$"
+                    pattern="^[0-9()*#+.\\-\\s]{7,}$"
                     className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                   <input
@@ -398,6 +401,7 @@ export default function Home() {
         </section>
       </main>
 
+      {/* FOOTER */}
       <footer className="border-t border-neutral-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-neutral-400 flex flex-col md:flex-row gap-4 items-center justify-between">
           <div>© {new Date().getFullYear()} Tascosa Audio. All rights reserved.</div>
