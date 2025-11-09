@@ -155,24 +155,69 @@ export default function Home() {
   <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
   <p className="mt-2 text-neutral-300">Transparent base packages. All packages are till 12am. Per hour add on availble for 6 hour package only.</p>
   
-  <div className="mt-8 grid md:grid-cols-2 gap-6 justify-center">
-    {[
-    {tier: "Private Party", price: "$750", features: ["Up to 3 hours of DJ Service", "Dinner/Party Music", "Wireless mic", "Dance lighting"]},
-    { tier: "Wedding Reception", price: "$900", features: ["Up to 4 hours of DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
-      { tier: "Wedding Full Service", price: "$1250", features: ["Up to 6 hours of DJ Service", "Ceremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
-    ].map((p) => (
-      <div key={p.tier} className={`rounded-3xl border ${p.highlight ? 'border-amber-500' : 'border-neutral-800'} bg-neutral-900 p-6 shadow-lg`}>
-        <div className="flex items-baseline justify-between">
-          <h3 className="text-xl font-semibold">{p.tier}</h3>
-          <span className={`text-2xl font-extrabold ${p.highlight ? 'text-amber-400' : ''}`}>{p.price}</span>
-        </div>
-        <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-          {p.features.map(f => <li key={f}>{f}</li>)}
-        </ul>
-        <a href="#contact" className={`mt-6 inline-block rounded-xl px-4 py-2 ${p.highlight ? 'bg-amber-500 text-black hover:bg-amber-400' : 'border border-neutral-700 hover:border-neutral-500'}`}>Choose</a>
+<div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto px-4">
+  {[
+    { 
+      tier: "Private Party", 
+      price: "$750", 
+      features: [
+        "Up to 3 hours of DJ Service", 
+        "Dinner/Party Music", 
+        "Wireless mic", 
+        "Dance lighting"
+      ]
+    },
+    { 
+      tier: "Wedding Reception", 
+      price: "$900", 
+      features: [
+        "Up to 4 hours of DJ Service", 
+        "Reception/Dinner Music", 
+        "Wireless mic", 
+        "Dance lighting"
+      ]
+    },
+    { 
+      tier: "Wedding Full Service", 
+      price: "$1250", 
+      features: [
+        "Up to 6 hours of DJ Service", 
+        "Ceremony Music", 
+        "Reception/Dinner Music", 
+        "Wireless mics", 
+        "Dance lighting"
+      ], 
+      highlight: true 
+    },
+  ].map((p) => (
+    <div 
+      key={p.tier} 
+      className={`rounded-3xl border ${
+        p.highlight ? 'border-amber-500' : 'border-neutral-800'
+      } bg-neutral-900 p-6 shadow-lg`}
+    >
+      <div className="flex items-baseline justify-between">
+        <h3 className="text-xl font-semibold">{p.tier}</h3>
+        <span className={`text-2xl font-extrabold ${p.highlight ? 'text-amber-400' : ''}`}>
+          {p.price}
+        </span>
       </div>
-    ))}
-  </div>
+      <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
+        {p.features.map(f => <li key={f}>{f}</li>)}
+      </ul>
+      <a 
+        href="#contact" 
+        className={`mt-6 inline-block rounded-xl px-4 py-2 ${
+          p.highlight 
+            ? 'bg-amber-500 text-black hover:bg-amber-400' 
+            : 'border border-neutral-700 hover:border-neutral-500'
+        }`}
+      >
+        Choose
+      </a>
+    </div>
+  ))}
+</div>
 
   <p className="mt-4 text-xs text-neutral-500">
   
