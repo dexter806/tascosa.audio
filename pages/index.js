@@ -153,7 +153,7 @@ export default function Home() {
 
      <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
   <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
-  <p className="mt-2 text-neutral-300">Transparent base packages. Add-ons available.</p>
+  <p className="mt-2 text-neutral-300">Transparent base packages. All packages are till 12am. Per hour add on availble for 6 hour package only.</p>
   
   <div className="mt-8 grid md:grid-cols-2 gap-6 justify-center">
     {[
