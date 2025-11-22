@@ -46,7 +46,6 @@ export default function Home() {
       `Name: ${form.name}`,
       `Email: ${form.email}`,
       `Phone: ${form.phone}`,
-      `Event Date: ${form.date}`,
       `Service: ${form.service}`,
       ...(form.package ? [`Package: ${form.package}`] : []),
       `Details: ${form.message}`
@@ -90,7 +89,7 @@ export default function Home() {
                 </h1>
                 <p className="mt-5 text-neutral-300 text-lg max-w-prose">
                   Tascosa Audio provides professional DJ services
-                  and troubleshooting &amp; setup support across the Texas Panhandle.
+                  and troubleshooting &amp; setup support across the Texas Panhandle and beyond.
                 </p>
                 <div className="mt-8 flex gap-3">
                   <a href="#services" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
