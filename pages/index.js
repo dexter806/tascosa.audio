@@ -89,7 +89,7 @@ export default function Home() {
                   Audio solutions <span className="text-amber-400">made simple.</span>
                 </h1>
                 <p className="mt-5 text-neutral-300 text-lg max-w-prose">
-                  Tascosa Audio provides professional DJ services, reliable audio rentals,
+                  Tascosa Audio provides professional DJ services
                   and troubleshooting &amp; setup support across the Texas Panhandle.
                 </p>
                 <div className="mt-8 flex gap-3">
@@ -302,7 +302,7 @@ export default function Home() {
               <p className="mt-4 text-neutral-300 leading-relaxed">
                 We’re a proud, owner-operated audio company born and raised in Amarillo, Texas.
                 Serving the Panhandle with years of event experience, we provide everything from crowd-reading
-                DJs and full wedding receptions to reliable PA rentals for parties, reunions, and community events.
+                DJs and full wedding receptions to parties, reunions, and community events.
                 Already have your own gear? Our on-site troubleshooting and setup support will keep your sound running smoothly.
                 With dependable equipment, clear communication, and local roots you can trust, Tascosa Audio makes audio solutions simple for every occasion.
               </p>
@@ -436,7 +436,7 @@ export default function Home() {
             <div className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6">
               <h3 className="text-xl font-semibold">Business Info</h3>
               <ul className="mt-4 space-y-2 text-sm text-neutral-300">
-                <li><strong>Service area:</strong> Amarillo &amp; Texas Panhandle</li>
+                <li><strong>Service area:</strong> Amarillo, Lubbock, Texas Panhandle, Oklahoma, and New Mexico</li>
                 <li><strong>Email:</strong> info@tascosaaudio.com</li>
                 <li><strong>Hours:</strong> By appointment</li>
               </ul>
