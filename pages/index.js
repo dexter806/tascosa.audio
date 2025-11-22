@@ -362,15 +362,6 @@ export default function Home() {
                     pattern="^[0-9()*#+.\\-\\s]{7,}$"
                     className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
-                  <input
-                    name="date"
-                    value={form.date}
-                    onChange={handleChange}
-                    type="date"
-                    placeholder="Event date"
-                    aria-label="Event date"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
                 </div>
 
                 {/* Service select */}
