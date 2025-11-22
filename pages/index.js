@@ -5,7 +5,6 @@ export default function Home() {
     name: "",
     email: "",
     phone: "",
-    date: "",
     service: "DJ Services",
     package: "",
     message: ""
