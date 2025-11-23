@@ -63,7 +63,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-amber-400 to-rose-500 shadow-lg" />
+            <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-tascosa-orange to-rose-500 shadow-lg" />
             <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
@@ -84,14 +84,14 @@ export default function Home() {
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div>
                 <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                  Audio solutions <span className="text-amber-400">made simple.</span>
+                  Audio solutions <span className="text-tascosa-orange">made simple.</span>
                 </h1>
                 <p className="mt-5 text-neutral-300 text-lg max-w-prose">
                   Tascosa Audio provides professional DJ services
                   and troubleshooting &amp; setup support across the Texas Panhandle and beyond.
                 </p>
                 <div className="mt-8 flex gap-3">
-                  <a href="#services" className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400">
+                  <a href="#services" className="rounded-2xl px-5 py-3 bg-tascosa-orange text-black font-semibold shadow hover:bg-tascosa-orange">
                     See Services
                   </a>
                   <a href="#pricing" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">
@@ -161,7 +161,7 @@ export default function Home() {
                 </div>
                 <a
                   href={card.href}
-                  className="mt-6 inline-block rounded-xl px-4 py-2 bg-amber-500 text-black font-medium hover:bg-amber-400"
+                  className="mt-6 inline-block rounded-xl px-4 py-2 bg-tascosa-orange text-black font-medium hover:bg-tascosa-orange"
                 >
                   Go To Service
                 </a>
@@ -219,12 +219,12 @@ export default function Home() {
               <div
                 key={p.tier}
                 className={`rounded-3xl border ${
-                  p.highlight ? "border-amber-500" : "border-neutral-800"
+                  p.highlight ? "border-tascosa-orange" : "border-neutral-800"
                 } bg-neutral-900 p-6 shadow-lg flex flex-col`}
               >
                 <div className="flex items-baseline justify-between">
                   <h3 className="text-xl font-semibold">{p.tier}</h3>
-                  <span className={`text-2xl font-extrabold ${p.highlight ? "text-amber-400" : ""}`}>
+                  <span className={`text-2xl font-extrabold ${p.highlight ? "text-tascosa-orange" : ""}`}>
                     {p.price}
                   </span>
                 </div>
@@ -240,7 +240,7 @@ export default function Home() {
                   onClick={() => jumpToContactWith("DJ Services", p.tier)}
                   className={`mt-6 inline-block rounded-xl px-4 py-2 ${
                     p.highlight
-                      ? "bg-amber-500 text-black hover:bg-amber-400"
+                      ? "bg-tascosa-orange text-black hover:bg-tascosa-orange"
                       : "border border-neutral-700 hover:border-neutral-500"
                   }`}
                 >
@@ -260,8 +260,8 @@ export default function Home() {
 
           {/* Diagnostic Card */}
           <div className="mt-8 flex justify-center">
-            <div className="rounded-3xl border border-amber-500 bg-neutral-900 p-8 shadow-xl max-w-md text-center">
-              <h3 className="text-2xl font-semibold text-amber-400">Audio System Service</h3>
+            <div className="rounded-3xl border border-tascosa-orange bg-neutral-900 p-8 shadow-xl max-w-md text-center">
+              <h3 className="text-2xl font-semibold text-tascosa-orange">Audio System Service</h3>
               <p className="mt-2 text-lg font-bold text-white">
                 $100 per hour - first two hours <br />
                 $50 per hour after two hours <br />
@@ -280,7 +280,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
-                className="mt-6 inline-block rounded-xl px-5 py-3 bg-amber-500 text-black font-semibold hover:bg-amber-400"
+                className="mt-6 inline-block rounded-xl px-5 py-3 bg-tascosa-orange text-black font-semibold hover:bg-tascosa-orange"
               >
                 Schedule Service
               </button>
@@ -336,7 +336,7 @@ export default function Home() {
                     required
                     placeholder="Your name"
                     aria-label="Your name"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
                   />
                   <input
                     name="email"
@@ -347,7 +347,7 @@ export default function Home() {
                     required
                     placeholder="Email"
                     aria-label="Email"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
                   />
                 </div>
 
@@ -360,7 +360,7 @@ export default function Home() {
                     aria-label="Phone"
                     inputMode="tel"
                     pattern="^[0-9()*#+.\\-\\s]{7,}$"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
                   />
                 </div>
 
@@ -370,7 +370,7 @@ export default function Home() {
                   value={form.service}
                   onChange={handleChange}
                   aria-label="Service"
-                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
                 >
                   <option>DJ Services</option>
                   <option>Diagnostic, Repair & Education</option>
@@ -386,7 +386,7 @@ export default function Home() {
                       onChange={handleChange}
                       required
                       aria-label="DJ Package"
-                      className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
                     >
                       <option value="">Choose a DJ package…</option>
                       {DJ_PACKAGES.map(label => (
@@ -403,12 +403,12 @@ export default function Home() {
                   rows={5}
                   placeholder="Event details, venue, hours, special requests..."
                   aria-label="Event details"
-                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
                 />
 
                 <button
                   type="submit"
-                  className="rounded-2xl px-5 py-3 bg-amber-500 text-black font-semibold shadow hover:bg-amber-400 disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="rounded-2xl px-5 py-3 bg-tascosa-orange text-black font-semibold shadow hover:bg-tascosa-orange disabled:opacity-60 disabled:cursor-not-allowed"
                   disabled={sent}
                 >
                   {sent ? "Opening your email app..." : "Send Inquiry"}
