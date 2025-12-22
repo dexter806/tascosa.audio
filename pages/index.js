@@ -445,7 +445,7 @@ export default function Home() {
             <div className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6">
               <h3 className="text-xl font-semibold">Business Info</h3>
               <ul className="mt-4 space-y-2 text-sm text-neutral-300">
-                <li><strong>Service area:</strong> Amarillo, Lubbock, Texas Panhandle, Oklahoma, and New Mexico</li>
+                <li><strong>Service area:</strong> Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma</li>
                 <li><strong>Email:</strong> info@tascosaaudio.com</li>
                 <li><strong>Hours:</strong> By appointment</li>
               </ul>
