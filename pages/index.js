@@ -448,7 +448,6 @@ export default function Home() {
                 <li><strong>Service area:</strong> Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma</li>
                 <li><strong>Email:</strong> info@tascosaaudio.com</li>
                  <li><strong>Phone:</strong> 806-670-7913</li>
-                <li><strong> Please feel free to call, text or email any time!
               </ul>
               <div className="mt-6 text-sm text-neutral-400" />
             </div>
