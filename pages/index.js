@@ -59,13 +59,17 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
-  {/* NAV */}
+{/* NAV */}
 <header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
   <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
     
-    {/* Updated Clickable Logo/Brand Area */}
+    {/* Updated Logo Section */}
     <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-      <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-tascosa-orange to-rose-500 shadow-lg" />
+      <img 
+        src="/TA logo.png"
+        alt="Tascosa Audio Logo" 
+        className="h-9 w-auto object-contain" // Height matches your previous 9x9 box
+      />
       <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
     </a>
 
