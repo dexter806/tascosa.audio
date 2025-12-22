@@ -455,17 +455,33 @@ export default function Home() {
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="border-t border-neutral-800">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-neutral-400 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div>© {new Date().getFullYear()} Tascosa Audio. All rights reserved.</div>
-          <div className="flex gap-6">
-            <a href="#" className="hover:text-white">Instagram</a>
-            <a href="#" className="hover:text-white">Facebook</a>
-            <a href="#" className="hover:text-white">TikTok</a>
-          </div>
-        </div>
-      </footer>
+{/* FOOTER */}
+<footer className="border-t border-neutral-800">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-neutral-400 flex flex-col md:flex-row gap-4 items-center justify-between">
+    <div>© {new Date().getFullYear()} Tascosa Audio. All rights reserved.</div>
+    
+    <div className="flex gap-6">
+      {/* Replace the URL in the quotes with your actual profile link */}
+      <a 
+        href="https://www.instagram.com/tascosaaudio" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="hover:text-tascosa-orange transition-colors"
+      >
+        Instagram
+      </a>
+      
+      <a 
+        href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/#" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="hover:text-tascosa-orange transition-colors"
+      >
+        Facebook
+      </a>
+    </div>
+  </div>
+</footer>
     </div>
   );
 }
