@@ -195,9 +195,9 @@ export default function Home() {
             {[
               {
                 tier: "Private Party",
-                price: "$750",
+                price: "$600",
                 features: [
-                  "Up to 3 hours of DJ Service",
+                  "DJ Service",
                   "Dinner/Party Music",
                   "Wireless mic",
                   "Dance lighting"
