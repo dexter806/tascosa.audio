@@ -447,7 +447,8 @@ export default function Home() {
               <ul className="mt-4 space-y-2 text-sm text-neutral-300">
                 <li><strong>Service area:</strong> Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma</li>
                 <li><strong>Email:</strong> info@tascosaaudio.com</li>
-                <li><strong>Hours:</strong> By appointment</li>
+                 <li><strong>Phone:</strong> 806-670-7913</li>
+                <li><strong> Please feel free to call, text or email any time!
               </ul>
               <div className="mt-6 text-sm text-neutral-400" />
             </div>
