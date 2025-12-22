@@ -66,7 +66,7 @@ export default function Home() {
     {/* Updated Logo Section */}
     <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
       <img 
-        src="/TA logo.png"
+        src="/TA Logo.png"
         alt="Tascosa Audio Logo" 
         className="h-9 w-auto object-contain" // Height matches your previous 9x9 box
       />
