@@ -298,33 +298,43 @@ export default function Home() {
           </p>
         </section>
 
-        {/* ABOUT */}
-        <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-          <div className="grid md:grid-cols-2 gap-10 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold">About Tascosa Audio</h2>
-              <p className="mt-4 text-neutral-300 leading-relaxed">
-                We’re a proud, owner-operated audio company born and raised in Amarillo, Texas.
-                Serving the Panhandle with years of event experience, we provide everything from crowd-reading
-                DJs and full wedding receptions to parties, reunions, and community events.
-                Already have your own gear? Our on-site troubleshooting and setup support will keep your sound running smoothly.
-                With dependable equipment, clear communication, and local roots you can trust, Tascosa Audio makes audio solutions simple for every occasion.
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-                <li>Knowledgeable staff for any situation</li>
-                <li>Transparent pricing—no surprises</li>
-                <li>On-time setup &amp; professional appearance</li>
-              </ul>
-            </div>
-            <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden">
-              <img
-                src="/Party 2025.jpg" /* consider renaming to 'party-2025.jpg' (no space) */
-                alt="DJ booth and lighting at a party"
-                className="h-full w-full object-cover"
-              />
-            </div>
-          </div>
-        </section>
+{/* ABOUT */}
+<section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+  <div className="grid md:grid-cols-2 gap-10 items-center">
+    <div>
+      <h2 className="text-3xl md:text-4xl font-bold">The People Behind the Sound</h2>
+      <p className="mt-4 text-neutral-300 leading-relaxed">
+        We’re a local, owner-operated team born and raised right here in Amarillo. 
+        For us, audio isn't just a business—it’s a career built on over a decade of 
+        hands-on experience. 
+      </p>
+      <p className="mt-4 text-neutral-300 leading-relaxed">
+        Our founder brings **10 years of expertise in music retail** and is a proud 
+        graduate of the **Conservatory of Recording Arts and Sciences (CRAS)**. 
+        We’ve spent years behind the board running live sound and providing 
+        professional DJ services across the Panhandle, Oklahoma, and New Mexico. 
+      </p>
+      <p className="mt-4 text-neutral-300 leading-relaxed">
+        Whether we are reading a crowd to keep a wedding dance floor packed or 
+        troubleshooting a complex system for a local venue, we bring a level of 
+        technical precision you won't find anywhere else. At the end of the day, 
+        we’re your neighbors, and we’re here to make sure your event sounds perfect.
+      </p>
+      <ul className="mt-6 space-y-2 text-sm text-neutral-300 list-disc list-inside">
+        <li>CRAS Certified Technical Expertise</li>
+        <li>10+ Years of Music Industry Experience</li>
+        <li>On-site setup & professional, local service</li>
+      </ul>
+    </div>
+    <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden">
+      <img
+        src="/Party 2025.jpg" 
+        alt="DJ booth and lighting at a party"
+        className="h-full w-full object-cover"
+      />
+    </div>
+  </div>
+</section>
 
         {/* CONTACT */}
         <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
