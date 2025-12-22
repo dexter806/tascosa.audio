@@ -86,10 +86,14 @@ export default function Home() {
                 <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
                   Audio solutions <span className="text-tascosa-orange">made simple.</span>
                 </h1>
-                <p className="mt-5 text-neutral-300 text-lg max-w-prose">
-                 At Tascosa Audio, we’re your partners in finding your audio solution. 
-              From our professional DJ services to expert setup and troubleshooting, our team is proud to serve Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plain, New Mexico, and Oklahoma
-                </p>
+            <div className="mt-5 text-neutral-300 text-lg max-w-prose">
+  <p>At Tascosa Audio, we’re your partners in finding your audio solution.</p>
+  <p className="mt-4">
+    From our professional DJ services to expert setup and troubleshooting, 
+    our team is proud to serve Amarillo, Canyon, Lubbock, the Texas Panhandle, 
+    the South Plain, New Mexico, and Oklahoma.
+  </p>
+</div>
                 <div className="mt-8 flex gap-3">
                   <a href="#services" className="rounded-2xl px-5 py-3 bg-tascosa-orange text-black font-semibold shadow hover:bg-tascosa-orange">
                     See Services
