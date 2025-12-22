@@ -309,10 +309,10 @@ export default function Home() {
         hands-on experience. 
       </p>
       <p className="mt-4 text-neutral-300 leading-relaxed">
-        Our founder brings **10 years of expertise in music retail** and is a proud 
-        graduate of the **Conservatory of Recording Arts and Sciences (CRAS)**. 
+        Our owner, Andy, brings 10+ years of expertise in music retail and is a proud 
+        graduate of the Conservatory of Recording Arts and Sciences (CRAS). 
         We’ve spent years behind the board running live sound and providing 
-        professional DJ services across the Panhandle, Oklahoma, and New Mexico. 
+        professional DJ services across the Panhandle, Sound Plains, Oklahoma, and New Mexico. 
       </p>
       <p className="mt-4 text-neutral-300 leading-relaxed">
         Whether we are reading a crowd to keep a wedding dance floor packed or 
