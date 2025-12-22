@@ -59,22 +59,24 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* NAV */}
-      <header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
-        <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-tascosa-orange to-rose-500 shadow-lg" />
-            <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
-            <a href="#services" className="hover:text-white">Services</a>
-            {/* <a href="#rentals" className="hover:text-white">Rentals</a> */}
-            <a href="#pricing" className="hover:text-white">Pricing</a>
-            <a href="#about" className="hover:text-white">About</a>
-            <a href="#contact" className="hover:text-white">Contact</a>
-          </div>
-        </nav>
-      </header>
+  {/* NAV */}
+<header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
+  <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    
+    {/* Updated Clickable Logo/Brand Area */}
+    <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+      <div className="h-9 w-9 rounded-2xl bg-gradient-to-br from-tascosa-orange to-rose-500 shadow-lg" />
+      <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
+    </a>
+
+    <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
+      <a href="#services" className="hover:text-white">Services</a>
+      <a href="#pricing" className="hover:text-white">Pricing</a>
+      <a href="#about" className="hover:text-white">About</a>
+      <a href="#contact" className="hover:text-white">Contact</a>
+    </div>
+  </nav>
+</header>
 
       <main>
         {/* HERO */}
