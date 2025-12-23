@@ -59,21 +59,63 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-tascosa-orange selection:text-black">
-      {/* NAV */}
-      <header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
-        <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <img src="/TA Logo.png" alt="Tascosa Audio Logo" className="h-9 w-auto object-contain" />
-            <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
+{/* NAV */}
+<header className="sticky top-0 z-50 backdrop-blur-md border-b border-neutral-800/60 bg-neutral-950/80">
+  <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="flex h-16 items-center justify-between">
+      {/* Logo */}
+      <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <img src="/TA Logo.png" alt="Tascosa Audio Logo" className="h-9 w-auto object-contain" />
+        <span className="text-lg font-bold tracking-wide">Tascosa Audio</span>
+      </a>
+
+      {/* Desktop Menu (Hidden on Mobile) */}
+      <div className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-300">
+        <a href="#services" className="hover:text-tascosa-orange transition-colors">Services</a>
+        <a href="#pricing" className="hover:text-tascosa-orange transition-colors">Pricing</a>
+        <a href="#about" className="hover:text-tascosa-orange transition-colors">About</a>
+        <a href="#contact" className="hover:text-tascosa-orange transition-colors">Contact</a>
+      </div>
+
+      {/* Mobile Menu Button (Hidden on Desktop) */}
+      <div className="md:hidden">
+        <button 
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="p-2 text-neutral-400 hover:text-white focus:outline-none"
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {isMenuOpen ? (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            ) : (
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            )}
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    {/* Mobile Dropdown Menu */}
+    {isMenuOpen && (
+      <div className="md:hidden border-t border-neutral-800 py-4 space-y-1 animate-in fade-in slide-in-from-top-2">
+        {[
+          { name: "Services", href: "#services" },
+          { name: "Pricing", href: "#pricing" },
+          { name: "About", href: "#about" },
+          { name: "Contact", href: "#contact" },
+        ].map((link) => (
+          <a
+            key={link.name}
+            href={link.href}
+            onClick={() => setIsMenuOpen(false)} // Closes menu when a link is clicked
+            className="block px-4 py-3 text-base font-medium text-neutral-300 hover:bg-neutral-900 hover:text-tascosa-orange rounded-xl transition-all"
+          >
+            {link.name}
           </a>
-          <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
-            <a href="#services" className="hover:text-white transition-colors">Services</a>
-            <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-            <a href="#about" className="hover:text-white transition-colors">About</a>
-            <a href="#contact" className="hover:text-white transition-colors">Contact</a>
-          </div>
-        </nav>
-      </header>
+        ))}
+      </div>
+    )}
+  </nav>
+</header>
 
       <main>
         {/* HERO */}
