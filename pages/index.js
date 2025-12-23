@@ -78,7 +78,7 @@ export default function Home() {
               <a href="#services" className="hover:text-tascosa-orange transition-colors">Services</a>
               <a href="#pricing" className="hover:text-tascosa-orange transition-colors">Pricing</a>
               <a href="#about" className="hover:text-tascosa-orange transition-colors">About</a>
-              <a href="#contact" className="hover:text-tascosa-orange transition-colors">Contact</a>
+              <a href="#contact" className="hover:text-tascosa-orange transition-colors">Request a Quote</a>
             </div>
 
             {/* Mobile Menu Button */}
@@ -105,7 +105,7 @@ export default function Home() {
       { name: "Services", href: "#services" },
       { name: "Pricing", href: "#pricing" },
       { name: "About", href: "#about" },
-      { name: "Quote", href: "#contact" },
+      { name: "Request a Quote", href: "#contact" },
     ].map((link) => (
       <a
         key={link.name}
