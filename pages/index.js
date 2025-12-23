@@ -1,487 +1,200 @@
 import { useState } from "react";
 
+// --- REUSABLE UI SUB-COMPONENTS ---
+
+// 1. Clean Input Component to avoid repeating classes
+const FormInput = ({ label, ...props }) => (
+  <div className="w-full">
+    <label className="block text-xs font-medium text-neutral-400 mb-1 ml-1">{label}</label>
+    <input
+      {...props}
+      className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 
+                 text-white placeholder-neutral-500 transition-all
+                 focus:outline-none focus:ring-2 focus:ring-tascosa-orange focus:border-transparent"
+    />
+  </div>
+);
+
+// 2. Nav Link Component
+const NavLink = ({ href, children }) => (
+  <a href={href} className="hover:text-white transition-colors">
+    {children}
+  </a>
+);
+
 export default function Home() {
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    service: "DJ Services",
-    package: "",
-    message: ""
+    name: "", email: "", phone: "", service: "DJ Services", package: "", message: ""
   });
   const [sent, setSent] = useState(false);
 
   const DJ_PACKAGES = ["Private Party", "Wedding Reception", "Wedding Full Service"];
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({
       ...prev,
       [name]: value,
-      ...(name === "service" ? { package: "" } : {}) // reset package if service changes
+      ...(name === "service" ? { package: "" } : {})
     }));
-  }
+  };
 
-  // Preselect service/package and scroll to contact form
-  function jumpToContactWith(service, selectedPackage = "") {
-    setForm(prev => ({
-      ...prev,
-      service,
-      package: service === "DJ Services" ? selectedPackage : ""
-    }));
-    const el = document.getElementById("contact");
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  }
+  const jumpToContactWith = (service, selectedPackage = "") => {
+    setForm(prev => ({ ...prev, service, package: service === "DJ Services" ? selectedPackage : "" }));
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-
-    const subject = "Tascosa Audio Inquiry";
     const bodyLines = [
-      "Hello Tascosa Audio,",
-      "",
-      "New inquiry:",
-      "",
-      `Name: ${form.name}`,
-      `Email: ${form.email}`,
-      `Phone: ${form.phone}`,
-      `Service: ${form.service}`,
-      ...(form.package ? [`Package: ${form.package}`] : []),
+      "Hello Tascosa Audio,", "", "New inquiry:", "",
+      `Name: ${form.name}`, `Email: ${form.email}`, `Phone: ${form.phone}`,
+      `Service: ${form.service}`, ...(form.package ? [`Package: ${form.package}`] : []),
       `Details: ${form.message}`
     ];
-    const body = encodeURIComponent(bodyLines.join("\n"));
-    const to = "info@tascosaaudio.com";
-    const mailto = `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${body}`;
-
+    const mailto = `mailto:info@tascosaaudio.com?subject=Inquiry&body=${encodeURIComponent(bodyLines.join("\n"))}`;
     window.open(mailto, "_self");
     setSent(true);
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100">
-{/* NAV */}
-<header className="sticky top-0 z-50 backdrop-blur border-b border-neutral-800/60 bg-neutral-950/70">
-  <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-    
-    {/* Updated Logo Section */}
-    <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-      <img 
-        src="/TA Logo.png"
-        alt="Tascosa Audio Logo" 
-        className="h-9 w-auto object-contain" // Height matches your previous 9x9 box
-      />
-      <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
-    </a>
-
-    <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
-      <a href="#services" className="hover:text-white">Services</a>
-      <a href="#pricing" className="hover:text-white">Pricing</a>
-      <a href="#about" className="hover:text-white">About</a>
-      <a href="#contact" className="hover:text-white">Contact</a>
-    </div>
-  </nav>
-</header>
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-tascosa-orange selection:text-black">
+      {/* NAVIGATION */}
+      <header className="sticky top-0 z-50 backdrop-blur-md border-b border-neutral-800/60 bg-neutral-950/70">
+        <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <img src="/TA Logo.png" alt="Logo" className="h-9 w-auto object-contain" />
+            <span className="text-lg font-semibold tracking-wide">Tascosa Audio</span>
+          </a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-neutral-300">
+            <NavLink href="#services">Services</NavLink>
+            <NavLink href="#pricing">Pricing</NavLink>
+            <NavLink href="#about">About</NavLink>
+            <NavLink href="#contact">Contact</NavLink>
+          </div>
+        </nav>
+      </header>
 
       <main>
-        {/* HERO */}
-        <section className="relative isolate overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-            <div className="grid md:grid-cols-2 gap-10 items-center">
-              <div>
-                <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                  Audio solutions <span className="text-tascosa-orange">made simple.</span>
+        {/* HERO SECTION */}
+        <section className="relative pt-20 pb-16 md:pt-32 md:pb-24">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_50%_0%,rgba(255,100,0,0.08),transparent_50%)]" />
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-8">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
+                  Audio solutions <br />
+                  <span className="text-tascosa-orange">made simple.</span>
                 </h1>
-            <div className="mt-5 text-neutral-300 text-lg max-w-prose">
-  <p>At Tascosa Audio, we’re your partners in finding your audio solution.</p>
-  <p className="mt-4">
-    From our professional DJ services to expert setup and troubleshooting, 
-    our team is proud to serve Amarillo, Canyon, Lubbock, the Texas Panhandle, 
-    the South Plain, New Mexico, and Oklahoma.
-  </p>
-</div>
-                <div className="mt-8 flex gap-3">
-                  <a href="#services" className="rounded-2xl px-5 py-3 bg-tascosa-orange text-black font-semibold shadow hover:bg-tascosa-orange">
+                <p className="text-neutral-400 text-lg max-w-md leading-relaxed">
+                  Professional DJ services and expert audio troubleshooting for the Texas Panhandle and beyond.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <a href="#services" className="bg-tascosa-orange text-black font-bold px-8 py-4 rounded-2xl hover:scale-105 transition-transform">
                     See Services
                   </a>
-                  <a href="#pricing" className="rounded-2xl px-5 py-3 border border-neutral-700 hover:border-neutral-500">
+                  <a href="#pricing" className="bg-neutral-900 border border-neutral-700 px-8 py-4 rounded-2xl hover:bg-neutral-800 transition-colors">
                     See Pricing
                   </a>
                 </div>
-                <div className="mt-6 text-sm text-neutral-400">
-                  Years of experience • Professional gear • Easy scheduling
-                </div>
               </div>
 
-              {/* Right image */}
-              <div className="relative">
-                <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                  <img
-                    src="/Lights.jpg" /* ensure exact filename & placed in /public */
-                    alt="Event lighting and DJ setup"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl">
-                  <p className="text-sm">Next-level vibes for weddings, private parties, school dances, and more.</p>
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-tascosa-orange to-orange-600 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                <div className="relative aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 overflow-hidden shadow-2xl">
+                  <img src="/Lights.jpg" alt="Setup" className="h-full w-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-500" />
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* SERVICES */}
-        <section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-          <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
-          <p className="mt-2 text-neutral-300">Pick what fits your need.</p>
-
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* PRICING SECTION - Simplified Grid */}
+        <section id="pricing" className="py-24 border-t border-neutral-900 bg-neutral-950">
+          <div className="mx-auto max-w-7xl px-4 text-center mb-12">
+            <h2 className="text-4xl font-bold">DJ Packages</h2>
+            <p className="text-neutral-400 mt-4">Transparent pricing, no hidden fees.</p>
+          </div>
+          
+          <div className="mx-auto max-w-7xl px-4 grid md:grid-cols-3 gap-8">
+            {/* Using a Map here is much cleaner than writing 3 divs */}
             {[
-              {
-                title: "DJ Services",
-                desc: "Weddings, Private Parties, School Events.",
-                items: ["Wireless mics", "Dance lighting", "MC Services"],
-                href: "#dj-packages"
-              },
-              // {
-              //   title: "PA Rentals",
-              //   desc: "Birthdays, quinceañeras, reunions—bring the party.",
-              //   items: ["Portable sound systems", "Mixers & microphones", "Delivery, setup, & tear down"],
-              //   href: "#rentals"
-              // },
-              {
-                title: "Diagnostic, Repair, Education",
-                desc: "Get your system diagnosed, fixed, and learn how to keep it running.",
-                items: ["On-site diagnostics & repair", "System setup & walkthrough", "Feedback & wiring fixes"],
-                href: "#diagnostic"
-              }
-            ].map((card) => (
-              <div
-                key={card.title}
-                className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6 shadow flex flex-col"
-              >
+              { tier: "Private Party", price: "$600", features: ["Wireless mic", "Dance lighting", "4 Hour Set"] },
+              { tier: "Wedding Reception", price: "$900", features: ["Up to 4 hours", "Dinner Music", "Wireless mic"], highlight: false },
+              { tier: "Full Service", price: "$1250", features: ["Up to 6 hours", "Ceremony + Reception", "Full Audio/Visual"], highlight: true }
+            ].map((p) => (
+              <div key={p.tier} className={`p-8 rounded-3xl border ${p.highlight ? 'border-tascosa-orange ring-1 ring-tascosa-orange' : 'border-neutral-800'} bg-neutral-900/50 flex flex-col justify-between`}>
                 <div>
-                  <h3 className="text-xl font-semibold">{card.title}</h3>
-                  <p className="mt-2 text-neutral-300">{card.desc}</p>
-                  <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-                    {card.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
+                  <h3 className="text-xl font-bold">{p.tier}</h3>
+                  <div className="text-3xl font-black mt-2 text-tascosa-orange">{p.price}</div>
+                  <ul className="mt-6 space-y-3 text-sm text-neutral-400">
+                    {p.features.map(f => <li key={f} className="flex items-center gap-2">✓ {f}</li>)}
                   </ul>
                 </div>
-                <a
-                  href={card.href}
-                  className="mt-6 inline-block rounded-xl px-4 py-2 bg-tascosa-orange text-black font-medium hover:bg-tascosa-orange"
-                >
-                  Go To Service
-                </a>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-          {/* DJ Services Header */}
-          <div id="dj-packages">
-            <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
-            <p className="mt-2 text-neutral-300">
-              Transparent base packages. All packages run until 12:00&nbsp;AM. Per-hour add-on available for the 6-hour package only.
-            </p>
-          </div>
-
-          {/* DJ Packages Grid */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center max-w-6xl mx-auto px-4">
-            {[
-              {
-                tier: "Private Party",
-                price: "$600",
-                features: [
-                  "DJ Service",
-                  "Dinner/Party Music",
-                  "Wireless mic",
-                  "Dance lighting"
-                ]
-              },
-              {
-                tier: "Wedding Reception",
-                price: "$900",
-                features: [
-                  "Up to 4 hours of DJ Service",
-                  "Reception/Dinner Music",
-                  "Wireless mic",
-                  "Dance lighting"
-                ]
-              },
-              {
-                tier: "Wedding Full Service",
-                price: "$1250",
-                features: [
-                  "Up to 6 hours of DJ Service",
-                  "Ceremony Music",
-                  "Reception/Dinner Music",
-                  "Wireless mics",
-                  "Dance lighting"
-                ],
-                highlight: true
-              }
-            ].map((p) => (
-              <div
-                key={p.tier}
-                className={`rounded-3xl border ${
-                  p.highlight ? "border-tascosa-orange" : "border-neutral-800"
-                } bg-neutral-900 p-6 shadow-lg flex flex-col`}
-              >
-                <div className="flex items-baseline justify-between">
-                  <h3 className="text-xl font-semibold">{p.tier}</h3>
-                  <span className={`text-2xl font-extrabold ${p.highlight ? "text-tascosa-orange" : ""}`}>
-                    {p.price}
-                  </span>
-                </div>
-
-                <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-                  {p.features.map((f) => (
-                    <li key={f}>{f}</li>
-                  ))}
-                </ul>
-
-                <button
-                  type="button"
+                <button 
                   onClick={() => jumpToContactWith("DJ Services", p.tier)}
-                  className={`mt-6 inline-block rounded-xl px-4 py-2 ${
-                    p.highlight
-                      ? "bg-tascosa-orange text-black hover:bg-tascosa-orange"
-                      : "border border-neutral-700 hover:border-neutral-500"
-                  }`}
+                  className={`mt-8 w-full py-3 rounded-xl font-bold transition-all ${p.highlight ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 hover:bg-neutral-700'}`}
                 >
-                  Choose
+                  Choose Package
                 </button>
               </div>
             ))}
           </div>
-
-          {/* Diagnostic Header */}
-          <div id="diagnostic" className="mt-20 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
-            <p className="mt-2 text-neutral-300">
-              On-site troubleshooting, system optimization, and hands-on learning for venues, churches, and individuals.
-            </p>
-          </div>
-
-          {/* Diagnostic Card */}
-          <div className="mt-8 flex justify-center">
-            <div className="rounded-3xl border border-tascosa-orange bg-neutral-900 p-8 shadow-xl max-w-md text-center">
-              <h3 className="text-2xl font-semibold text-tascosa-orange">Audio System Service</h3>
-              <p className="mt-2 text-lg font-bold text-white">
-                $100 per hour - first two hours <br />
-                $50 per hour after two hours <br />
-                (2-hour minimum)
-              </p>
-              <p className="mt-4 text-neutral-300 text-sm leading-relaxed">
-                Comprehensive service covering diagnostics, small repairs, and personalized education. Perfect for improving
-                your live sound setup or learning best practices for managing your own system.
-              </p>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside text-left inline-block">
-                <li>On-site system diagnostics &amp; minor repairs</li>
-                <li>Signal flow &amp; feedback troubleshooting</li>
-                <li>Equipment setup &amp; wiring organization</li>
-                <li>1-on-1 audio education &amp; best practices</li>
-              </ul>
-              <button
-                type="button"
-                onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
-                className="mt-6 inline-block rounded-xl px-5 py-3 bg-tascosa-orange text-black font-semibold hover:bg-tascosa-orange"
-              >
-                Schedule Service
-              </button>
-            </div>
-          </div>
-
-          <p className="mt-4 text-xs text-neutral-500 text-center">
-            Travel fees may apply for locations outside Amarillo city limits.
-          </p>
         </section>
 
-{/* ABOUT */}
-<section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-  <div className="grid md:grid-cols-2 gap-10 items-center">
-    <div>
-      <h2 className="text-3xl md:text-4xl font-bold">The People Behind the Sound</h2>
-      <p className="mt-4 text-neutral-300 leading-relaxed">
-        We’re a local, owner-operated team born and raised right here in Amarillo. 
-        For us, audio isn't just a business—it’s a career built on over a decade of 
-        hands-on experience. 
-      </p>
-      <p className="mt-4 text-neutral-300 leading-relaxed">
-        Our owner, Andy, brings 10+ years of expertise in music retail and is a proud 
-        graduate of the Conservatory of Recording Arts and Sciences (CRAS). 
-        We’ve spent years behind the board running live sound and providing 
-        professional DJ services across the Panhandle, Sound Plains, Oklahoma, and New Mexico. 
-      </p>
-      <p className="mt-4 text-neutral-300 leading-relaxed">
-        Whether we are reading a crowd to keep a wedding dance floor packed or 
-        troubleshooting a complex system for a local venue, we bring a level of 
-        technical precision you won't find anywhere else. At the end of the day, 
-        we’re your neighbors, and we’re here to make sure your event sounds perfect.
-      </p>
-      <ul className="mt-6 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-        <li>CRAS Certified Technical Expertise</li>
-        <li>10+ Years of Music Industry Experience</li>
-        <li>On-site setup & professional, local service</li>
-      </ul>
-    </div>
-    <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden">
-      <img
-        src="/Party 2025.jpg" 
-        alt="DJ booth and lighting at a party"
-        className="h-full w-full object-cover"
-      />
-    </div>
-  </div>
-</section>
+        {/* CONTACT SECTION */}
+        <section id="contact" className="py-24 bg-neutral-900/30">
+          <div className="mx-auto max-w-3xl px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold">Request a Quote</h2>
+              <p className="text-neutral-400 mt-4">Fill out the form below and Andy will get back to you within 24 hours.</p>
+            </div>
 
-        {/* CONTACT */}
-        <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-          <div className="grid md:grid-cols-2 gap-10">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold">Request a Quote</h2>
-              <p className="mt-2 text-neutral-300">Tell us about your event. We’ll reply within 24 hours.</p>
+            <form onSubmit={handleSubmit} className="space-y-6 bg-neutral-900 border border-neutral-800 p-8 rounded-3xl">
+              <div className="grid md:grid-cols-2 gap-6">
+                <FormInput label="Full Name" name="name" value={form.name} onChange={handleChange} required />
+                <FormInput label="Email Address" type="email" name="email" value={form.email} onChange={handleChange} required />
+              </div>
 
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    name="name"
-                    value={form.name}
+              <div className="grid md:grid-cols-2 gap-6">
+                <FormInput label="Phone Number" name="phone" value={form.phone} onChange={handleChange} />
+                <div className="w-full">
+                  <label className="block text-xs font-medium text-neutral-400 mb-1 ml-1">Service Type</label>
+                  <select 
+                    name="service" 
+                    value={form.service} 
                     onChange={handleChange}
-                    required
-                    placeholder="Your name"
-                    aria-label="Your name"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
-                  />
-                  <input
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    type="email"
-                    inputMode="email"
-                    required
-                    placeholder="Email"
-                    aria-label="Email"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
-                  />
+                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:ring-2 focus:ring-tascosa-orange focus:outline-none"
+                  >
+                    <option>DJ Services</option>
+                    <option>Diagnostic & Repair</option>
+                  </select>
                 </div>
+              </div>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <input
-                    name="phone"
-                    value={form.phone}
-                    onChange={handleChange}
-                    placeholder="Phone"
-                    aria-label="Phone"
-                    inputMode="tel"
-                    pattern="^[0-9()*#+.\\-\\s]{7,}$"
-                    className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
-                  />
-                </div>
-
-                {/* Service select */}
-                <select
-                  name="service"
-                  value={form.service}
-                  onChange={handleChange}
-                  aria-label="Service"
-                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
-                >
-                  <option>DJ Services</option>
-                  <option>Diagnostic, Repair & Education</option>
-                  {/* <option>Audio Rentals</option> */}
-                </select>
-
-                {/* Package select - only when DJ Services */}
-                {form.service === "DJ Services" && (
-                  <div className="mt-2">
-                    <select
-                      name="package"
-                      value={form.package}
-                      onChange={handleChange}
-                      required
-                      aria-label="DJ Package"
-                      className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
-                    >
-                      <option value="">Choose a DJ package…</option>
-                      {DJ_PACKAGES.map(label => (
-                        <option key={label} value={label}>{label}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
+              <div className="w-full">
+                <label className="block text-xs font-medium text-neutral-400 mb-1 ml-1">Message</label>
                 <textarea
                   name="message"
+                  rows={4}
                   value={form.message}
                   onChange={handleChange}
-                  rows={5}
-                  placeholder="Event details, venue, hours, special requests..."
-                  aria-label="Event details"
-                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-tascosa-orange"
+                  className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:ring-2 focus:ring-tascosa-orange focus:outline-none"
+                  placeholder="Tell us about your event..."
                 />
+              </div>
 
-                <button
-                  type="submit"
-                  className="rounded-2xl px-5 py-3 bg-tascosa-orange text-black font-semibold shadow hover:bg-tascosa-orange disabled:opacity-60 disabled:cursor-not-allowed"
-                  disabled={sent}
-                >
-                  {sent ? "Opening your email app..." : "Send Inquiry"}
-                </button>
-
-                {sent && (
-                  <p className="text-sm text-emerald-400">
-                    Thanks! Your email app should open with the details pre-filled.
-                  </p>
-                )}
-              </form>
-            </div>
-
-            <div className="rounded-3xl border border-neutral-800 bg-neutral-900 p-6">
-              <h3 className="text-xl font-semibold">Business Info</h3>
-              <ul className="mt-4 space-y-2 text-sm text-neutral-300">
-                <li><strong>Service area:</strong> Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma</li>
-                <li><strong>Email:</strong> info@tascosaaudio.com</li>
-                 <li><strong>Phone:</strong> 806-670-7913</li>
-              </ul>
-              <div className="mt-6 text-sm text-neutral-400" />
-            </div>
+              <button
+                type="submit"
+                disabled={sent}
+                className="w-full py-4 bg-tascosa-orange text-black font-black rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"
+              >
+                {sent ? "Message Sent!" : "Submit Inquiry"}
+              </button>
+            </form>
           </div>
         </section>
       </main>
-
-{/* FOOTER */}
-<footer className="border-t border-neutral-800">
-  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-neutral-400 flex flex-col md:flex-row gap-4 items-center justify-between">
-    <div>© {new Date().getFullYear()} Tascosa Audio. All rights reserved.</div>
-    
-    <div className="flex gap-6">
-      {/* Replace the URL in the quotes with your actual profile link */}
-      <a 
-        href="https://www.instagram.com/tascosaaudio" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="hover:text-tascosa-orange transition-colors"
-      >
-        Instagram
-      </a>
-      
-      <a 
-        href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/#" 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="hover:text-tascosa-orange transition-colors"
-      >
-        Facebook
-      </a>
-    </div>
-  </div>
-</footer>
     </div>
   );
 }
