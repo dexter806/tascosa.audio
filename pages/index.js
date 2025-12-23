@@ -55,7 +55,7 @@ export default function Home() {
       `Service: ${form.service}`, ...(form.package ? [`Package: ${form.package}`] : []),
       `Details: ${form.message}`
     ];
-    const mailto = `mailto:info@tascosaaudio.com?subject=Tascosa Audio Inquiry&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    const mailto = `mailto:info@tascosaaudio.com?subject=New Tascosa Audio Inquiry&body=${encodeURIComponent(bodyLines.join("\n"))}`;
     window.open(mailto, "_self");
     setSent(true);
   }
