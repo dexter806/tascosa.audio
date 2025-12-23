@@ -118,10 +118,19 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SERVICES */}
-        <section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-          <SectionHeading title="Services" subtitle="Pick what fits your need." />
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+{/* SERVICES */}
+<section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+  {/* Add text-center and mx-auto here */}
+  <div className="text-center max-w-3xl mx-auto mb-10">
+    <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
+    <p className="mt-2 text-neutral-300">Pick what fits your need.</p>
+  </div>
+
+  {/* Ensure the grid is centered if you only have 2 items */}
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center">
+    {/* ... your cards ... */}
+  </div>
+</section>
             {[
               {
                 title: "DJ Services",
@@ -152,14 +161,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* PRICING */}
-        <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-          <div id="dj-packages" className="mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
-            <p className="mt-2 text-neutral-300 max-w-3xl">
-              Transparent base packages. All packages run until 12:00 AM. Per-hour add-on available for the 6-hour package only.
-            </p>
-          </div>
+{/* PRICING */}
+<section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
+  <div id="dj-packages" className="text-center max-w-3xl mx-auto mb-10">
+    <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
+    <p className="mt-2 text-neutral-300">
+      Transparent base packages. All packages run until 12:00 AM. 
+      Per-hour add-on available for the 6-hour package only.
+    </p>
+  </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
