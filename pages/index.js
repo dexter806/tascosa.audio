@@ -198,7 +198,7 @@ export default function Home() {
   {/* Trust Badge / Experience Note */}
   <div className="mt-16 text-center">
     <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-semibold">
-      Serving Amarillo • Canyon • Lubbock • Panhandle • New Mexico • Oklahoma
+      Serving Amarillo • Canyon • Lubbock • The Texas Panhandle • The South Plains • New Mexico • Oklahoma
     </p>
   </div>
 </section>
