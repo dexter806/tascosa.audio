@@ -125,12 +125,6 @@ export default function Home() {
     <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
     <p className="mt-2 text-neutral-300">Pick what fits your need.</p>
   </div>
-
-  {/* Ensure the grid is centered if you only have 2 items */}
-  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center">
-    {/* ... your cards ... */}
-  </div>
-</section>
             {[
               {
                 title: "DJ Services",
