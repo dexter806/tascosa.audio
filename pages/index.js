@@ -1,5 +1,16 @@
 import { useState } from "react";
 
+// 1. Add this at the top of your file
+const FormInput = ({ label, ...props }) => (
+  <div className="w-full">
+    <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">{label}</label>
+    <input
+      {...props}
+      className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all"
+    />
+  </div>
+);
+
 // --- REUSABLE UI COMPONENTS (Keep these to keep HTML clean) ---
 const FormInput = ({ label, ...props }) => (
   <div className="w-full">
