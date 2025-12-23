@@ -119,41 +119,89 @@ export default function Home() {
         </section>
 
 {/* SERVICES */}
-<section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
-  {/* Add text-center and mx-auto here */}
-  <div className="text-center max-w-3xl mx-auto mb-10">
+<section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
+  
+  {/* Services Header - Centered to match Pricing */}
+  <div className="text-center max-w-3xl mx-auto mb-12">
     <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
-    <p className="mt-2 text-neutral-300">Pick what fits your need.</p>
+    <p className="mt-4 text-neutral-300 leading-relaxed text-lg">
+      Professional audio solutions tailored to your event or venue. 
+      Pick what fits your need.
+    </p>
   </div>
-            {[
-              {
-                title: "DJ Services",
-                desc: "Weddings, Private Parties, School Events.",
-                items: ["Wireless mics", "Dance lighting", "MC Services"],
-                href: "#dj-packages"
-              },
-              {
-                title: "Diagnostic, Repair, Education",
-                desc: "Get your system diagnosed, fixed, and learn how to keep it running.",
-                items: ["On-site diagnostics & repair", "System setup & walkthrough", "Feedback & wiring fixes"],
-                href: "#diagnostic"
-              }
-            ].map((card) => (
-              <div key={card.title} className="rounded-3xl border border-neutral-800 bg-neutral-900 p-8 shadow flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <h3 className="text-2xl font-semibold">{card.title}</h3>
-                  <p className="mt-2 text-neutral-300">{card.desc}</p>
-                  <ul className="mt-4 space-y-2 text-sm text-neutral-300 list-disc list-inside">
-                    {card.items.map((item) => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-                <a href={card.href} className="mt-8 inline-block text-center rounded-xl px-4 py-2 bg-tascosa-orange text-black font-bold hover:brightness-110">
-                  Go To Service
-                </a>
-              </div>
-            ))}
+
+  {/* Services Grid - Balanced 2-column layout */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center max-w-5xl mx-auto">
+    {[
+      {
+        title: "DJ Services",
+        desc: "Weddings, Private Parties, and School Events. We bring the energy and the expertise to keep your dance floor moving all night long.",
+        items: [
+          "Professional MC Services",
+          "Club-style Dance Lighting",
+          "High-end Wireless Microphones",
+          "Custom Playlist Planning"
+        ],
+        href: "#dj-packages"
+      },
+      {
+        title: "Diagnostic, Repair & Education",
+        desc: "Don't let technical issues ruin your sound. We help you fix current problems and teach you how to prevent future ones.",
+        items: [
+          "On-site System Troubleshooting",
+          "Venue & Church Sound Tuning",
+          "Feedback & Signal Flow Fixes",
+          "1-on-1 Equipment Training"
+        ],
+        href: "#diagnostic"
+      }
+    ].map((card) => (
+      <div
+        key={card.title}
+        className="group relative rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 shadow-sm transition-all duration-300 hover:border-tascosa-orange/50 hover:bg-neutral-900 flex flex-col justify-between"
+      >
+        {/* Subtle hover decoration */}
+        <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-100 transition-opacity">
+          <div className="h-2 w-2 rounded-full bg-tascosa-orange"></div>
+        </div>
+
+        <div>
+          <h3 className="text-2xl font-bold text-white group-hover:text-tascosa-orange transition-colors">
+            {card.title}
+          </h3>
+          <p className="mt-4 text-neutral-400 text-sm leading-relaxed">
+            {card.desc}
+          </p>
+          
+          <div className="mt-6 pt-6 border-t border-neutral-800">
+            <ul className="space-y-3 text-sm text-neutral-300">
+              {card.items.map((item) => (
+                <li key={item} className="flex items-center gap-3">
+                  <span className="h-1.5 w-1.5 rounded-full bg-tascosa-orange"></span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-        </section>
+        </div>
+
+        <a
+          href={card.href}
+          className="mt-10 inline-block text-center rounded-2xl px-6 py-4 bg-neutral-800 text-white font-bold transition-all hover:bg-tascosa-orange hover:text-black active:scale-95 shadow-lg"
+        >
+          Explore {card.title === "DJ Services" ? "Packages" : "Service"}
+        </a>
+      </div>
+    ))}
+  </div>
+
+  {/* Trust Badge / Experience Note */}
+  <div className="mt-16 text-center">
+    <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-semibold">
+      Serving Amarillo • Canyon • Lubbock • Panhandle • New Mexico • Oklahoma
+    </p>
+  </div>
+</section>
 
 {/* PRICING */}
 <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
