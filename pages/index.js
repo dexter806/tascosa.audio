@@ -105,7 +105,7 @@ export default function Home() {
       { name: "Services", href: "#services" },
       { name: "Pricing", href: "#pricing" },
       { name: "About", href: "#about" },
-      { name: "Contact", href: "#contact" },
+      { name: "Inquiry", href: "#contact" },
     ].map((link) => (
       <a
         key={link.name}
@@ -149,7 +149,7 @@ export default function Home() {
                   <p>
                     From our professional DJ services to expert setup and troubleshooting, 
                     our team is proud to serve Amarillo, Canyon, Lubbock, the Texas Panhandle, 
-                    the South Plain, New Mexico, and Oklahoma.
+                    the South Plains, New Mexico, and Oklahoma.
                   </p>
                 </div>
                 <div className="mt-8 flex gap-3">
@@ -496,7 +496,7 @@ export default function Home() {
             {/* Left Side: Form */}
             <div className="lg:col-span-3">
               <SectionHeading 
-                title="Request a Quote" 
+                title="Start an Inquiry" 
                 subtitle="Tell us about your event. Whether it's a wedding, private party, or a system in need of repair, we'll get back to you within 24 hours." 
               />
               
