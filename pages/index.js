@@ -430,82 +430,149 @@ export default function Home() {
   </div>
 </section>
 
-        {/* CONTACT RESTORED FULLY */}
-        <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
-          <div className="grid md:grid-cols-5 gap-12">
-            <div className="md:col-span-3">
-              <SectionHeading title="Request a Quote" subtitle="Tell us about your event. We’ll reply within 24 hours." />
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormInput label="Your Name" name="name" value={form.name} onChange={handleChange} required placeholder="John Doe" />
-                  <FormInput label="Email Address" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="john@example.com" />
-                </div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <FormInput label="Phone Number" name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="806-555-0123" />
-                  <div className="w-full">
-                    <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">Service</label>
-                    <select name="service" value={form.service} onChange={handleChange} className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:ring-2 focus:ring-tascosa-orange focus:outline-none">
-                      <option>DJ Services</option>
-                      <option>Diagnostic, Repair & Education</option>
-                    </select>
-                  </div>
-                </div>
+{/* CONTACT & FOOTER */}
+<section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
+  <div className="grid lg:grid-cols-5 gap-16">
+    
+    {/* Left Side: Form (Takes up 3 columns) */}
+    <div className="lg:col-span-3">
+      <div className="mb-10">
+        <h2 className="text-3xl md:text-4xl font-bold">Request a Quote</h2>
+        <p className="mt-4 text-neutral-400">
+          Tell us about your event. Whether it's a wedding, private party, or a system in need of repair, 
+          we'll get back to you within 24 hours.
+        </p>
+      </div>
 
-                {form.service === "DJ Services" && (
-                  <div className="animate-in fade-in duration-300">
-                    <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">DJ Package</label>
-                    <select name="package" value={form.package} onChange={handleChange} required className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:ring-2 focus:ring-tascosa-orange focus:outline-none">
-                      <option value="">Choose a DJ package…</option>
-                      {DJ_PACKAGES.map(label => <option key={label} value={label}>{label}</option>)}
-                    </select>
-                  </div>
-                )}
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="grid md:grid-cols-2 gap-5">
+          <FormInput label="Your Name" name="name" value={form.name} onChange={handleChange} required placeholder="John Doe" />
+          <FormInput label="Email Address" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="john@example.com" />
+        </div>
 
-                <div className="w-full">
-                  <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">Event Details</label>
-                  <textarea name="message" value={form.message} onChange={handleChange} rows={5} placeholder="Event details, venue, hours, special requests..." className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 focus:ring-2 focus:ring-tascosa-orange focus:outline-none" />
-                </div>
-
-                <button type="submit" disabled={sent} className="w-full md:w-auto rounded-2xl px-8 py-4 bg-tascosa-orange text-black font-bold shadow hover:brightness-110 disabled:opacity-50 transition-all">
-                  {sent ? "Opening Email..." : "Send Inquiry"}
-                </button>
-                {sent && <p className="mt-4 text-emerald-400 font-medium">Thanks! Your email app should open with the details pre-filled.</p>}
-              </form>
-            </div>
-
-            <div className="md:col-span-2">
-              <div className="rounded-3xl border border-neutral-800 bg-neutral-900 p-8 sticky top-24">
-                <h3 className="text-xl font-bold mb-6">Business Info</h3>
-                <ul className="space-y-6 text-neutral-300">
-                  <li>
-                    <strong className="block text-white text-sm uppercase tracking-wider mb-1">Service Area</strong>
-                    <span className="text-sm">Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma</span>
-                  </li>
-                  <li>
-                    <strong className="block text-white text-sm uppercase tracking-wider mb-1">Email</strong>
-                    <a href="mailto:info@tascosaaudio.com" className="hover:text-tascosa-orange transition-colors">info@tascosaaudio.com</a>
-                  </li>
-                  <li>
-                    <strong className="block text-white text-sm uppercase tracking-wider mb-1">Phone</strong>
-                    <a href="tel:8066707913" className="hover:text-tascosa-orange transition-colors">806-670-7913</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* FOOTER */}
-      <footer className="border-t border-neutral-800 py-12">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="text-neutral-400 text-sm">© {new Date().getFullYear()} Tascosa Audio. All rights reserved.</div>
-          <div className="flex gap-8">
-            <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-tascosa-orange transition-colors">Instagram</a>
-            <a href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/#" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-tascosa-orange transition-colors">Facebook</a>
+        <div className="grid md:grid-cols-2 gap-5">
+          <FormInput label="Phone Number" name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="806-555-0123" />
+          <div className="w-full">
+            <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">Service Type</label>
+            <select 
+              name="service" 
+              value={form.service} 
+              onChange={handleChange} 
+              className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all appearance-none cursor-pointer"
+            >
+              <option>DJ Services</option>
+              <option>Diagnostic, Repair & Education</option>
+            </select>
           </div>
         </div>
-      </footer>
+
+        {form.service === "DJ Services" && (
+          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+            <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">Select Your Package</label>
+            <select 
+              name="package" 
+              value={form.package} 
+              onChange={handleChange} 
+              required 
+              className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all appearance-none cursor-pointer"
+            >
+              <option value="">Choose a DJ package…</option>
+              {DJ_PACKAGES.map(label => <option key={label} value={label}>{label}</option>)}
+            </select>
+          </div>
+        )}
+
+        <div className="w-full">
+          <label className="block text-sm font-medium text-neutral-400 mb-1.5 ml-1">Event Details</label>
+          <textarea 
+            name="message" 
+            value={form.message} 
+            onChange={handleChange} 
+            rows={5} 
+            placeholder="Tell us about the venue, expected hours, and any special requests..." 
+            className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all resize-none" 
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          disabled={sent} 
+          className="w-full md:w-auto rounded-2xl px-10 py-4 bg-tascosa-orange text-black font-black shadow-lg hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all uppercase tracking-wider text-sm"
+        >
+          {sent ? "Opening Email Client..." : "Send Inquiry"}
+        </button>
+        
+        {sent && (
+          <p className="mt-4 text-emerald-400 text-sm font-medium flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            Thanks! Check your email app to finish sending.
+          </p>
+        )}
+      </form>
     </div>
+
+    {/* Right Side: Info Cards (Takes up 2 columns) */}
+    <div className="lg:col-span-2 space-y-8">
+      <div className="rounded-3xl border border-neutral-800 bg-neutral-900/40 p-8">
+        <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+          <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+          Direct Contact
+        </h3>
+        <ul className="space-y-6">
+          <li className="flex gap-4">
+            <div className="h-10 w-10 rounded-xl bg-neutral-800 flex items-center justify-center flex-none">
+              <svg className="h-5 w-5 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </div>
+            <div>
+              <p className="text-xs uppercase font-bold text-neutral-500 tracking-widest">Email</p>
+              <a href="mailto:info@tascosaaudio.com" className="text-white hover:text-tascosa-orange transition-colors">info@tascosaaudio.com</a>
+            </div>
+          </li>
+          <li className="flex gap-4">
+            <div className="h-10 w-10 rounded-xl bg-neutral-800 flex items-center justify-center flex-none">
+              <svg className="h-5 w-5 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+            </div>
+            <div>
+              <p className="text-xs uppercase font-bold text-neutral-500 tracking-widest">Phone</p>
+              <a href="tel:8066707913" className="text-white hover:text-tascosa-orange transition-colors">806-670-7913</a>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div className="rounded-3xl border border-neutral-800 bg-neutral-900/40 p-8">
+        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+          <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+          Service Area
+        </h3>
+        <p className="text-sm text-neutral-400 leading-relaxed">
+          Based in Amarillo, TX. Serving Canyon, Lubbock, the Texas Panhandle, 
+          the South Plains, Oklahoma, and New Mexico.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* FOOTER */}
+<footer className="border-t border-neutral-900 bg-neutral-950 py-12">
+  <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+      <div className="flex items-center gap-4">
+        <img src="/TA Logo.png" alt="Tascosa Audio" className="h-8 w-auto opacity-50" />
+        <p className="text-neutral-500 text-sm italic">Audio solutions made simple.</p>
+      </div>
+      
+      <div className="flex gap-10 text-sm font-medium">
+        <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white transition-colors">Instagram</a>
+        <a href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/#" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white transition-colors">Facebook</a>
+      </div>
+
+      <p className="text-neutral-600 text-[10px] uppercase tracking-[0.2em]">
+        © {new Date().getFullYear()} Tascosa Audio LLC
+      </p>
+    </div>
+  </div>
+</footer>
   );
 }
