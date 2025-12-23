@@ -351,39 +351,84 @@ export default function Home() {
   </div>
 </section>
 
-        {/* ABOUT RESTORED FULLY */}
-        <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl font-bold">The People Behind the Sound</h2>
-              <p className="text-neutral-300 leading-relaxed">
-                We’re a local, owner-operated team born and raised right here in Amarillo. 
-                For us, audio isn't just a business—it’s a career built on over a decade of 
-                hands-on experience. 
-              </p>
-              <p className="text-neutral-300 leading-relaxed">
-                Our owner, Andy, brings 10+ years of expertise in music retail and is a proud 
-                graduate of the Conservatory of Recording Arts and Sciences (CRAS). 
-                We’ve spent years behind the board running live sound and providing 
-                professional DJ services across the Panhandle, Sound Plains, Oklahoma, and New Mexico. 
-              </p>
-              <p className="text-neutral-300 leading-relaxed">
-                Whether we are reading a crowd to keep a wedding dance floor packed or 
-                troubleshooting a complex system for a local venue, we bring a level of 
-                technical precision you won't find anywhere else. At the end of the day, 
-                we’re your neighbors, and we’re here to make sure your event sounds perfect.
-              </p>
-              <ul className="mt-6 space-y-2 text-sm text-neutral-400 list-disc list-inside font-medium">
-                <li>CRAS Certified Technical Expertise</li>
-                <li>10+ Years of Music Industry Experience</li>
-                <li>On-site setup & professional, local service</li>
-              </ul>
-            </div>
-            <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden shadow-2xl">
-              <img src="/Party 2025.jpg" alt="DJ booth and lighting at a party" className="h-full w-full object-cover" />
-            </div>
-          </div>
-        </section>
+       {/* ABOUT SECTION */}
+<section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
+  
+  {/* Header - Centered to match Services & Pricing */}
+  <div className="text-center max-w-3xl mx-auto mb-16">
+    <h2 className="text-3xl md:text-4xl font-bold tracking-tight">The People Behind the Sound</h2>
+    <p className="mt-4 text-tascosa-orange font-medium uppercase tracking-widest text-sm">
+      Local • Professional • Experienced
+    </p>
+  </div>
+
+  <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+    
+    {/* Text Content */}
+    <div className="order-2 md:order-1 space-y-6 text-neutral-300 leading-relaxed">
+      <p>
+        We’re a local, owner-operated team born and raised right here in Amarillo. 
+        For us, audio isn't just a business—it’s a career built on over a decade of 
+        hands-on experience. 
+      </p>
+      
+      <p>
+        Our owner, Andy, brings 10+ years of expertise in music retail and is a proud 
+        graduate of the <span className="text-white font-semibold">Conservatory of Recording Arts and Sciences (CRAS)</span>. 
+        We’ve spent years behind the board running live sound and providing 
+        professional DJ services across the Panhandle, Sound Plains, Oklahoma, and New Mexico. 
+      </p>
+      
+      <p>
+        Whether we are reading a crowd to keep a wedding dance floor packed or 
+        troubleshooting a complex system for a local venue, we bring a level of 
+        technical precision you won't find anywhere else. At the end of the day, 
+        we’re your neighbors, and we’re here to make sure your event sounds perfect.
+      </p>
+
+      {/* Feature Highlights */}
+      <div className="pt-6">
+        <ul className="space-y-4">
+          {[
+            "CRAS Certified Technical Expertise",
+            "10+ Years of Music Industry Experience",
+            "On-site setup & professional, local service"
+          ].map((item) => (
+            <li key={item} className="flex items-center gap-3 text-sm text-white font-medium">
+              <div className="flex-none rounded-full bg-tascosa-orange/20 p-1">
+                <svg className="h-4 w-4 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    {/* Image Component */}
+    <div className="order-1 md:order-2 relative">
+      {/* Decorative background element */}
+      <div className="absolute -inset-4 bg-tascosa-orange/5 rounded-full blur-3xl -z-10"></div>
+      
+      <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
+        <img
+          src="/Party 2025.jpg" 
+          alt="DJ booth and lighting at a party"
+          className="h-full w-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
+        />
+      </div>
+      
+      {/* Small accent badge */}
+      <div className="absolute -bottom-4 -left-4 bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-xl hidden sm:block">
+        <p className="text-xs font-bold uppercase tracking-tighter text-neutral-400">Established Expertise</p>
+        <p className="text-lg font-black text-tascosa-orange">10+ YEARS</p>
+      </div>
+    </div>
+
+  </div>
+</section>
 
         {/* CONTACT RESTORED FULLY */}
         <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 border-t border-neutral-800">
