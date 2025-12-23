@@ -391,7 +391,7 @@ export default function Home() {
         <ul className="space-y-4">
           {[
             "CRAS Certified Technical Expertise",
-            "10+ Years of Music Industry Experience",
+            "15+ Years of Music Industry Experience",
             "On-site setup & professional, local service"
           ].map((item) => (
             <li key={item} className="flex items-center gap-3 text-sm text-white font-medium">
@@ -423,7 +423,7 @@ export default function Home() {
       {/* Small accent badge */}
       <div className="absolute -bottom-4 -left-4 bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-xl hidden sm:block">
         <p className="text-xs font-bold uppercase tracking-tighter text-neutral-400">Established Expertise</p>
-        <p className="text-lg font-black text-tascosa-orange">10+ YEARS</p>
+        <p className="text-lg font-black text-tascosa-orange">15+ YEARS</p>
       </div>
     </div>
 
