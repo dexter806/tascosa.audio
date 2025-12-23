@@ -50,12 +50,12 @@ export default function Home() {
   function handleSubmit(e) {
     e.preventDefault();
     const bodyLines = [
-      "Hello Tascosa Audio,", "", "New inquiry:", "",
+      "Hello Tascosa Audio,", "", "New Quote Request:", "",
       `Name: ${form.name}`, `Email: ${form.email}`, `Phone: ${form.phone}`,
       `Service: ${form.service}`, ...(form.package ? [`Package: ${form.package}`] : []),
       `Details: ${form.message}`
     ];
-    const mailto = `mailto:info@tascosaaudio.com?subject=New Tascosa Audio Inquiry&body=${encodeURIComponent(bodyLines.join("\n"))}`;
+    const mailto = `mailto:info@tascosaaudio.com?subject=New Tascosa Audio Quote Request&body=${encodeURIComponent(bodyLines.join("\n"))}`;
     window.open(mailto, "_self");
     setSent(true);
   }
@@ -105,7 +105,7 @@ export default function Home() {
       { name: "Services", href: "#services" },
       { name: "Pricing", href: "#pricing" },
       { name: "About", href: "#about" },
-      { name: "Inquiry", href: "#contact" },
+      { name: "Quote", href: "#contact" },
     ].map((link) => (
       <a
         key={link.name}
@@ -496,7 +496,7 @@ export default function Home() {
             {/* Left Side: Form */}
             <div className="lg:col-span-3">
               <SectionHeading 
-                title="Start an Inquiry" 
+                title="Request a Quote" 
                 subtitle="Tell us about your event. Whether it's a wedding, private party, or a system in need of repair, we'll get back to you within 24 hours." 
               />
               
@@ -555,7 +555,7 @@ export default function Home() {
                   disabled={sent} 
                   className="w-full md:w-auto rounded-2xl px-10 py-4 bg-tascosa-orange text-black font-black shadow-lg hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all uppercase tracking-wider text-sm"
                 >
-                  {sent ? "Opening Email..." : "Send Inquiry"}
+                  {sent ? "Opening Email..." : "Request Quote"}
                 </button>
                 
                 {sent && (
