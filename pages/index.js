@@ -57,8 +57,6 @@ export default function Home() {
     setSent(true);
   }
 
-  return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-tascosa-orange selection:text-black">
 {/* NAV */}
 <header className="sticky top-0 z-50 backdrop-blur-md border-b border-neutral-800/60 bg-neutral-950/80">
   <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
