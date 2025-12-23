@@ -291,7 +291,7 @@ export default function Home() {
         tier: "Wedding Reception",
         price: "$900",
         features: [
-          "Up to 4 hours of DJ Service",
+          "Up to 4 hours of MC / DJ Service",
           "Reception/Dinner Music",
           "Wireless mic",
           "Dance lighting"
@@ -301,7 +301,7 @@ export default function Home() {
         tier: "Wedding Full Service",
         price: "$1250",
         features: [
-          "Up to 6 hours of DJ Service",
+          "Up to 6 hours of MC / DJ Service",
           "Ceremony Music",
           "Reception/Dinner Music",
           "Wireless mics",
