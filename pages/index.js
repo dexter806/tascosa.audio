@@ -435,7 +435,7 @@ export default function Home() {
         Our owner, Andy, brings 10+ years of expertise in music retail and is a proud 
         graduate of the <span className="text-white font-semibold">Conservatory of Recording Arts and Sciences (CRAS)</span>. 
         We’ve spent years behind the board running live sound and providing 
-        professional DJ services across the Panhandle, Sound Plains, Oklahoma, and New Mexico. 
+        professional DJ services across the Panhandle, South Plains, Oklahoma, and New Mexico. 
       </p>
       
       <p>
