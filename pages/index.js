@@ -13,6 +13,7 @@
 //  ✅ Image performance: loading="lazy" + fetchpriority="high" on hero
 //  ✅ "Audio solutions made simple." tagline preserved as brand anchor
 //  ✅ Service area pill added below hero CTAs
+
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from "react";
