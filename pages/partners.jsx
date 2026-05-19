@@ -15,10 +15,12 @@ import Head from "next/head";
 import { useState } from "react";
 
 // ─── VENUE DATA ───────────────────────────────────────────────────────────────
+// logo: filename from your public/ folder. Set to "" if no logo yet.
 const VENUES = [
   {
     name: "Knotting Hill Wedding and Event Center",
     category: "Wedding Venue",
+    logo: "/Knotting Hill Logo.jpg",
     description:
       "Nikkie and her team are fantastic to work with. Knotting Hill offers beautiful all-inclusive wedding packages — and Tascosa Audio is proud to be part of them.",
     website: "https://www.knottinghillevents.com/",
@@ -29,6 +31,7 @@ const VENUES = [
   {
     name: "Iron Rose Weddings and Events",
     category: "Wedding Venue",
+    logo: "/Iron Rose Logo.png",
     description:
       "Monica and her team go out of their way to make your special day truly special. A stunning venue that pairs perfectly with professional audio.",
     website: "https://www.ironroseweddings.com/",
@@ -39,6 +42,7 @@ const VENUES = [
   {
     name: "River Falls Venue + Lodges",
     category: "Wedding Venue & Lodging",
+    logo: "/River Falls Logo.jpg",
     description:
       "A breathtaking venue offering both stunning event space and on-site lodging. Tascosa Audio is honored to be a trusted audio partner at River Falls.",
     website: "https://riverfallsvenue.com/",
@@ -49,11 +53,15 @@ const VENUES = [
 ];
 
 // ─── VENDOR DATA ──────────────────────────────────────────────────────────────
+// logo: filename from your public/ folder.
+// To add a vendor logo later: upload the image to your public/ folder in GitHub,
+// then set logo: "/your-filename.png" below.
 const VENDORS = [
   {
     name: "Katie Billstrom",
-    business: "Katie Billstrom Photography",
+    business: "katiebillstromphoto",
     category: "Photographer",
+    logo: "/katie-billstrom-logo.png",
     description:
       "Katie brings a stunning, authentic eye to every event she shoots. Highly recommended for weddings and private events across the Panhandle.",
     website: "https://www.katiebillstrom.com/",
@@ -65,6 +73,7 @@ const VENDORS = [
     name: "Olivia Bridges",
     business: "Olivia Bridges Photography",
     category: "Photographer",
+    logo: "/olivia-bridges-logo.png",
     description:
       "Olivia captures the moments that matter most. A talented photographer with a warm, personal approach to every event she covers.",
     website: "",
@@ -76,6 +85,7 @@ const VENDORS = [
     name: "The HazyHop Mobile Bar",
     business: "The HazyHop Mobile Bar",
     category: "Mobile Bar",
+    logo: "/hazyhop-logo.png",
     description:
       "A one-of-a-kind mobile bar experience perfect for weddings, private parties, and corporate events. A fantastic addition to any celebration.",
     website: "",
@@ -87,6 +97,7 @@ const VENDORS = [
     name: "Christina Miller",
     business: "Christina Miller",
     category: "Event Coordination & Planning",
+    logo: "",
     description:
       "Christina brings calm, detail-oriented coordination to every event she touches. If you want your day to run flawlessly, she's your person.",
     website: "",
@@ -98,6 +109,7 @@ const VENDORS = [
     name: "Elaine Dillard",
     business: "Events by Elaine",
     category: "Event Coordination & Planning",
+    logo: "/events-by-elaine-logo.png",
     description:
       "Elaine and her team bring creativity and precision to every event they plan. From intimate gatherings to large celebrations, Events by Elaine delivers.",
     website: "https://www.events-by-elaine.com/",
@@ -139,6 +151,18 @@ const VenueCard = ({ venue }) => (
     <div className="absolute top-6 right-6 h-2 w-2 rounded-full bg-tascosa-orange opacity-30 group-hover:opacity-100 transition-opacity" />
 
     <div>
+      {/* Logo */}
+      {venue.logo && (
+        <div className="mb-6 h-16 flex items-center">
+          <img
+            src={venue.logo}
+            alt={`${venue.name} logo`}
+            className="max-h-14 max-w-[180px] w-auto object-contain"
+            loading="lazy"
+          />
+        </div>
+      )}
+
       {/* Category pill */}
       <span className="inline-block text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-3 py-1 rounded-full mb-4">
         {venue.category}
@@ -183,6 +207,25 @@ const VendorCard = ({ vendor }) => (
     <div className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-tascosa-orange opacity-30 group-hover:opacity-100 transition-opacity" />
 
     <div>
+      {/* Logo — shows if uploaded, falls back gracefully if not */}
+      {vendor.logo ? (
+        <div className="mb-5 h-14 flex items-center">
+          <img
+            src={vendor.logo}
+            alt={`${vendor.business} logo`}
+            className="max-h-12 max-w-[160px] w-auto object-contain"
+            loading="lazy"
+            onError={(e) => { e.currentTarget.style.display = "none"; }}
+          />
+        </div>
+      ) : (
+        <div className="mb-5 h-14 w-14 rounded-2xl bg-neutral-800 flex items-center justify-center">
+          <span className="text-xl font-black text-tascosa-orange">
+            {vendor.business.charAt(0)}
+          </span>
+        </div>
+      )}
+
       {/* Category pill */}
       <span className="inline-block text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-3 py-1 rounded-full mb-4">
         {vendor.category}
