@@ -17,7 +17,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // Until then, the sandbox address below will deliver to your Resend account email.
 // Once tascosaaudio.com is verified inside Resend, change FROM_EMAIL to:
 // "info@tascosaaudio.com"
-const FROM_EMAIL = "onboarding@resend.dev";
+const FROM_EMAIL = "info@tascosaaudio.com";
 const TO_EMAIL   = "info@tascosaaudio.com";
 // ─────────────────────────────────────────────────────────────────────────────
 
