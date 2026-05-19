@@ -52,7 +52,7 @@ const VENUES = [
 const VENDORS = [
   {
     name: "Katie Billstrom",
-    business: "katiebillstromphoto",
+    business: "Katie Billstrom Photography",
     category: "Photographer",
     description:
       "Katie brings a stunning, authentic eye to every event she shoots. Highly recommended for weddings and private events across the Panhandle.",
