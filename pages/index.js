@@ -549,7 +549,7 @@ export default function Home() {
             {/* Google Reviews CTA */}
             <div className="mt-10 text-center">
               <a
-                href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review"
+                href="https://g.page/r/CUYW782-oq-MEBM/review"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-full px-5 py-2 transition-all"
