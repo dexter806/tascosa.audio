@@ -57,7 +57,7 @@ const VENDORS = [
     description:
       "Katie brings a stunning, authentic eye to every event she shoots. Highly recommended for weddings and private events across the Panhandle.",
     website: "https://www.katiebillstrom.com/",
-    facebook: "",
+    facebook: "https://www.facebook.com/katiebillstromphoto/",
     instagram: "https://www.instagram.com/katiebillstromphoto/",
     phone: "",
   },
@@ -70,7 +70,7 @@ const VENDORS = [
     website: "",
     facebook: "https://www.facebook.com/profile.php?id=100093272509518",
     instagram: "https://www.instagram.com/oliviabridgesphotography",
-    phone: "952-687-7923",
+    phone: "(952) 687-7923",
   },
   {
     name: "The HazyHop Mobile Bar",
@@ -81,7 +81,7 @@ const VENDORS = [
     website: "",
     facebook: "https://www.facebook.com/TheHazyHop",
     instagram: "",
-    phone: "806-884-8225",
+    phone: "(806) 884-8225",
   },
   {
     name: "Christina Miller",
@@ -92,7 +92,7 @@ const VENDORS = [
     website: "",
     facebook: "",
     instagram: "",
-    phone: "806-884-8225",
+    phone: "(806) 884-8225",
   },
   {
     name: "Elaine Dillard",
@@ -103,7 +103,7 @@ const VENDORS = [
     website: "https://www.events-by-elaine.com/",
     facebook: "https://www.facebook.com/Planner.EventsbyElaine",
     instagram: "https://www.instagram.com/events_by_elaine",
-    phone: "(806)-886-6185",
+    phone: "(806) 886-6185",
   },
 ];
 
