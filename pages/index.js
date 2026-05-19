@@ -41,21 +41,21 @@ const FormInput = ({ label, id, ...props }) => (
 const TESTIMONIALS = [
   {
     quote:
-      "Andy kept our reception dance floor packed all night. Every song was perfectly timed and he read the crowd better than we could have hoped. Truly professional from start to finish.",
-    name: "Sarah & Marcus T.",
-    event: "Wedding Reception — Amarillo, TX",
+      "Absolutely amazing DJ. I am the owner of Knotting Hill Wedding Venue and Andy does a phenomenal job! He has done countless weddings for us! Highly recommend!",
+    name: "Nikki P - Owner Knotting Hill Event Center",
+    event: "Wedding Venue — Amarillo, TX",
   },
   {
     quote:
-      "We hired Tascosa Audio for our corporate event and were blown away. The sound setup was flawless, zero feedback issues, and Andy was incredibly easy to work with.",
-    name: "Jennifer R.",
-    event: "Corporate Event — Canyon, TX",
+      "Andy was the DJ at a Karaoke night for our non-profit organization. He was INCREDIBLE! Kept the night moving and the vibes going the whole night. Book him! You won't regret it!.",
+    name: "Jessica C.",
+    event: "Corporate Event — Amarillo, TX",
   },
   {
     quote:
-      "Had an ongoing feedback issue with our church sound system for months. Andy came out, diagnosed it in under an hour, and walked our team through exactly what to do. Worth every penny.",
-    name: "Pastor David M.",
-    event: "Audio System Service — Amarillo, TX",
+      "Really awesome people to have work sound! Very knowledgeable and communicates well when they have a question or if you have a specific need for your event.",
+    name: "Izaak C.",
+    event: "Audio System Service — Lubbock, TX",
   },
 ];
 
