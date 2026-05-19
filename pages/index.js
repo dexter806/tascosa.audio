@@ -203,6 +203,7 @@ export default function Home() {
                 <a href="#services" className="hover:text-tascosa-orange transition-colors">Services</a>
                 <a href="#pricing" className="hover:text-tascosa-orange transition-colors">Pricing</a>
                 <a href="#about" className="hover:text-tascosa-orange transition-colors">About</a>
+                <a href="/partners" className="hover:text-tascosa-orange transition-colors">Partners & Vendors</a>
                 <a href="#contact" className="hover:text-tascosa-orange transition-colors">Request a Quote</a>
                 {/* Social icons in nav */}
                 <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" aria-label="Tascosa Audio on Instagram" className="text-neutral-400 hover:text-tascosa-orange transition-colors">
@@ -243,6 +244,7 @@ export default function Home() {
                   { name: "Services", href: "#services" },
                   { name: "Pricing", href: "#pricing" },
                   { name: "About", href: "#about" },
+                  { name: "Partners & Vendors", href: "/partners" },
                   { name: "Request a Quote", href: "#contact" },
                 ].map((link) => (
                   <a
