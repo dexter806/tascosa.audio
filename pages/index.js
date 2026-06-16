@@ -202,6 +202,7 @@ export default function Home() {
                 <a href="#services" className="hover:text-tascosa-orange transition-colors">Services</a>
                 <a href="#pricing" className="hover:text-tascosa-orange transition-colors">Pricing</a>
                 <a href="#about" className="hover:text-tascosa-orange transition-colors">About</a>
+                <a href="/partners" className="hover:text-tascosa-orange transition-colors">Partners &amp; Vendors</a>
                 <a href="#contact" className="hover:text-tascosa-orange transition-colors">Request a Quote</a>
                 {/* Social icons in nav */}
                 <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" aria-label="Tascosa Audio on Instagram" className="text-neutral-400 hover:text-tascosa-orange transition-colors">
@@ -242,6 +243,7 @@ export default function Home() {
                   { name: "Services", href: "#services" },
                   { name: "Pricing", href: "#pricing" },
                   { name: "About", href: "#about" },
+                  { name: "Partners & Vendors", href: "/partners" },
                   { name: "Request a Quote", href: "#contact" },
                 ].map((link) => (
                   <a
@@ -592,7 +594,7 @@ export default function Home() {
                     forward with our service, the diagnostic is completely{" "}
                     <span className="text-white font-semibold">on us</span>. If you choose not to 
                     proceed, a one-time trip &amp; assessment fee of{" "}
-                    <span className="text-white font-semibold">$50</span> applies.
+                    <span className="text-white font-semibold">0</span> applies.
                   </p>
                   <div className="mt-5 space-y-2">
                     {[
