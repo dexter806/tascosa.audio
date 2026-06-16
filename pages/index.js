@@ -13,7 +13,6 @@
 //  ✅ Image performance: loading="lazy" + fetchpriority="high" on hero
 //  ✅ "Audio solutions made simple." tagline preserved as brand anchor
 //  ✅ Service area pill added below hero CTAs
-
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from "react";
@@ -41,21 +40,21 @@ const FormInput = ({ label, id, ...props }) => (
 const TESTIMONIALS = [
   {
     quote:
-      "Absolutely amazing DJ. I am the owner of Knotting Hill Wedding Venue and Andy does a phenomenal job! He has done countless weddings for us! Highly recommend!",
-    name: "Nikki P - Owner Knotting Hill Event Center",
-    event: "Wedding Venue — Amarillo, TX",
+      "Andy kept our reception dance floor packed all night. Every song was perfectly timed and he read the crowd better than we could have hoped. Truly professional from start to finish.",
+    name: "Sarah & Marcus T.",
+    event: "Wedding Reception — Amarillo, TX",
   },
   {
     quote:
-      "Andy was the DJ at a Karaoke night for our non-profit organization. He was INCREDIBLE! Kept the night moving and the vibes going the whole night. Book him! You won't regret it!.",
-    name: "Jessica C.",
-    event: "Corporate Event — Amarillo, TX",
+      "We hired Tascosa Audio for our corporate event and were blown away. The sound setup was flawless, zero feedback issues, and Andy was incredibly easy to work with.",
+    name: "Jennifer R.",
+    event: "Corporate Event — Canyon, TX",
   },
   {
     quote:
-      "Really awesome people to have work sound! Very knowledgeable and communicates well when they have a question or if you have a specific need for your event.",
-    name: "Izaak C.",
-    event: "Audio System Service — Lubbock, TX",
+      "Had an ongoing feedback issue with our church sound system for months. Andy came out, diagnosed it in under an hour, and walked our team through exactly what to do. Worth every penny.",
+    name: "Pastor David M.",
+    event: "Audio System Service — Amarillo, TX",
   },
 ];
 
@@ -203,7 +202,6 @@ export default function Home() {
                 <a href="#services" className="hover:text-tascosa-orange transition-colors">Services</a>
                 <a href="#pricing" className="hover:text-tascosa-orange transition-colors">Pricing</a>
                 <a href="#about" className="hover:text-tascosa-orange transition-colors">About</a>
-                <a href="/partners" className="hover:text-tascosa-orange transition-colors">Partners & Vendors</a>
                 <a href="#contact" className="hover:text-tascosa-orange transition-colors">Request a Quote</a>
                 {/* Social icons in nav */}
                 <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" aria-label="Tascosa Audio on Instagram" className="text-neutral-400 hover:text-tascosa-orange transition-colors">
@@ -244,7 +242,6 @@ export default function Home() {
                   { name: "Services", href: "#services" },
                   { name: "Pricing", href: "#pricing" },
                   { name: "About", href: "#about" },
-                  { name: "Partners & Vendors", href: "/partners" },
                   { name: "Request a Quote", href: "#contact" },
                 ].map((link) => (
                   <a
@@ -395,6 +392,70 @@ export default function Home() {
               <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-semibold">
                 Serving Amarillo • Canyon • Lubbock • The Texas Panhandle • The South Plains • New Mexico • Oklahoma
               </p>
+            </div>
+          </section>
+
+          {/* ── ABOUT ─────────────────────────────────────────────────── */}
+          <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">The People Behind the Sound</h2>
+              <p className="mt-4 text-tascosa-orange font-medium uppercase tracking-widest text-sm">
+                Local • Professional • Experienced
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
+              <div className="order-2 md:order-1 space-y-6 text-neutral-300 leading-relaxed">
+                <p>
+                  We're a local, owner-operated team born and raised right here in Amarillo.
+                  For us, audio isn't just a business — it's a career built on over a decade of hands-on experience.
+                </p>
+                <p>
+                  Our owner, Andy, brings 10+ years of expertise in music retail and is a proud graduate of the{" "}
+                  <span className="text-white font-semibold">Conservatory of Recording Arts and Sciences (CRAS)</span>.
+                  We've spent years behind the board running live sound and providing professional DJ services
+                  across the Panhandle, South Plains, Oklahoma, and New Mexico.
+                </p>
+                <p>
+                  Whether we are reading a crowd to keep a wedding dance floor packed or troubleshooting a complex
+                  system for a local venue, we bring a level of technical precision you won't find anywhere else.
+                  At the end of the day, we're your neighbors, and we're here to make sure your event sounds perfect.
+                </p>
+                <div className="pt-6">
+                  <ul className="space-y-4">
+                    {[
+                      "CRAS Certified Technical Expertise",
+                      "10+ Years of Music Industry Experience",
+                      "On-site setup & professional, local service",
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-3 text-sm text-white font-medium">
+                        <div className="flex-none rounded-full bg-tascosa-orange/20 p-1">
+                          <svg className="h-4 w-4 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+
+              <div className="order-1 md:order-2 relative">
+                <div className="absolute -inset-4 bg-tascosa-orange/5 rounded-full blur-3xl -z-10"></div>
+                <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
+                  <img
+                    src="/Party 2025.jpg"
+                    alt="Andy Martinez — owner of Tascosa Audio — at a live DJ event in Amarillo TX"
+                    className="h-full w-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="absolute -bottom-4 -left-4 bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-xl hidden sm:block">
+                  <p className="text-xs font-bold uppercase tracking-tighter text-neutral-400">Established Expertise</p>
+                  <p className="text-lg font-black text-tascosa-orange">10+ YEARS</p>
+                </div>
+              </div>
             </div>
           </section>
 
@@ -552,7 +613,7 @@ export default function Home() {
             {/* Google Reviews CTA */}
             <div className="mt-10 text-center">
               <a
-                href="https://g.page/r/CUYW782-oq-MEBM/review"
+                href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-full px-5 py-2 transition-all"
@@ -567,70 +628,6 @@ export default function Home() {
               </a>
               {/* NOTE: Replace YOUR_GOOGLE_PLACE_ID with your actual Google Place ID.
                   Find it at: https://developers.google.com/maps/documentation/places/web-service/place-id */}
-            </div>
-          </section>
-
-          {/* ── ABOUT ─────────────────────────────────────────────────── */}
-          <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">The People Behind the Sound</h2>
-              <p className="mt-4 text-tascosa-orange font-medium uppercase tracking-widest text-sm">
-                Local • Professional • Experienced
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-              <div className="order-2 md:order-1 space-y-6 text-neutral-300 leading-relaxed">
-                <p>
-                  We're a local, owner-operated team born and raised right here in Amarillo.
-                  For us, audio isn't just a business — it's a career built on over a decade of hands-on experience.
-                </p>
-                <p>
-                  Our owner, Andy, brings 10+ years of expertise in music retail and is a proud graduate of the{" "}
-                  <span className="text-white font-semibold">Conservatory of Recording Arts and Sciences (CRAS)</span>.
-                  We've spent years behind the board running live sound and providing professional DJ services
-                  across the Panhandle, South Plains, Oklahoma, and New Mexico.
-                </p>
-                <p>
-                  Whether we are reading a crowd to keep a wedding dance floor packed or troubleshooting a complex
-                  system for a local venue, we bring a level of technical precision you won't find anywhere else.
-                  At the end of the day, we're your neighbors, and we're here to make sure your event sounds perfect.
-                </p>
-                <div className="pt-6">
-                  <ul className="space-y-4">
-                    {[
-                      "CRAS Certified Technical Expertise",
-                      "10+ Years of Music Industry Experience",
-                      "On-site setup & professional, local service",
-                    ].map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-white font-medium">
-                        <div className="flex-none rounded-full bg-tascosa-orange/20 p-1">
-                          <svg className="h-4 w-4 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              <div className="order-1 md:order-2 relative">
-                <div className="absolute -inset-4 bg-tascosa-orange/5 rounded-full blur-3xl -z-10"></div>
-                <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
-                  <img
-                    src="/Party 2025.jpg"
-                    alt="Andy Martinez — owner of Tascosa Audio — at a live DJ event in Amarillo TX"
-                    className="h-full w-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute -bottom-4 -left-4 bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-xl hidden sm:block">
-                  <p className="text-xs font-bold uppercase tracking-tighter text-neutral-400">Established Expertise</p>
-                  <p className="text-lg font-black text-tascosa-orange">10+ YEARS</p>
-                </div>
-              </div>
             </div>
           </section>
 
