@@ -579,12 +579,42 @@ export default function Home() {
                     ))}
                   </ul>
                 </div>
+                {/* ── FREE DIAGNOSTIC OFFER ── */}
+                <div className="mt-10 rounded-2xl border border-tascosa-orange/40 bg-tascosa-orange/5 p-6 text-left relative overflow-hidden">
+                  <div className="absolute -top-10 -right-10 h-32 w-32 bg-tascosa-orange/10 blur-3xl rounded-full" />
+                  <h4 className="text-lg font-black text-white mb-2">
+                    Free Diagnostic{" "}
+                    <span className="text-tascosa-orange">When You Book.</span>
+                  </h4>
+                  <p className="text-sm text-neutral-300 leading-relaxed">
+                    Not sure what&apos;s wrong with your system? We&apos;ll come to you, evaluate your setup, 
+                    and give you a straight answer — no guesswork, no pressure. If you decide to move 
+                    forward with our service, the diagnostic is completely{" "}
+                    <span className="text-white font-semibold">on us</span>. If you choose not to 
+                    proceed, a one-time trip &amp; assessment fee of{" "}
+                    <span className="text-white font-semibold">0</span> applies.
+                  </p>
+                  <div className="mt-5 space-y-2">
+                    {[
+                      "We visit your location and assess your existing audio system",
+                      "You receive an honest, detailed breakdown of what we find",
+                      "Book any service with us and the diagnostic fee is fully waived",
+                      "No obligation to proceed — $50 trip & assessment fee applies if you don't",
+                    ].map((item) => (
+                      <div key={item} className="flex items-start gap-3 text-sm text-neutral-300">
+                        <span className="text-tascosa-orange flex-none mt-0.5">✦</span>
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
-                  className="mt-10 w-full md:w-auto md:px-12 rounded-2xl py-4 bg-tascosa-orange text-black font-black hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-tascosa-orange/20"
+                  className="mt-6 w-full md:w-auto md:px-12 rounded-2xl py-4 bg-tascosa-orange text-black font-black hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-tascosa-orange/20"
                 >
-                  Schedule Service
+                  Schedule Your Free Diagnostic
                 </button>
                 <p className="mt-8 text-[10px] text-neutral-500 uppercase tracking-widest">
                   Travel fees may apply for locations outside Amarillo city limits.
