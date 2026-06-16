@@ -457,6 +457,20 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            {/* See What Clients Say button */}
+            <div className="mt-16 text-center">
+              <a
+                href="#testimonials"
+                className="inline-flex items-center gap-2 rounded-2xl px-8 py-4 border border-neutral-700 hover:border-tascosa-orange hover:text-tascosa-orange text-neutral-300 font-semibold transition-all"
+              >
+                See What Clients Say
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </a>
+            </div>
+
           </section>
 
           {/* ── PRICING ───────────────────────────────────────────────── */}
@@ -580,7 +594,7 @@ export default function Home() {
           </section>
 
           {/* ── TESTIMONIALS ──────────────────────────────────────────── */}
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
+          <section id="testimonials" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
             <div className="text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl md:text-4xl font-bold">What Clients Say</h2>
               <p className="mt-4 text-neutral-300">
