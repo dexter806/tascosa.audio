@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Tascosa Audio — page.jsx  (upgraded)
+// Tascosa Audio — page.jsx  (upgraded) | Last updated: June 16, 2026
 //
 // WHAT CHANGED FROM YOUR ORIGINAL:
 //  ✅ Real form submission via /api/contact (Resend) — no more mailto
@@ -36,6 +36,33 @@ const FormInput = ({ label, id, ...props }) => (
   </div>
 );
 
+
+const FAQItem = ({ question, answer }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="py-5">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full text-left gap-6 group"
+      >
+        <span className="text-base font-semibold text-white group-hover:text-tascosa-orange transition-colors">
+          {question}
+        </span>
+        <span className={"flex-none h-6 w-6 rounded-full border border-neutral-700 flex items-center justify-center transition-all " + (open ? "border-tascosa-orange bg-tascosa-orange/10" : "group-hover:border-neutral-500")}>
+          <svg className={"h-3 w-3 text-tascosa-orange transition-transform duration-300 " + (open ? "rotate-180" : "")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+      </button>
+      {open && (
+        <p className="mt-4 text-sm text-neutral-400 leading-relaxed pr-10 animate-in fade-in slide-in-from-top-2 duration-200">
+          {answer}
+        </p>
+      )}
+    </div>
+  );
+};
+
 // ─── TESTIMONIALS DATA — swap in real quotes when you have them ───────────────
 const TESTIMONIALS = [
   {
@@ -52,7 +79,7 @@ const TESTIMONIALS = [
   },
   {
     quote:
-      "Andy is fantastic! He recently DJ’d my 40th birthday party and did a phenomenal job. Andy is easy to communicate with, is reliable and makes the event fun. Highly recommend him and Tascosa Audio! You can’t go wrong booking him!",
+      "Andy is fantastic! He recently DJ'd my 40th birthday party and did a phenomenal job. Andy is easy to communicate with, is reliable and makes the event fun. Highly recommend him and Tascosa Audio! You can't go wrong booking him!",
     name: "Tanya P.",
     event: "Private Party — Amarillo, TX",
   },
@@ -678,6 +705,45 @@ export default function Home() {
           </section>
 
 
+
+          {/* ── GALLERY ───────────────────────────────────────────────── */}
+          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold">Gallery</h2>
+              <p className="mt-4 text-neutral-300">
+                A look at some of the events we have had the honor of being a part of.
+              </p>
+            </div>
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+              {[
+                { src: "/gallery-01.jpg", alt: "Tascosa Audio event lighting and DJ setup" },
+                { src: "/gallery-02.jpg", alt: "Live event DJ services Amarillo TX" },
+                { src: "/gallery-03.jpg", alt: "Wedding reception dance floor Amarillo" },
+                { src: "/gallery-04.jpg", alt: "Packed wedding dance floor with colorful lighting" },
+                { src: "/gallery-05.jpg", alt: "DJ booth setup at Amarillo event" },
+                { src: "/gallery-06.jpg", alt: "Professional event lighting Tascosa Audio" },
+                { src: "/gallery-07.jpg", alt: "Wedding reception lighting and audio setup" },
+                { src: "/gallery-08.jpg", alt: "Live sound production Amarillo TX" },
+                { src: "/gallery-09.jpg", alt: "Event DJ services Texas Panhandle" },
+                { src: "/gallery-10.jpg", alt: "Professional DJ setup and dance lighting" },
+                { src: "/gallery-11.jpg", alt: "Wedding dance floor packed with guests" },
+                { src: "/gallery-12.jpg", alt: "Tascosa Audio live event production" },
+                { src: "/gallery-13.jpg", alt: "Professional audio and lighting setup Amarillo" },
+              ].map((photo) => (
+                <div
+                  key={photo.src}
+                  className="break-inside-avoid rounded-2xl overflow-hidden border border-neutral-800 hover:border-tascosa-orange/50 transition-all duration-300 group"
+                >
+                  <img
+                    src={photo.src}
+                    alt={photo.alt}
+                    className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
           {/* ── FAQ ─────────────────────────────────────────────────── */}
           <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
             <div className="text-center max-w-3xl mx-auto mb-12">
@@ -715,7 +781,7 @@ export default function Home() {
                 },
                 {
                   q: "Do you require a deposit?",
-                  a: "Yes. A non-refundable deposit of $200 is required to secure your date. The remaining balance can be paid any time up to the day before your event. We accept credit cards, Venmo, and Cash App.",
+                  a: "Yes. A non-refundable deposit of 00 is required to secure your date. The remaining balance can be paid any time up to the day before your event. We accept credit cards, Venmo, and Cash App.",
                 },
                 {
                   q: "How far in advance should we book?",
