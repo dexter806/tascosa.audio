@@ -40,21 +40,21 @@ const FormInput = ({ label, id, ...props }) => (
 const TESTIMONIALS = [
   {
     quote:
-      "Andy kept our reception dance floor packed all night. Every song was perfectly timed and he read the crowd better than we could have hoped. Truly professional from start to finish.",
-    name: "Sarah & Marcus T.",
-    event: "Wedding Reception — Amarillo, TX",
+      "Absolutely amazing DJ. I am the owner of Knotting Hill Wedding Venue and Andy does a phenomenal job! He has done countless weddings for us! Highly recommend!",
+    name: "Nikki N.",
+    event: "Owner Knotting Hill Wedding Venue — Amarillo, TX",
   },
   {
     quote:
-      "We hired Tascosa Audio for our corporate event and were blown away. The sound setup was flawless, zero feedback issues, and Andy was incredibly easy to work with.",
-    name: "Jennifer R.",
-    event: "Corporate Event — Canyon, TX",
+      "Really awesome people to have work sound! Very knowledgeable and communicates well when they have a question or if you have a specific need for your event.",
+    name: "Izaak C.",
+    event: "Wedding Reception — Lubbock, TX",
   },
   {
     quote:
-      "Had an ongoing feedback issue with our church sound system for months. Andy came out, diagnosed it in under an hour, and walked our team through exactly what to do. Worth every penny.",
-    name: "Pastor David M.",
-    event: "Audio System Service — Amarillo, TX",
+      "Andy is fantastic! He recently DJ’d my 40th birthday party and did a phenomenal job. Andy is easy to communicate with, is reliable and makes the event fun. Highly recommend him and Tascosa Audio! You can’t go wrong booking him!",
+    name: "Tanya P.",
+    event: "Private Party — Amarillo, TX",
   },
 ];
 
@@ -659,7 +659,7 @@ export default function Home() {
             {/* Google Reviews CTA */}
             <div className="mt-10 text-center">
               <a
-                href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review"
+                href="https://g.page/r/CUYW782-oq-MEBM/review"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-full px-5 py-2 transition-all"
