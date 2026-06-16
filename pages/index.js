@@ -41,7 +41,7 @@ const TESTIMONIALS = [
   {
     quote:
       "Absolutely amazing DJ. I am the owner of Knotting Hill Wedding Venue and Andy does a phenomenal job! He has done countless weddings for us! Highly recommend!",
-    name: "Nikki N.",
+    name: "Nikki P.",
     event: "Owner Knotting Hill Wedding Venue — Amarillo, TX",
   },
   {
