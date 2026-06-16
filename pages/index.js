@@ -591,7 +591,7 @@ export default function Home() {
                     and give you a straight answer — no guesswork, no pressure. If you decide to move 
                     forward with our service, the diagnostic is completely{" "}
                     <span className="text-white font-semibold">on us</span>. If you choose not to 
-                    proceed, a one-time trip &amp; assessment fee of{" "}
+                    proceed, a one-time trip &amp; assessment fee of{" $50 "}
                     <span className="text-white font-semibold">0</span> applies.
                   </p>
                   <div className="mt-5 space-y-2">
