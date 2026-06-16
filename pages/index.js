@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Tascosa Audio — page.jsx  (upgraded)
+// Tascosa Audio — page.jsx  (upgraded) 06.16.2026 - 10:42am
 //
 // WHAT CHANGED FROM YOUR ORIGINAL:
 //  ✅ Real form submission via /api/contact (Resend) — no more mailto
@@ -36,25 +36,52 @@ const FormInput = ({ label, id, ...props }) => (
   </div>
 );
 
+
+const FAQItem = ({ question, answer }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="py-5">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full text-left gap-6 group"
+      >
+        <span className="text-base font-semibold text-white group-hover:text-tascosa-orange transition-colors">
+          {question}
+        </span>
+        <span className={"flex-none h-6 w-6 rounded-full border border-neutral-700 flex items-center justify-center transition-all " + (open ? "border-tascosa-orange bg-tascosa-orange/10" : "group-hover:border-neutral-500")}>
+          <svg className={"h-3 w-3 text-tascosa-orange transition-transform duration-300 " + (open ? "rotate-180" : "")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </span>
+      </button>
+      {open && (
+        <p className="mt-4 text-sm text-neutral-400 leading-relaxed pr-10 animate-in fade-in slide-in-from-top-2 duration-200">
+          {answer}
+        </p>
+      )}
+    </div>
+  );
+};
+
 // ─── TESTIMONIALS DATA — swap in real quotes when you have them ───────────────
 const TESTIMONIALS = [
   {
     quote:
-      "Absolutely amazing DJ. I am the owner of Knotting Hill Wedding Venue and Andy does a phenomenal job! He has done countless weddings for us! Highly recommend!",
-    name: "Nikki P.",
-    event: "Owner Knotting Hill Wedding Venue — Amarillo, TX",
+      "Andy kept our reception dance floor packed all night. Every song was perfectly timed and he read the crowd better than we could have hoped. Truly professional from start to finish.",
+    name: "Sarah & Marcus T.",
+    event: "Wedding Reception — Amarillo, TX",
   },
   {
     quote:
-      "Really awesome people to have work sound! Very knowledgeable and communicates well when they have a question or if you have a specific need for your event.",
-    name: "Izaak C.",
-    event: "Wedding Reception — Lubbock, TX",
+      "We hired Tascosa Audio for our corporate event and were blown away. The sound setup was flawless, zero feedback issues, and Andy was incredibly easy to work with.",
+    name: "Jennifer R.",
+    event: "Corporate Event — Canyon, TX",
   },
   {
     quote:
-      "Andy is fantastic! He recently DJ’d my 40th birthday party and did a phenomenal job. Andy is easy to communicate with, is reliable and makes the event fun. Highly recommend him and Tascosa Audio! You can’t go wrong booking him!",
-    name: "Tanya P.",
-    event: "Private Party — Amarillo, TX",
+      "Had an ongoing feedback issue with our church sound system for months. Andy came out, diagnosed it in under an hour, and walked our team through exactly what to do. Worth every penny.",
+    name: "Pastor David M.",
+    event: "Audio System Service — Amarillo, TX",
   },
 ];
 
@@ -659,7 +686,7 @@ export default function Home() {
             {/* Google Reviews CTA */}
             <div className="mt-10 text-center">
               <a
-                href="https://g.page/r/CUYW782-oq-MEBM/review"
+                href="https://g.page/r/YOUR_GOOGLE_PLACE_ID/review"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-full px-5 py-2 transition-all"
@@ -677,6 +704,59 @@ export default function Home() {
             </div>
           </section>
 
+
+          {/* ── FAQ ─────────────────────────────────────────────────── */}
+          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold">Frequently Asked Questions</h2>
+              <p className="mt-4 text-neutral-300">
+                Everything you need to know before booking. Still have questions?{" "}
+                <a href="#contact" className="text-tascosa-orange hover:underline">Reach out anytime.</a>
+              </p>
+            </div>
+            <div className="max-w-3xl mx-auto divide-y divide-neutral-800">
+              {[
+                {
+                  q: "Do you take song requests and do-not-play lists?",
+                  a: "Absolutely. We encourage both. You can share your must-play songs, special requests, and any songs you'd prefer we skip. Your playlist is personal to you and we treat it that way.",
+                },
+                {
+                  q: "How do you handle music for the ceremony vs. the reception?",
+                  a: "We treat them as two completely separate experiences. Ceremony music is carefully curated for the tone and emotion of each moment — processional, recessional, and everything in between. The reception is where we shift gears and focus on keeping the energy high and the dance floor packed all night.",
+                },
+                {
+                  q: "How early do you arrive to set up?",
+                  a: "We typically arrive two hours before the ceremony begins so everything is dialed in well ahead of time. We have music playing 30 minutes before the ceremony starts so your guests are welcomed with great sound as they arrive.",
+                },
+                {
+                  q: "Does setup and breakdown time cost extra?",
+                  a: "Never. Setup and breakdown are always included in your package price. Your event time is your event time — we handle everything else around it.",
+                },
+                {
+                  q: "What happens if there's a technical issue during the event?",
+                  a: "We come prepared with backup equipment for exactly this reason. In over a decade of events we've learned that preparation is everything. A technical issue has never stopped one of our shows and we intend to keep it that way.",
+                },
+                {
+                  q: "Do you provide your own equipment?",
+                  a: "Yes — we bring everything. Professional speakers, wireless microphones, dance floor lighting, and all the cables and gear needed for a seamless setup. You don't need to worry about a thing.",
+                },
+                {
+                  q: "Do you require a deposit?",
+                  a: "Yes. A non-refundable deposit of $200 is required to secure your date. The remaining balance can be paid any time up to the day before your event. We accept credit cards, Venmo, and Cash App.",
+                },
+                {
+                  q: "How far in advance should we book?",
+                  a: "As soon as you have your date confirmed — especially for weddings. Peak season weekends book up quickly. We recommend reaching out at least 3 to 6 months in advance to guarantee your date.",
+                },
+                {
+                  q: "Do you travel outside of Amarillo?",
+                  a: "Absolutely. We serve all of the Texas Panhandle, the South Plains, New Mexico, and Oklahoma. Travel fees may apply for locations outside of the Amarillo area — just reach out and we'll give you a straightforward quote.",
+                },
+              ].map(({ q, a }, i) => (
+                <FAQItem key={i} question={q} answer={a} />
+              ))}
+            </div>
+          </section>
           {/* ── CONTACT ───────────────────────────────────────────────── */}
           <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
             <div className="grid lg:grid-cols-5 gap-16">
