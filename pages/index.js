@@ -1,3 +1,4 @@
+// Last updated: June 25, 2026 — Diagnostic & Education pricing restructured (new service blocks, education tiers, retainer note)
 // ─────────────────────────────────────────────────────────────────────────────
 // Tascosa Audio — page.jsx  (upgraded) | Last updated: June 16, 2026
 //
@@ -13,6 +14,7 @@
 //  ✅ Image performance: loading="lazy" + fetchpriority="high" on hero
 //  ✅ "Audio solutions made simple." tagline preserved as brand anchor
 //  ✅ Service area pill added below hero CTAs
+//  ✅ Diagnostic pricing restructured: service blocks, education tiers, retainer by request
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState } from "react";
@@ -575,80 +577,193 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Diagnostic */}
+            {/* ── DIAGNOSTIC, REPAIR & EDUCATION ───────────────────────── */}
             <div id="diagnostic" className="mt-32 text-center max-w-3xl mx-auto mb-12">
               <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
               <p className="mt-4 text-neutral-300 leading-relaxed">
-                On-site troubleshooting, system optimization, and hands-on learning for venues, churches, and individuals.
+                We come to you, assess your system honestly, and recommend only what you actually need.
+                All work is billed in 2-hour blocks — no surprises.
               </p>
             </div>
 
-            <div className="flex justify-center px-4">
-              <div className="rounded-3xl border border-tascosa-orange bg-neutral-900 p-8 md:p-10 shadow-xl max-w-2xl w-full text-center relative overflow-hidden">
-                <div className="absolute -top-24 -right-24 h-48 w-48 bg-tascosa-orange/10 blur-3xl rounded-full" />
-                <h3 className="text-2xl font-bold text-tascosa-orange">Audio System Service</h3>
-                <div className="mt-6 inline-block bg-neutral-950 px-6 py-4 rounded-2xl border border-neutral-800">
-                  <p className="text-xl md:text-2xl font-black text-white leading-tight">
-                    $100 <span className="text-sm font-normal text-neutral-400">per hour (first 2 hours)</span>
-                    <br />
-                  </p>
-                  <p className="mt-2 text-xs text-neutral-500 uppercase tracking-widest font-bold">(2-hour minimum)</p>
-                </div>
-                <div className="mt-8 grid md:grid-cols-2 gap-8 text-left">
-                  <p className="text-neutral-300 text-sm leading-relaxed">
-                    Comprehensive service covering diagnostics, small repairs, and personalized education.
-                    Perfect for improving your live sound setup or learning best practices for managing your own system.
-                  </p>
-                  <ul className="space-y-3 text-sm text-neutral-300">
-                    {["On-site system diagnostics", "Signal flow & wiring", "Feedback troubleshooting", "1-on-1 audio education"].map(item => (
-                      <li key={item} className="flex items-start gap-2">
-                        <span className="text-tascosa-orange">•</span> {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                {/* ── FREE DIAGNOSTIC OFFER ── */}
-                <div className="mt-10 rounded-2xl border border-tascosa-orange/40 bg-tascosa-orange/5 p-6 text-left relative overflow-hidden">
-                  <div className="absolute -top-10 -right-10 h-32 w-32 bg-tascosa-orange/10 blur-3xl rounded-full" />
-                  <h4 className="text-lg font-black text-white mb-2">
-                    Free Diagnostic{" "}
-                    <span className="text-tascosa-orange">When You Book.</span>
-                  </h4>
-                  <p className="text-sm text-neutral-300 leading-relaxed">
-                    Not sure what&apos;s wrong with your system? We&apos;ll come to you, evaluate your setup, 
-                    and give you a straight answer — no guesswork, no pressure. If you decide to move 
-                    forward with our service, the diagnostic is completely{" "}
-                    <span className="text-white font-semibold">on us</span>. If you choose not to 
-                    proceed, a one-time trip &amp; assessment fee of{" "}
-                    <span className="text-white font-semibold">$50</span> applies.
-                  </p>
-                  <div className="mt-5 space-y-2">
-                    {[
-                      "We visit your location and assess your existing audio system",
-                      "You receive an honest, detailed breakdown of what we find",
-                      "Book any service with us and the diagnostic fee is fully waived",
-                      "No obligation to proceed — $50 trip & assessment fee applies if you don't",
-                    ].map((item) => (
-                      <div key={item} className="flex items-start gap-3 text-sm text-neutral-300">
-                        <span className="text-tascosa-orange flex-none mt-0.5">✦</span>
-                        {item}
-                      </div>
-                    ))}
+            {/* Free Diagnostic Banner */}
+            <div className="max-w-4xl mx-auto mb-12">
+              <div className="rounded-3xl border border-tascosa-orange/40 bg-tascosa-orange/5 p-8 relative overflow-hidden">
+                <div className="absolute -top-16 -right-16 h-48 w-48 bg-tascosa-orange/10 blur-3xl rounded-full" />
+                <div className="flex flex-col md:flex-row md:items-center gap-6">
+                  <div className="flex-1">
+                    <h3 className="text-xl font-black text-white">
+                      Free Diagnostic{" "}
+                      <span className="text-tascosa-orange">When You Book.</span>
+                    </h3>
+                    <p className="mt-2 text-sm text-neutral-300 leading-relaxed">
+                      Not sure what's wrong? We'll come out, evaluate your setup, and give you a straight answer —
+                      no guesswork, no pressure. Book any service block and the diagnostic is completely{" "}
+                      <span className="text-white font-semibold">on us</span>. If you choose not to proceed,
+                      a one-time trip &amp; assessment fee of{" "}
+                      <span className="text-white font-semibold">$50</span> applies.
+                    </p>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
+                    className="flex-none rounded-2xl px-8 py-4 bg-tascosa-orange text-black font-black hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-tascosa-orange/20 whitespace-nowrap"
+                  >
+                    Schedule Free Diagnostic
+                  </button>
                 </div>
+              </div>
+            </div>
 
-                <button
-                  type="button"
-                  onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
-                  className="mt-6 w-full md:w-auto md:px-12 rounded-2xl py-4 bg-tascosa-orange text-black font-black hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-tascosa-orange/20"
-                >
-                  Schedule Your Free Diagnostic
-                </button>
-                <p className="mt-8 text-[10px] text-neutral-500 uppercase tracking-widest">
-                  Travel fees may apply for locations outside Amarillo city limits.
+            {/* Service Blocks */}
+            <div className="max-w-4xl mx-auto mb-6">
+              <h3 className="text-xl font-bold text-white mb-2">Service Blocks</h3>
+              <p className="text-sm text-neutral-400 mb-8">
+                Billed in 2-hour blocks at <span className="text-white font-semibold">$125/hr</span>. The more hours you book, the more you save.
+                Additional time beyond your booked block is billed at <span className="text-white font-semibold">$125/hr</span>.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                {[
+                  {
+                    name: "Block 1 — Quick Fix",
+                    hours: "2 hours",
+                    price: "$250",
+                    savings: null,
+                    desc: "Minor repairs, quick signal flow fixes, basic troubleshooting.",
+                    highlight: false,
+                  },
+                  {
+                    name: "Block 2 — Standard",
+                    hours: "4 hours",
+                    price: "$425",
+                    savings: "Save $75",
+                    desc: "Deeper diagnostics, wiring issues, system tuning and optimization.",
+                    highlight: true,
+                  },
+                  {
+                    name: "Block 3 — Half Day",
+                    hours: "6 hours",
+                    price: "$600",
+                    savings: "Save $150",
+                    desc: "Complex installs, full system overhauls, multi-zone setups.",
+                    highlight: false,
+                  },
+                ].map((block) => (
+                  <div
+                    key={block.name}
+                    className={`relative flex flex-col rounded-3xl border p-7 transition-all duration-300 ${
+                      block.highlight
+                        ? "border-tascosa-orange bg-neutral-900 shadow-[0_0_20px_rgba(255,100,0,0.1)] scale-105 z-10"
+                        : "border-neutral-800 bg-neutral-900/50 hover:border-neutral-700"
+                    }`}
+                  >
+                    {block.savings && (
+                      <div className="mb-3">
+                        <span className="text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-3 py-1 rounded-full">
+                          {block.savings}
+                        </span>
+                      </div>
+                    )}
+                    <h4 className="text-base font-bold text-white">{block.name}</h4>
+                    <p className="text-xs text-neutral-500 mt-0.5 mb-4">{block.hours}</p>
+                    <p className={`text-3xl font-black mb-3 ${block.highlight ? "text-tascosa-orange" : "text-white"}`}>
+                      {block.price}
+                    </p>
+                    <p className="text-sm text-neutral-400 leading-relaxed flex-grow">{block.desc}</p>
+                    <button
+                      type="button"
+                      onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
+                      className={`mt-6 w-full rounded-xl py-3 text-sm font-bold transition-all active:scale-95 ${
+                        block.highlight
+                          ? "bg-tascosa-orange text-black hover:brightness-110"
+                          : "border border-neutral-700 text-white hover:bg-neutral-800"
+                      }`}
+                    >
+                      Book This Block
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-6 text-center text-xs text-neutral-500 uppercase tracking-widest">
+                Overtime billed at $125/hr · Travel fees may apply outside Amarillo city limits
+              </p>
+            </div>
+
+            {/* Education Sessions */}
+            <div className="max-w-4xl mx-auto mt-20">
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold text-white">Education Sessions</h3>
+                <p className="mt-2 text-sm text-neutral-400">
+                  One-on-one or small group training — learn your system, stop the guesswork.
+                  Sessions can be booked standalone or added to any service block.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {[
+                  {
+                    name: "Intro Session",
+                    detail: "1 hour · 1 person",
+                    price: "$100",
+                    note: "Great starting point — heads up, it goes fast.",
+                  },
+                  {
+                    name: "Deep Dive",
+                    detail: "2 hours · 1 person",
+                    price: "$175",
+                    note: "Enough time to really get into your system.",
+                  },
+                  {
+                    name: "Small Group",
+                    detail: "2 hours · up to 3 people",
+                    price: "$225",
+                    note: "Perfect for church AV teams or venue staff.",
+                  },
+                  {
+                    name: "Add to Service Block",
+                    detail: "Any block",
+                    price: "+$100",
+                    note: "Combine hands-on repair with guided training.",
+                  },
+                ].map((edu) => (
+                  <div
+                    key={edu.name}
+                    className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 hover:border-tascosa-orange/30 transition-all duration-300 flex flex-col"
+                  >
+                    <p className="text-base font-bold text-white">{edu.name}</p>
+                    <p className="text-xs text-neutral-500 mt-0.5 mb-3">{edu.detail}</p>
+                    <p className="text-2xl font-black text-tascosa-orange mb-3">{edu.price}</p>
+                    <p className="text-xs text-neutral-400 leading-relaxed flex-grow">{edu.note}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-5 text-center">
+                <p className="text-xs text-neutral-500">
+                  4th person and beyond: <span className="text-neutral-300 font-semibold">+$25 per person</span>
                 </p>
               </div>
             </div>
+
+            {/* Retainer / Ongoing Support */}
+            <div className="max-w-4xl mx-auto mt-16">
+              <div className="rounded-3xl border border-neutral-800 bg-neutral-900/40 p-8 flex flex-col md:flex-row md:items-center gap-6">
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-white">Ongoing Support &amp; Retainer Options</h3>
+                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+                    Need a reliable tech partner on an ongoing basis? We offer retainer arrangements for venues,
+                    churches, and organizations that want priority access and consistent support.
+                    Every situation is different — reach out and we'll build something that makes sense for you.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => jumpToContactWith("Diagnostic, Repair & Education")}
+                  className="flex-none rounded-2xl px-8 py-4 border border-neutral-700 text-white font-bold hover:border-tascosa-orange hover:text-tascosa-orange transition-all active:scale-95 whitespace-nowrap"
+                >
+                  Ask About Retainers
+                </button>
+              </div>
+            </div>
+
           </section>
 
           {/* ── TESTIMONIALS ──────────────────────────────────────────── */}
@@ -703,8 +818,6 @@ export default function Home() {
             </div>
           </section>
 
-
-
           {/* ── GALLERY ───────────────────────────────────────────────── */}
           <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
             <div className="text-center max-w-3xl mx-auto mb-12">
@@ -743,6 +856,7 @@ export default function Home() {
               ))}
             </div>
           </section>
+
           {/* ── FAQ ─────────────────────────────────────────────────── */}
           <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
             <div className="text-center max-w-3xl mx-auto mb-12">
@@ -795,6 +909,7 @@ export default function Home() {
               ))}
             </div>
           </section>
+
           {/* ── CONTACT ───────────────────────────────────────────────── */}
           <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
             <div className="grid lg:grid-cols-5 gap-16">
