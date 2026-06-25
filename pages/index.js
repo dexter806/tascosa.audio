@@ -126,6 +126,18 @@ const TESTIMONIALS = [
   event: "Wedding - Amarillo, TX",
   rating: 5,
    },
+     {
+     quote: Andy was the DJ at a Karaoke night for our non-profit organization. He was INCREDIBLE! Kept the night moving and the vibes going the whole night. Book him! You won't regret it!",
+     name: "Jessica C.",
+     event: "Corprate Event - Amarillo, TX",
+     rating: 5,
+   },
+     {
+    quote: "You guys are the best. Always on time, all the best songs and I can’t recommend you guys enough.",
+    name: "Grant M.",
+    event: "Owner Iron Rose Wedding & Event Center — Amarillo, TX",
+    rating: 5,
+   },
   // ── ADD NEW REVIEWS BELOW THIS LINE ──
   // {
   //   quote: "Paste the review text here.",
