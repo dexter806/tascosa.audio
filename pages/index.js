@@ -4,8 +4,8 @@
 //
 // CHANGELOG:
 //  ✅ [Jun 25] Travel fee zone table added to both DJ and Diagnostic sections
-//  ✅ [Jun 25] Testimonials replaced with auto-scrolling carousel (live Google Reviews via /api/reviews)
-//  ✅ [Jun 25] Falls back to hardcoded TESTIMONIALS if Google fetch fails
+//  ✅ [Jun 25] Testimonials: auto-scrolling carousel, shows 3 cards on desktop / 1 on mobile
+//  ✅ [Jun 25] Dot count matches visible pages (not total reviews) — fewer dots
 //  ✅ [Jun 16] Real form submission via /api/contact (Resend)
 //  ✅ [Jun 16] Event date field, sent/error state reset, SEO head, social icons,
 //              sticky mobile bar, accessibility, image performance improvements
@@ -92,7 +92,7 @@ const TravelFeeTable = () => (
 );
 
 // ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
-// To add a review:  copy one block and paste it at the end of the array.
+// To add a review:  copy one block and paste it before the closing ];
 // To remove one:    delete its { } block (and the comma before it).
 // To hide all:      set the array to [] and the section won't render.
 // Fields:
@@ -120,24 +120,24 @@ const TESTIMONIALS = [
     event: "Private Party — Amarillo, TX",
     rating: 5,
   },
-     {
-  quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then did things we didn't know we needed but wanted (like soft music for our knot tying during the ceremony so it wasn't awkwardly quiet!) He knew how to keep the party rolling for the older crowd without making the younger ones bored and vice versa. He checked in with me so many times during the process leading up to wedding day, and asked if he could help in any way. He played a song that was just a personal mp3 rather than on a streaming service because we requested it and he made every effort to do anything I asked. I felt so needy but he reassured me he could handle it and he DID. He even stayed late when my guests didn't get out early enough for my husband and I to do a private last dance. He waited until we were ready before packing up for the night. Would recommend him to anyone looking for an event DJ.",
-  name: "Lindsey S.",
-  event: "Wedding - Amarillo, TX",
-  rating: 5,
-   },
-     {
-     quote: Andy was the DJ at a Karaoke night for our non-profit organization. He was INCREDIBLE! Kept the night moving and the vibes going the whole night. Book him! You won't regret it!",
-     name: "Jessica C.",
-     event: "Corprate Event - Amarillo, TX",
-     rating: 5,
-   },
-     {
-    quote: "You guys are the best. Always on time, all the best songs and I can’t recommend you guys enough.",
+  {
+    quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then did things we didn't know we needed but wanted (like soft music for our knot tying during the ceremony so it wasn't awkwardly quiet!) He knew how to keep the party rolling for the older crowd without making the younger ones bored and vice versa. He checked in with me so many times during the process leading up to wedding day, and asked if he could help in any way. He played a song that was just a personal mp3 rather than on a streaming service because we requested it and he made every effort to do anything I asked. I felt so needy but he reassured me he could handle it and he DID. He even stayed late when my guests didn't get out early enough for my husband and I to do a private last dance. He waited until we were ready before packing up for the night. Would recommend him to anyone looking for an event DJ.",
+    name: "Lindsey S.",
+    event: "Wedding — Amarillo, TX",
+    rating: 5,
+  },
+  {
+    quote: "Andy was the DJ at a Karaoke night for our non-profit organization. He was INCREDIBLE! Kept the night moving and the vibes going the whole night. Book him! You won't regret it!",
+    name: "Jessica C.",
+    event: "Corporate Event — Amarillo, TX",
+    rating: 5,
+  },
+  {
+    quote: "You guys are the best. Always on time, all the best songs and I can't recommend you guys enough.",
     name: "Grant M.",
     event: "Owner Iron Rose Wedding & Event Center — Amarillo, TX",
     rating: 5,
-   },
+  },
   // ── ADD NEW REVIEWS BELOW THIS LINE ──
   // {
   //   quote: "Paste the review text here.",
@@ -148,100 +148,106 @@ const TESTIMONIALS = [
 ];
 
 // ─── REVIEWS CAROUSEL ────────────────────────────────────────────────────────
+// Shows 3 cards side-by-side on desktop, 1 at a time on mobile.
+// Dots represent pages (groups of 3), not individual reviews.
+// Auto-advances every 5s; pauses on hover.
 const ReviewsCarousel = ({ reviews }) => {
   const [current, setCurrent] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [perPage, setPerPage] = useState(3);
   const timerRef = useRef(null);
+  const containerRef = useRef(null);
 
-  const count = reviews.length;
-
-  const next = () => setCurrent((c) => (c + 1) % count);
-  const prev = () => setCurrent((c) => (c - 1 + count) % count);
-
-  // Auto-advance every 5s unless paused
+  // Detect mobile vs desktop to set cards per page
   useEffect(() => {
-    if (paused || count <= 1) return;
+    const update = () => setPerPage(window.innerWidth < 768 ? 1 : 3);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  const totalPages = Math.ceil(reviews.length / perPage);
+
+  const next = () => setCurrent((c) => (c + 1) % totalPages);
+  const prev = () => setCurrent((c) => (c - 1 + totalPages) % totalPages);
+
+  // Auto-advance every 5s unless paused or only one page
+  useEffect(() => {
+    if (paused || totalPages <= 1) return;
     timerRef.current = setInterval(next, 5000);
     return () => clearInterval(timerRef.current);
-  }, [paused, count, current]);
+  }, [paused, totalPages, current]);
 
-  if (!count) return null;
+  if (!reviews.length) return null;
+
+  // Slice out which reviews to show for the current page
+  const visible = reviews.slice(current * perPage, current * perPage + perPage);
 
   return (
     <div
+      ref={containerRef}
       className="relative"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Cards — show 1 on mobile, up to 3 on desktop */}
-      <div className="overflow-hidden">
-        <div
-          className="flex transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(-${current * 100}%)` }}
-        >
-          {reviews.map((t, i) => (
-            <div
-              key={i}
-              className="min-w-full md:min-w-0 md:w-1/3 flex-none px-3"
-            >
-              <div className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 flex flex-col justify-between h-full hover:border-tascosa-orange/30 transition-all duration-300">
-                <div>
-                  <div className="flex gap-0.5 mb-5">
-                    {[...Array(5)].map((_, si) => (
-                      <svg key={si} className={`h-4 w-4 ${si < (t.rating || 5) ? "text-tascosa-orange" : "text-neutral-700"}`} fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-neutral-300 text-sm leading-relaxed italic">"{t.quote}"</p>
-                </div>
-                <div className="mt-6 pt-6 border-t border-neutral-800 flex items-center gap-3">
-                  {t.profilePhoto && (
-                    <img src={t.profilePhoto} alt={t.name} className="h-8 w-8 rounded-full object-cover flex-none" loading="lazy" />
-                  )}
-                  <div>
-                    <p className="text-white font-semibold text-sm">{t.name}</p>
-                    <p className="text-neutral-500 text-xs mt-0.5">{t.event || t.time || ""}</p>
-                  </div>
-                </div>
+      {/* Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[280px]">
+        {visible.map((t, i) => (
+          <div
+            key={`${current}-${i}`}
+            className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 flex flex-col justify-between hover:border-tascosa-orange/30 transition-all duration-300 animate-in fade-in duration-300"
+          >
+            <div>
+              <div className="flex gap-0.5 mb-5">
+                {[...Array(5)].map((_, si) => (
+                  <svg key={si} className={`h-4 w-4 ${si < (t.rating || 5) ? "text-tascosa-orange" : "text-neutral-700"}`} fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
               </div>
+              <p className="text-neutral-300 text-sm leading-relaxed italic">"{t.quote}"</p>
             </div>
-          ))}
-        </div>
+            <div className="mt-6 pt-6 border-t border-neutral-800">
+              <p className="text-white font-semibold text-sm">{t.name}</p>
+              <p className="text-neutral-500 text-xs mt-0.5">{t.event}</p>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Desktop: show 3 at a time using CSS grid instead of slider */}
-      {/* Navigation dots + arrows */}
-      <div className="mt-8 flex items-center justify-center gap-4">
-        <button
-          onClick={prev}
-          aria-label="Previous review"
-          className="h-9 w-9 rounded-full border border-neutral-700 hover:border-tascosa-orange flex items-center justify-center text-neutral-400 hover:text-tascosa-orange transition-all"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div className="flex gap-2">
-          {reviews.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              aria-label={`Go to review ${i + 1}`}
-              className={`h-2 rounded-full transition-all duration-300 ${i === current ? "w-6 bg-tascosa-orange" : "w-2 bg-neutral-700 hover:bg-neutral-500"}`}
-            />
-          ))}
+      {/* Navigation — only show if more than one page */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-4">
+          <button
+            onClick={prev}
+            aria-label="Previous reviews"
+            className="h-9 w-9 rounded-full border border-neutral-700 hover:border-tascosa-orange flex items-center justify-center text-neutral-400 hover:text-tascosa-orange transition-all"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="flex gap-2">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                aria-label={`Go to page ${i + 1}`}
+                className={`h-2 rounded-full transition-all duration-300 ${i === current ? "w-6 bg-tascosa-orange" : "w-2 bg-neutral-700 hover:bg-neutral-500"}`}
+              />
+            ))}
+          </div>
+          <button
+            onClick={next}
+            aria-label="Next reviews"
+            className="h-9 w-9 rounded-full border border-neutral-700 hover:border-tascosa-orange flex items-center justify-center text-neutral-400 hover:text-tascosa-orange transition-all"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
-        <button
-          onClick={next}
-          aria-label="Next review"
-          className="h-9 w-9 rounded-full border border-neutral-700 hover:border-tascosa-orange flex items-center justify-center text-neutral-400 hover:text-tascosa-orange transition-all"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
+      )}
     </div>
   );
 };
@@ -255,7 +261,7 @@ export default function Home() {
     pkg: "", eventDate: "", message: "",
   });
   const [formStatus, setFormStatus] = useState("idle");
-  const [reviews, setReviews] = useState(TESTIMONIALS); // edit TESTIMONIALS array above to add/remove reviews
+  const [reviews] = useState(TESTIMONIALS);
 
   const DJ_PACKAGES = ["Private Party", "Wedding Reception", "Wedding Full Service"];
 
