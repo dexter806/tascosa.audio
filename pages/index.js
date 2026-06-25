@@ -591,7 +591,6 @@ export default function Home() {
                   <p className="text-xl md:text-2xl font-black text-white leading-tight">
                     $100 <span className="text-sm font-normal text-neutral-400">per hour (first 2 hours)</span>
                     <br />
-                    $50 <span className="text-sm font-normal text-neutral-400">per hour (after 2 hours)</span>
                   </p>
                   <p className="mt-2 text-xs text-neutral-500 uppercase tracking-widest font-bold">(2-hour minimum)</p>
                 </div>
