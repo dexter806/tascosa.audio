@@ -70,7 +70,7 @@ const TravelFeeTable = () => (
     <div className="divide-y divide-neutral-800">
       {[
         { zone: "0 – 30 miles", fee: "Free", note: "Amarillo & immediate surrounding area", highlight: false },
-        { zone: "31 – 60 miles", fee: "$50", note: "Canyon, Pampa, Hereford, Tulia area", highlight: false },
+        { zone: "31 – 60 miles", fee: "$50", note: "Pampa, Hereford, Tulia area", highlight: false },
         { zone: "61 – 100 miles", fee: "$75", note: "Lubbock, Childress, Dalhart area", highlight: false },
         { zone: "100+ miles", fee: "$125", note: "NM, OK, extended Panhandle", highlight: true },
       ].map((row) => (
@@ -120,6 +120,12 @@ const TESTIMONIALS = [
     event: "Private Party — Amarillo, TX",
     rating: 5,
   },
+    // {
+  //   quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then did things we didn't know we needed but wanted (like soft music for our knot tying during the ceremony so it wasn't awkwardly quiet!) He knew how to keep the party rolling for the older crowd without making the younger ones bored and vice versa. He checked in with me so many times during the process leading up to wedding day, and asked if he could help in any way. He played a song that was just a personal mp3 rather than on a streaming service because we requested it and he made every effort to do anything I asked. I felt so needy but he reassured me he could handle it and he DID. He even stayed late when my guests didn't get out early enough for my husband and I to do a private last dance. He waited until we were ready before packing up for the night. Would recommend him to anyone looking for an event DJ.",
+  //   name: "Lindsey S.",
+  //   event: "Wedding - Amarillo, TX",
+  //   rating: 5,
+  // },
   // ── ADD NEW REVIEWS BELOW THIS LINE ──
   // {
   //   quote: "Paste the review text here.",
