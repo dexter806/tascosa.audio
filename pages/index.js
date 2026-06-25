@@ -58,38 +58,72 @@ const FAQItem = ({ question, answer }) => {
 };
 
 // ─── TRAVEL FEE TABLE — shared by DJ and Diagnostic sections ─────────────────
-const TravelFeeTable = () => (
-  <div className="mt-8 rounded-2xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
-    <div className="px-6 py-4 border-b border-neutral-800 flex items-center gap-2">
-      <svg className="h-4 w-4 text-tascosa-orange flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-      <h4 className="text-sm font-bold text-white uppercase tracking-widest">Travel Fee Schedule</h4>
-    </div>
-    <div className="divide-y divide-neutral-800">
-      {[
-        { zone: "0 – 30 miles", fee: "Free", note: "Amarillo & immediate surrounding area", highlight: false },
-        { zone: "31 – 60 miles", fee: "$50", note: "Pampa, Hereford, Tulia area", highlight: false },
-        { zone: "61 – 100 miles", fee: "$75", note: "Lubbock, Childress, Dalhart area", highlight: false },
-        { zone: "100+ miles", fee: "$125", note: "NM, OK, extended Panhandle", highlight: true },
-      ].map((row) => (
-        <div key={row.zone} className="flex items-center justify-between px-6 py-3 gap-4">
-          <div>
-            <p className="text-sm font-semibold text-white">{row.zone}</p>
-            <p className="text-xs text-neutral-500 mt-0.5">{row.note}</p>
-          </div>
-          <span className={`text-sm font-black flex-none ${row.highlight ? "text-tascosa-orange" : "text-white"}`}>
-            {row.fee}
+// Collapsed by default; click or hover the header to expand.
+const TravelFeeTable = () => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-8 rounded-2xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
+      {/* Header — always visible, click toggles, hover also opens */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        onMouseEnter={() => setOpen(true)}
+        className="w-full px-6 py-4 flex items-center justify-between gap-2 group focus:outline-none"
+        aria-expanded={open}
+      >
+        <div className="flex items-center gap-2">
+          <svg className="h-4 w-4 text-tascosa-orange flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <h4 className="text-sm font-bold text-white uppercase tracking-widest group-hover:text-tascosa-orange transition-colors">
+            Travel Fee Schedule
+          </h4>
+        </div>
+        <div className="flex items-center gap-2 flex-none">
+          <span className="text-xs text-neutral-500 group-hover:text-neutral-400 transition-colors">
+            {open ? "hide" : "view rates"}
+          </span>
+          <span className={"flex h-5 w-5 items-center justify-center rounded-full border transition-all " + (open ? "border-tascosa-orange bg-tascosa-orange/10" : "border-neutral-700 group-hover:border-neutral-500")}>
+            <svg className={"h-2.5 w-2.5 text-tascosa-orange transition-transform duration-300 " + (open ? "rotate-180" : "")} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
           </span>
         </div>
-      ))}
+      </button>
+
+      {/* Expandable content */}
+      {open && (
+        <div
+          className="border-t border-neutral-800 animate-in fade-in slide-in-from-top-2 duration-200"
+          onMouseLeave={() => setOpen(false)}
+        >
+          <div className="divide-y divide-neutral-800">
+            {[
+              { zone: "0 – 30 miles", fee: "Free", note: "Amarillo & immediate surrounding area", highlight: false },
+              { zone: "31 – 60 miles", fee: "$50", note: "Pampa, Hereford, Tulia area", highlight: false },
+              { zone: "61 – 100 miles", fee: "$75", note: "Lubbock, Childress, Dalhart area", highlight: false },
+              { zone: "100+ miles", fee: "$125", note: "NM, OK, extended Panhandle", highlight: true },
+            ].map((row) => (
+              <div key={row.zone} className="flex items-center justify-between px-6 py-3 gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-white">{row.zone}</p>
+                  <p className="text-xs text-neutral-500 mt-0.5">{row.note}</p>
+                </div>
+                <span className={`text-sm font-black flex-none ${row.highlight ? "text-tascosa-orange" : "text-white"}`}>
+                  {row.fee}
+                </span>
+              </div>
+            ))}
+          </div>
+          <p className="px-6 py-3 text-[10px] text-neutral-600 uppercase tracking-widest border-t border-neutral-800">
+            Distance measured from Amarillo, TX · Fees are one-way and added to your package total
+          </p>
+        </div>
+      )}
     </div>
-    <p className="px-6 py-3 text-[10px] text-neutral-600 uppercase tracking-widest border-t border-neutral-800">
-      Distance measured from Amarillo, TX · Fees are one-way and added to your package total
-    </p>
-  </div>
-);
+  );
+};
 
 // ─── TESTIMONIALS ─────────────────────────────────────────────────────────────
 // To add a review:  copy one block and paste it before the closing ];
