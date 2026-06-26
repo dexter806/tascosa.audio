@@ -155,7 +155,7 @@ const TESTIMONIALS = [
     rating: 5,
   },
   {
-    quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then some — like adding soft music during our knot tying so it wasn't awkwardly quiet. He even stayed late so my husband and I could have our private last dance. He waited until we were ready before packing up. Would recommend him to anyone looking for an event DJ.",
+    quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then some — like adding soft music during our knot tying so it wasn't awkwardly quiet. He even stayed late so my husband and I could have our private last dance. Would recommend him to anyone looking for an event DJ.",
     name: "Lindsey S.",
     event: "Wedding — Amarillo, TX",
     rating: 5,
@@ -225,7 +225,7 @@ const ReviewsCarousel = ({ reviews }) => {
       onMouseLeave={() => setPaused(false)}
     >
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ minHeight: "320px" }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ height: "320px" }}>
         {visible.map((t, i) => (
           <div
             key={`${current}-${i}`}
@@ -239,7 +239,7 @@ const ReviewsCarousel = ({ reviews }) => {
                   </svg>
                 ))}
               </div>
-              <p className="text-neutral-300 text-sm leading-relaxed italic">"{t.quote}"</p>
+              <p className="text-neutral-300 text-sm leading-relaxed italic overflow-hidden" style={{ display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical" }}>"{t.quote}"</p>
             </div>
             <div className="mt-6 pt-6 border-t border-neutral-800">
               <p className="text-white font-semibold text-sm">{t.name}</p>
