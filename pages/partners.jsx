@@ -1,3 +1,4 @@
+// Last updated: June 25, 2026 — Background watermark logo added (matches main page)
 // FILE LOCATION: pages/partners.jsx
 // ─────────────────────────────────────────────────────────────────────────────
 // HOW TO ADD THIS PAGE:
@@ -135,25 +136,18 @@ const IconPhone = () => (
 // ─── VENUE CARD ───────────────────────────────────────────────────────────────
 const VenueCard = ({ venue }) => (
   <div className="group relative rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 transition-all duration-300 hover:border-tascosa-orange/50 hover:bg-neutral-900 flex flex-col justify-between">
-    {/* Orange dot accent */}
     <div className="absolute top-6 right-6 h-2 w-2 rounded-full bg-tascosa-orange opacity-30 group-hover:opacity-100 transition-opacity" />
-
     <div>
-      {/* Category pill */}
       <span className="inline-block text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-3 py-1 rounded-full mb-4">
         {venue.category}
       </span>
-
       <h3 className="text-xl font-bold text-white group-hover:text-tascosa-orange transition-colors leading-tight">
         {venue.name}
       </h3>
-
       <p className="mt-3 text-sm text-neutral-400 leading-relaxed">
         {venue.description}
       </p>
     </div>
-
-    {/* Links */}
     <div className="mt-6 pt-6 border-t border-neutral-800 flex flex-wrap gap-3">
       {venue.website && (
         <a href={venue.website} target="_blank" rel="noopener noreferrer"
@@ -181,26 +175,20 @@ const VenueCard = ({ venue }) => (
 const VendorCard = ({ vendor }) => (
   <div className="group relative rounded-3xl border border-neutral-800 bg-neutral-900/50 p-7 transition-all duration-300 hover:border-tascosa-orange/40 hover:bg-neutral-900 flex flex-col justify-between">
     <div className="absolute top-5 right-5 h-1.5 w-1.5 rounded-full bg-tascosa-orange opacity-30 group-hover:opacity-100 transition-opacity" />
-
     <div>
-      {/* Category pill */}
       <span className="inline-block text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-3 py-1 rounded-full mb-4">
         {vendor.category}
       </span>
-
       <h3 className="text-lg font-bold text-white group-hover:text-tascosa-orange transition-colors">
         {vendor.business !== vendor.name ? vendor.business : vendor.name}
       </h3>
       {vendor.business !== vendor.name && (
         <p className="text-xs text-neutral-500 mt-0.5">{vendor.name}</p>
       )}
-
       <p className="mt-3 text-sm text-neutral-400 leading-relaxed">
         {vendor.description}
       </p>
     </div>
-
-    {/* Links + phone */}
     <div className="mt-6 pt-5 border-t border-neutral-800 flex flex-wrap gap-3">
       {vendor.website && (
         <a href={vendor.website} target="_blank" rel="noopener noreferrer"
@@ -250,7 +238,18 @@ export default function Partners() {
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-tascosa-orange selection:text-black">
 
-        {/* ── NAV (matches your main site) ──────────────────────────────── */}
+        {/* ── BACKGROUND WATERMARK LOGO ────────────────────────────────── */}
+        {/* Fixed to left side, sits behind all content — matches main page */}
+        <div className="fixed left-0 top-0 h-full w-96 flex items-center justify-start pointer-events-none z-0 select-none" aria-hidden="true">
+          <img
+            src="/TA Logo.png"
+            alt=""
+            className="w-96 opacity-[0.08]"
+            style={{ userSelect: "none" }}
+          />
+        </div>
+
+        {/* ── NAV ──────────────────────────────────────────────────────── */}
         <header className="sticky top-0 z-50 backdrop-blur-md border-b border-neutral-800/60 bg-neutral-950/80">
           <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 items-center justify-between">
@@ -344,8 +343,6 @@ export default function Partners() {
                 These are the venues we're proud to partner with and the vendors we personally recommend.
                 Every name on this page has earned our trust — and we're happy to work alongside all of them.
               </p>
-
-              {/* Exclusive pricing callout — inviting, not exclusionary */}
               <div className="mt-8 inline-flex items-start gap-3 rounded-2xl border border-tascosa-orange/30 bg-tascosa-orange/5 px-6 py-4 max-w-xl mx-auto text-left">
                 <span className="text-tascosa-orange mt-0.5 flex-none">✦</span>
                 <p className="text-sm text-neutral-300 leading-relaxed">
@@ -371,7 +368,6 @@ export default function Partners() {
                 Book with them and you're already getting professional audio taken care of.
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {VENUES.map((venue) => (
                 <VenueCard key={venue.name} venue={venue} />
@@ -393,7 +389,6 @@ export default function Partners() {
                 Every vendor listed here comes with our personal recommendation.
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {VENDORS.map((vendor) => (
                 <VendorCard key={vendor.name} vendor={vendor} />
