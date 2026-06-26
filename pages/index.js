@@ -155,7 +155,7 @@ const TESTIMONIALS = [
     rating: 5,
   },
   {
-    quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then did things we didn't know we needed but wanted (like soft music for our knot tying during the ceremony so it wasn't awkwardly quiet!) He knew how to keep the party rolling for the older crowd without making the younger ones bored and vice versa. He checked in with me so many times during the process leading up to wedding day, and asked if he could help in any way. He played a song that was just a personal mp3 rather than on a streaming service because we requested it and he made every effort to do anything I asked. I felt so needy but he reassured me he could handle it and he DID. He even stayed late when my guests didn't get out early enough for my husband and I to do a private last dance. He waited until we were ready before packing up for the night. Would recommend him to anyone looking for an event DJ.",
+    quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then some — like adding soft music during our knot tying so it wasn't awkwardly quiet. He even stayed late so my husband and I could have our private last dance. He waited until we were ready before packing up. Would recommend him to anyone looking for an event DJ.",
     name: "Lindsey S.",
     event: "Wedding — Amarillo, TX",
     rating: 5,
@@ -225,11 +225,11 @@ const ReviewsCarousel = ({ reviews }) => {
       onMouseLeave={() => setPaused(false)}
     >
       {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-h-[280px]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ minHeight: "320px" }}>
         {visible.map((t, i) => (
           <div
             key={`${current}-${i}`}
-            className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 flex flex-col justify-between hover:border-tascosa-orange/30 transition-all duration-300 animate-in fade-in duration-300"
+            className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 flex flex-col justify-between hover:border-tascosa-orange/30 transition-all duration-300 animate-in fade-in duration-300 h-full"
           >
             <div>
               <div className="flex gap-0.5 mb-5">
@@ -466,7 +466,7 @@ export default function Home() {
                 </div>
                 <div className="relative">
                   <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                    <img src="/Lights.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
+                    <img src="/gallery-13.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl max-w-[280px]">
                     <p className="text-sm">Next-level vibes for weddings, private parties, school dances, and more.</p>
