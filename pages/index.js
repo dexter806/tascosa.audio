@@ -380,11 +380,11 @@ export default function Home() {
 
         {/* ── BACKGROUND WATERMARK LOGO ────────────────────────────────── */}
         {/* Fixed to left side, sits behind all content, scrolls with page */}
-        <div className="fixed left-0 top-0 h-full w-64 flex items-center justify-start pointer-events-none z-0 select-none" aria-hidden="true">
+        <div className="fixed left-0 top-0 h-full w-96 flex items-center justify-start pointer-events-none z-0 select-none" aria-hidden="true">
           <img
             src="/TA Logo.png"
             alt=""
-            className="w-56 opacity-[0.03] grayscale"
+            className="w-96 opacity-[0.15] grayscale"
             style={{ userSelect: "none" }}
           />
         </div>
