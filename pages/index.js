@@ -466,7 +466,7 @@ export default function Home() {
                 </div>
                 <div className="relative">
                   <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                    <img src="/gallery-13.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
+                    <img src="/Lights.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl max-w-[280px]">
                     <p className="text-sm">Next-level vibes for weddings, private parties, school dances, and more.</p>
@@ -587,6 +587,18 @@ export default function Home() {
             {/* DJ Travel Fees */}
             <div className="max-w-2xl mx-auto mt-10">
               <TravelFeeTable />
+            </div>
+
+            {/* Partner Venue Pricing Callout — Option C */}
+            <div className="max-w-2xl mx-auto mt-6">
+              <div className="flex items-center gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/40 px-6 py-4">
+                <span className="text-tascosa-orange text-lg flex-none">✦</span>
+                <p className="text-sm text-neutral-400 leading-relaxed">
+                  <span className="text-white font-semibold">Booked with a partner venue?</span>{" "}
+                  Clients of Knotting Hill, Iron Rose, and River Falls may qualify for exclusive pricing.{" "}
+                  <a href="/partners" className="text-tascosa-orange hover:underline font-medium">See our partners →</a>
+                </p>
+              </div>
             </div>
 
             {/* ── DIAGNOSTIC, REPAIR & EDUCATION ───────────────────────── */}
@@ -713,6 +725,30 @@ export default function Home() {
             </div>
           </section>
           )} {/* end TESTIMONIALS.length > 0 */}
+
+          {/* ── PARTNERS BANNER STRIP ─────────────────────────────────── */}
+          <section className="border-t border-neutral-800 bg-neutral-900/30">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-tascosa-orange mb-1">Proud Partners</p>
+                  <h3 className="text-lg font-bold text-white">Knotting Hill · Iron Rose · River Falls</h3>
+                  <p className="mt-1 text-sm text-neutral-400">
+                    Tascosa Audio is a trusted audio partner at each of these venues — and exclusive pricing is available to their clients.
+                  </p>
+                </div>
+                <a
+                  href="/partners"
+                  className="flex-none rounded-2xl px-7 py-3.5 border border-neutral-700 hover:border-tascosa-orange hover:text-tascosa-orange text-white font-semibold text-sm transition-all whitespace-nowrap flex items-center gap-2"
+                >
+                  Meet Our Partners
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </section>
 
           {/* ── GALLERY ───────────────────────────────────────────────── */}
           <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
