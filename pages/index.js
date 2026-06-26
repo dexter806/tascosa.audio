@@ -378,6 +378,17 @@ export default function Home() {
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-tascosa-orange selection:text-black">
 
+        {/* ── BACKGROUND WATERMARK LOGO ────────────────────────────────── */}
+        {/* Fixed to left side, sits behind all content, scrolls with page */}
+        <div className="fixed left-0 top-0 h-full w-64 flex items-center justify-start pointer-events-none z-0 select-none" aria-hidden="true">
+          <img
+            src="/TA Logo.png"
+            alt=""
+            className="w-56 opacity-[0.03] grayscale"
+            style={{ userSelect: "none" }}
+          />
+        </div>
+
         {/* ── NAV ──────────────────────────────────────────────────────── */}
         <header className="sticky top-0 z-50 backdrop-blur-md border-b border-neutral-800/60 bg-neutral-950/80">
           <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -455,7 +466,7 @@ export default function Home() {
                 </div>
                 <div className="relative">
                   <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                    <img src="/gallery-13.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
+                    <img src="/Lights.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
                   </div>
                   <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl max-w-[280px]">
                     <p className="text-sm">Next-level vibes for weddings, private parties, school dances, and more.</p>
