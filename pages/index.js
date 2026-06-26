@@ -384,7 +384,7 @@ export default function Home() {
           <img
             src="/TA Logo.png"
             alt=""
-            className="w-96 opacity-[0.15] grayscale"
+            className="w-96 opacity-[0.08]"
             style={{ userSelect: "none" }}
           />
         </div>
