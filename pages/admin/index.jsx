@@ -1,8 +1,7 @@
 // FILE LOCATION: pages/admin/index.jsx
 // ─────────────────────────────────────────────────────────────────────────────
-// Admin Portal — Tascosa Audio
-// Only accessible by Andy (user ID hardcoded below)
-// Shows all clients, their event status, and planner completion
+// Admin Portal Dashboard — Tascosa Audio
+// Updated: Month filter, revenue summary, per-person counters, completed events
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useEffect } from 'react'
@@ -15,8 +14,9 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
-// ─── ANDY'S USER ID — Only this account can access the admin portal ──────────
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
+const TEAM = ['Andy', 'Austin', 'Joe', 'Danny']
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
@@ -39,18 +39,18 @@ export default function AdminDashboard() {
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState('all') // all | upcoming | planner_pending | completed
+  const [filter, setFilter] = useState('all')
+  const [selectedMonth, setSelectedMonth] = useState('all')
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [selectedPerson, setSelectedPerson] = useState('all')
   const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteStatus, setInviteStatus] = useState('idle') // idle | sending | sent | error
-  const [stats, setStats] = useState({ total: 0, upcoming: 0, plannerDone: 0, balanceDue: 0 })
+  const [inviteStatus, setInviteStatus] = useState('idle')
+  const [expandedPerson, setExpandedPerson] = useState(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/portal/login'); return }
-      if (session.user.id !== ADMIN_USER_ID) {
-        router.push('/portal/dashboard')
-        return
-      }
+      if (session.user.id !== ADMIN_USER_ID) { router.push('/portal/dashboard'); return }
       await loadClients()
     })
   }, [])
@@ -63,37 +63,18 @@ export default function AdminDashboard() {
       .order('wedding_date', { ascending: true })
 
     if (error) { console.error(error); return }
-
     setClients(data || [])
-
-    // Calculate stats
-    const upcoming = (data || []).filter(c => daysUntil(c.wedding_date) > 0).length
-    const plannerDone = (data || []).filter(c => c.planner_completed).length
-    const balanceDue = (data || []).reduce((sum, c) => sum + (c.balance_due || 0), 0)
-
-    setStats({
-      total: data?.length || 0,
-      upcoming,
-      plannerDone,
-      balanceDue,
-    })
-
     setLoading(false)
   }
 
   async function sendInvite(e) {
     e.preventDefault()
     setInviteStatus('sending')
-
-    const { error } = await supabase.auth.admin?.inviteUserByEmail(inviteEmail)
-
-    // Since we can't use admin API on client side, use our API route instead
     const res = await fetch('/api/invite', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: inviteEmail }),
     })
-
     if (res.ok) {
       setInviteStatus('sent')
       setInviteEmail('')
@@ -109,15 +90,65 @@ export default function AdminDashboard() {
     router.push('/portal/login')
   }
 
-  // Filter and search
+  // ── COMPUTED STATS ──────────────────────────────────────────────────────────
+  const today = new Date()
+  const upcoming = clients.filter(c => daysUntil(c.wedding_date) > 0)
+  const completed = clients.filter(c => daysUntil(c.wedding_date) !== null && daysUntil(c.wedding_date) <= 0)
+  const totalBalanceDue = clients.reduce((sum, c) => sum + (c.balance_due || 0), 0)
+  const totalCollected = clients.reduce((sum, c) => sum + (c.total_paid || 0), 0)
+
+  // Per-person stats
+  const personStats = TEAM.map(person => ({
+    name: person,
+    total: clients.filter(c => c.assigned_to === person).length,
+    upcoming: clients.filter(c => c.assigned_to === person && daysUntil(c.wedding_date) > 0).length,
+    events: clients.filter(c => c.assigned_to === person),
+  }))
+
+  // Available years from client data
+  const years = [...new Set(clients.map(c => c.wedding_date ? new Date(c.wedding_date).getFullYear() : null).filter(Boolean))].sort()
+  if (!years.includes(today.getFullYear())) years.push(today.getFullYear())
+
+  // Monthly revenue for selected year
+  const monthlyData = MONTHS.map((month, idx) => {
+    const monthClients = clients.filter(c => {
+      if (!c.wedding_date) return false
+      const d = new Date(c.wedding_date)
+      return d.getFullYear() === selectedYear && d.getMonth() === idx
+    })
+    return {
+      month,
+      count: monthClients.length,
+      collected: monthClients.reduce((sum, c) => sum + (c.total_paid || 0), 0),
+      due: monthClients.reduce((sum, c) => sum + (c.balance_due || 0), 0),
+      clients: monthClients,
+    }
+  })
+
+  // ── FILTERED CLIENT LIST ────────────────────────────────────────────────────
   const filtered = clients.filter(c => {
     const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
     const matchSearch = name.includes(search.toLowerCase())
     const days = daysUntil(c.wedding_date)
-    if (filter === 'upcoming') return matchSearch && days > 0
-    if (filter === 'planner_pending') return matchSearch && !c.planner_completed
-    if (filter === 'completed') return matchSearch && days <= 0
-    return matchSearch
+
+    // Month filter
+    let matchMonth = true
+    if (selectedMonth !== 'all' && c.wedding_date) {
+      const d = new Date(c.wedding_date)
+      matchMonth = d.getMonth() === parseInt(selectedMonth) && d.getFullYear() === selectedYear
+    }
+
+    // Person filter
+    const matchPerson = selectedPerson === 'all' || c.assigned_to === selectedPerson
+
+    // Status filter
+    let matchFilter = true
+    if (filter === 'upcoming') matchFilter = days > 0
+    else if (filter === 'planner_pending') matchFilter = !c.planner_completed
+    else if (filter === 'completed') matchFilter = days !== null && days <= 0
+    else if (filter === 'unassigned') matchFilter = !c.assigned_to
+
+    return matchSearch && matchMonth && matchPerson && matchFilter
   })
 
   if (loading) {
@@ -145,10 +176,7 @@ export default function AdminDashboard() {
               <span className="font-bold text-sm tracking-wide">Admin Portal</span>
               <span className="text-xs bg-tascosa-orange/20 text-tascosa-orange px-2 py-0.5 rounded-full font-bold">ANDY</span>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="text-xs text-neutral-500 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-xl px-3 py-2 transition-all"
-            >
+            <button onClick={handleSignOut} className="text-xs text-neutral-500 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-xl px-3 py-2 transition-all">
               Sign Out
             </button>
           </div>
@@ -156,13 +184,14 @@ export default function AdminDashboard() {
 
         <main className="max-w-7xl mx-auto px-4 py-10 space-y-8">
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* ── TOP STATS ──────────────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {[
-              { label: 'Total Clients', value: stats.total, color: 'text-white' },
-              { label: 'Upcoming Events', value: stats.upcoming, color: 'text-tascosa-orange' },
-              { label: 'Planners Complete', value: `${stats.plannerDone}/${stats.total}`, color: 'text-emerald-400' },
-              { label: 'Total Balance Due', value: `$${stats.balanceDue.toFixed(2)}`, color: 'text-yellow-400' },
+              { label: 'Total Clients', value: clients.length, color: 'text-white' },
+              { label: 'Upcoming', value: upcoming.length, color: 'text-tascosa-orange' },
+              { label: 'Completed', value: completed.length, color: 'text-neutral-400' },
+              { label: 'Total Collected', value: `$${totalCollected.toFixed(2)}`, color: 'text-emerald-400' },
+              { label: 'Balance Due', value: `$${totalBalanceDue.toFixed(2)}`, color: 'text-yellow-400' },
             ].map(stat => (
               <div key={stat.label} className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 text-center">
                 <div className={`text-2xl font-black ${stat.color}`}>{stat.value}</div>
@@ -171,10 +200,101 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          {/* Invite + Search row */}
-          <div className="grid md:grid-cols-2 gap-4">
+          {/* ── TEAM COUNTERS ──────────────────────────────────────────────── */}
+          <div>
+            <h2 className="font-bold text-sm uppercase tracking-wider text-neutral-500 mb-3">Team Events</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {personStats.map(person => (
+                <div key={person.name} className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
+                  <button
+                    onClick={() => setExpandedPerson(expandedPerson === person.name ? null : person.name)}
+                    className="w-full p-5 text-left hover:bg-neutral-800/50 transition-all"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-white">{person.name}</span>
+                      <span className="text-xs text-neutral-500">{expandedPerson === person.name ? '▲' : '▼'}</span>
+                    </div>
+                    <div className="flex gap-4 mt-2">
+                      <div>
+                        <div className="text-2xl font-black text-tascosa-orange">{person.total}</div>
+                        <div className="text-xs text-neutral-500">Total</div>
+                      </div>
+                      <div>
+                        <div className="text-2xl font-black text-emerald-400">{person.upcoming}</div>
+                        <div className="text-xs text-neutral-500">Upcoming</div>
+                      </div>
+                    </div>
+                  </button>
+                  {/* Expandable event list */}
+                  {expandedPerson === person.name && (
+                    <div className="border-t border-neutral-800 bg-neutral-950/50">
+                      {person.events.length === 0 ? (
+                        <p className="text-xs text-neutral-600 p-4 text-center">No events assigned</p>
+                      ) : (
+                        person.events.map(c => (
+                          <button
+                            key={c.id}
+                            onClick={() => router.push(`/admin/client/${c.id}`)}
+                            className="w-full text-left px-4 py-3 border-b border-neutral-800 last:border-0 hover:bg-neutral-800/50 transition-all"
+                          >
+                            <p className="text-sm font-medium text-white">{c.person1_first_name} & {c.person2_first_name}</p>
+                            <p className="text-xs text-neutral-500">{formatDate(c.wedding_date)}</p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
 
-            {/* Invite client */}
+          {/* ── MONTHLY REVENUE ────────────────────────────────────────────── */}
+          <div>
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
+              <h2 className="font-bold text-sm uppercase tracking-wider text-neutral-500">Monthly Summary</h2>
+              <div className="flex gap-2">
+                {years.map(y => (
+                  <button
+                    key={y}
+                    onClick={() => setSelectedYear(y)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      selectedYear === y ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                    }`}
+                  >
+                    {y}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2">
+              {monthlyData.map((m, idx) => (
+                <button
+                  key={m.month}
+                  onClick={() => setSelectedMonth(selectedMonth === String(idx) ? 'all' : String(idx))}
+                  className={`rounded-xl p-3 text-center transition-all border ${
+                    selectedMonth === String(idx)
+                      ? 'border-tascosa-orange bg-tascosa-orange/10'
+                      : 'border-neutral-800 bg-neutral-900 hover:border-neutral-700'
+                  }`}
+                >
+                  <p className="text-xs font-bold text-neutral-400">{m.month}</p>
+                  <p className={`text-lg font-black mt-1 ${m.count > 0 ? 'text-white' : 'text-neutral-700'}`}>{m.count}</p>
+                  {m.collected > 0 && <p className="text-xs text-emerald-400 font-bold">${m.collected}</p>}
+                  {m.due > 0 && <p className="text-xs text-yellow-400 font-bold">${m.due} due</p>}
+                </button>
+              ))}
+            </div>
+            {selectedMonth !== 'all' && (
+              <p className="text-xs text-neutral-500 mt-2">
+                Showing {MONTHS[parseInt(selectedMonth)]} {selectedYear} — {filtered.length} event{filtered.length !== 1 ? 's' : ''}
+                <button onClick={() => setSelectedMonth('all')} className="ml-2 text-tascosa-orange hover:underline">Clear</button>
+              </p>
+            )}
+          </div>
+
+          {/* ── INVITE + SEARCH ────────────────────────────────────────────── */}
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
               <h2 className="font-bold mb-4 flex items-center gap-2">
                 <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
@@ -197,15 +317,10 @@ export default function AdminDashboard() {
                   {inviteStatus === 'sending' ? '...' : inviteStatus === 'sent' ? '✓ Sent!' : 'Send Invite'}
                 </button>
               </form>
-              {inviteStatus === 'error' && (
-                <p className="text-red-400 text-xs mt-2">Failed to send invite. Try again.</p>
-              )}
-              {inviteStatus === 'sent' && (
-                <p className="text-emerald-400 text-xs mt-2">✓ Invite sent to {inviteEmail}</p>
-              )}
+              {inviteStatus === 'error' && <p className="text-red-400 text-xs mt-2">Failed to send. Try again.</p>}
+              {inviteStatus === 'sent' && <p className="text-emerald-400 text-xs mt-2">✓ Invite sent!</p>}
             </div>
 
-            {/* Search & filter */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
               <h2 className="font-bold mb-4 flex items-center gap-2">
                 <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
@@ -225,17 +340,38 @@ export default function AdminDashboard() {
                     { val: 'upcoming', label: 'Upcoming' },
                     { val: 'planner_pending', label: 'Planner Pending' },
                     { val: 'completed', label: 'Past Events' },
+                    { val: 'unassigned', label: 'Unassigned' },
                   ].map(f => (
                     <button
                       key={f.val}
                       onClick={() => setFilter(f.val)}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                        filter === f.val
-                          ? 'bg-tascosa-orange text-black'
-                          : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                        filter === f.val ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
                       }`}
                     >
                       {f.label}
+                    </button>
+                  ))}
+                </div>
+                {/* Person filter */}
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={() => setSelectedPerson('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      selectedPerson === 'all' ? 'bg-neutral-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                    }`}
+                  >
+                    All Staff
+                  </button>
+                  {TEAM.map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setSelectedPerson(selectedPerson === p ? 'all' : p)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        selectedPerson === p ? 'bg-neutral-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                      }`}
+                    >
+                      {p}
                     </button>
                   ))}
                 </div>
@@ -243,12 +379,11 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Client list */}
+          {/* ── CLIENT LIST ────────────────────────────────────────────────── */}
           <div>
             <h2 className="font-bold text-lg mb-4">
               Clients <span className="text-neutral-500 font-normal text-sm">({filtered.length})</span>
             </h2>
-
             {filtered.length === 0 ? (
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-10 text-center text-neutral-500">
                 No clients found.
@@ -268,20 +403,19 @@ export default function AdminDashboard() {
                       className="bg-neutral-900 border border-neutral-800 hover:border-tascosa-orange/50 rounded-2xl p-5 cursor-pointer transition-all duration-200 group"
                     >
                       <div className="flex items-center justify-between gap-4 flex-wrap">
-
-                        {/* Names */}
                         <div className="flex-1 min-w-0">
                           <div className="font-bold text-white group-hover:text-tascosa-orange transition-colors">
-                            {client.person1_first_name} {client.person1_last_name}
-                            {' & '}
-                            {client.person2_first_name} {client.person2_last_name}
+                            {client.person1_first_name} {client.person1_last_name} & {client.person2_first_name} {client.person2_last_name}
                           </div>
                           <div className="text-sm text-neutral-400 mt-0.5 truncate">
                             {label1} & {label2} · {client.venue || 'Venue TBD'}
                           </div>
+                          {client.assigned_to && (
+                            <div className="text-xs text-neutral-500 mt-1">
+                              Assigned to <span className="text-tascosa-orange font-semibold">{client.assigned_to}</span>
+                            </div>
+                          )}
                         </div>
-
-                        {/* Event date */}
                         <div className="text-center flex-shrink-0">
                           <div className="text-sm font-semibold text-white">{formatDate(client.wedding_date)}</div>
                           {days !== null && (
@@ -295,13 +429,9 @@ export default function AdminDashboard() {
                             </div>
                           )}
                         </div>
-
-                        {/* Status badges */}
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex gap-2 flex-shrink-0 flex-wrap">
                           <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
-                            client.planner_completed
-                              ? 'bg-emerald-400/10 text-emerald-400'
-                              : 'bg-yellow-400/10 text-yellow-400'
+                            client.planner_completed ? 'bg-emerald-400/10 text-emerald-400' : 'bg-yellow-400/10 text-yellow-400'
                           }`}>
                             {client.planner_completed ? '✓ Planner Done' : '⏳ Planner Pending'}
                           </span>
@@ -311,7 +441,6 @@ export default function AdminDashboard() {
                             </span>
                           )}
                         </div>
-
                         <div className="text-neutral-600 group-hover:text-tascosa-orange transition-colors flex-shrink-0">→</div>
                       </div>
                     </div>
