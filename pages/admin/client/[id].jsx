@@ -285,6 +285,37 @@ export default function AdminClientDetail() {
                     <p className="text-sm text-neutral-300 leading-relaxed">{planner.event_notes}</p>
                   </div>
                 )}
+
+                {/* Assigned To + Send Planner */}
+                <div className="mt-4 pt-4 border-t border-neutral-800 space-y-3">
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 ml-1 uppercase tracking-wider">Assigned To</label>
+                    <select
+                      value={adminForm.assigned_to}
+                      onChange={e => setAdminForm(p => ({ ...p, assigned_to: e.target.value }))}
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all appearance-none"
+                    >
+                      <option value="">Select team member...</option>
+                      {TEAM.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <button
+                    onClick={sendPlanner}
+                    disabled={sendStatus === 'sending' || sendStatus === 'sent' || !client?.planner_completed}
+                    className="w-full rounded-xl py-3 border border-neutral-700 hover:border-tascosa-orange text-neutral-300 hover:text-tascosa-orange font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {sendStatus === 'sending' ? 'Sending...' :
+                     sendStatus === 'sent' ? '✓ Planner Sent!' :
+                     !client?.planner_completed ? '📋 Planner Not Yet Complete' :
+                     '📋 Send Planner to Assigned DJ'}
+                  </button>
+                  {sendStatus === 'sent' && (
+                    <p className="text-emerald-400 text-xs mt-1 text-center">Planner sent to {adminForm.assigned_to}</p>
+                  )}
+                  {!client?.planner_completed && (
+                    <p className="text-neutral-600 text-xs mt-1 text-center">Client must complete their planner first</p>
+                  )}
+                </div>
               </SectionCard>
 
               {/* Admin fields — editable */}
@@ -299,18 +330,6 @@ export default function AdminClientDetail() {
                     >
                       <option value="">Select package...</option>
                       {PACKAGES.map(p => <option key={p}>{p}</option>)}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs text-neutral-500 mb-1.5 ml-1 uppercase tracking-wider">Assigned To</label>
-                    <select
-                      value={adminForm.assigned_to}
-                      onChange={e => setAdminForm(p => ({ ...p, assigned_to: e.target.value }))}
-                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all appearance-none"
-                    >
-                      <option value="">Select team member...</option>
-                      {TEAM.map(t => <option key={t}>{t}</option>)}
                     </select>
                   </div>
 
@@ -358,29 +377,7 @@ export default function AdminClientDetail() {
                     {saveStatus === 'saving' ? 'Saving...' : 'Save Changes'}
                   </button>
 
-                  {/* Send Planner to DJ */}
-                  <div className="pt-2 border-t border-neutral-800">
-                    <button
-                      onClick={sendPlanner}
-                      disabled={sendStatus === 'sending' || sendStatus === 'sent' || !client?.planner_completed}
-                      className="w-full rounded-xl py-3 border border-neutral-700 hover:border-tascosa-orange text-neutral-300 hover:text-tascosa-orange font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                    >
-                      {sendStatus === 'sending' ? 'Sending...' :
-                       sendStatus === 'sent' ? '✓ Planner Sent!' :
-                       !client?.planner_completed ? '📋 Planner Not Yet Complete' :
-                       '📋 Send Planner to Assigned DJ'}
-                    </button>
-                    {sendStatus === 'sent' && (
-                      <p className="text-emerald-400 text-xs mt-2 text-center">
-                        Planner sent to {adminForm.assigned_to}
-                      </p>
-                    )}
-                    {!client?.planner_completed && (
-                      <p className="text-neutral-600 text-xs mt-1 text-center">
-                        Client must complete their wedding planner first
-                      </p>
-                    )}
-                  </div>
+
                 </div>
               </SectionCard>
 
