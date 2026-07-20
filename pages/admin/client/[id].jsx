@@ -17,6 +17,7 @@ const supabase = createClient(
 
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
 const PACKAGES = ['Private Party', 'Wedding Reception', 'Wedding Full Service', 'All-Inclusive Partner']
+const TEAM = ['Andy', 'Austin', 'Joe', 'Danny']
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
@@ -73,6 +74,7 @@ export default function AdminClientDetail() {
   const [planner, setPlanner] = useState(null)
   const [loading, setLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState('idle')
+  const [sendStatus, setSendStatus] = useState('idle') // idle | sending | sent | error
   const [activeTab, setActiveTab] = useState('overview') // overview | ceremony | reception | music
 
   const [adminForm, setAdminForm] = useState({
@@ -80,6 +82,7 @@ export default function AdminClientDetail() {
     total_contract: '',
     total_paid: '',
     balance_due: '',
+    assigned_to: '',
     notes: '',
   })
 
@@ -105,6 +108,7 @@ export default function AdminClientDetail() {
         total_contract: clientData.total_contract || '',
         total_paid: clientData.total_paid || '',
         balance_due: clientData.balance_due || '',
+        assigned_to: clientData.assigned_to || '',
         notes: clientData.notes || '',
       })
 
@@ -122,13 +126,19 @@ export default function AdminClientDetail() {
 
   async function saveAdminFields() {
     setSaveStatus('saving')
+    const contract = parseFloat(adminForm.total_contract) || 0
+    const paid = parseFloat(adminForm.total_paid) || 0
+    const balance = Math.max(0, contract - paid)
+    // Auto-calculate balance due
+    setAdminForm(p => ({ ...p, balance_due: balance.toFixed(2) }))
     const { error } = await supabase
       .from('clients')
       .update({
         package: adminForm.package,
-        total_contract: parseFloat(adminForm.total_contract) || 0,
-        total_paid: parseFloat(adminForm.total_paid) || 0,
-        balance_due: parseFloat(adminForm.balance_due) || 0,
+        total_contract: contract,
+        total_paid: paid,
+        balance_due: balance,
+        assigned_to: adminForm.assigned_to,
         notes: adminForm.notes,
       })
       .eq('id', id)
@@ -139,6 +149,27 @@ export default function AdminClientDetail() {
     } else {
       setSaveStatus('saved')
       setTimeout(() => setSaveStatus('idle'), 3000)
+    }
+  }
+
+  async function sendPlanner() {
+    if (!adminForm.assigned_to) {
+      alert('Please assign this event to a team member first.')
+      return
+    }
+    setSendStatus('sending')
+    const res = await fetch('/api/send-planner', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: id, assignedTo: adminForm.assigned_to }),
+    })
+    const data = await res.json()
+    if (res.ok) {
+      setSendStatus('sent')
+      setTimeout(() => setSendStatus('idle'), 5000)
+    } else {
+      alert(data.error || 'Failed to send planner.')
+      setSendStatus('idle')
     }
   }
 
@@ -270,11 +301,23 @@ export default function AdminClientDetail() {
                       {PACKAGES.map(p => <option key={p}>{p}</option>)}
                     </select>
                   </div>
-                  <div className="grid grid-cols-3 gap-3">
+
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 ml-1 uppercase tracking-wider">Assigned To</label>
+                    <select
+                      value={adminForm.assigned_to}
+                      onChange={e => setAdminForm(p => ({ ...p, assigned_to: e.target.value }))}
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all appearance-none"
+                    >
+                      <option value="">Select team member...</option>
+                      {TEAM.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
                     {[
                       { label: 'Total Contract', key: 'total_contract' },
                       { label: 'Total Paid', key: 'total_paid' },
-                      { label: 'Balance Due', key: 'balance_due' },
                     ].map(field => (
                       <div key={field.key}>
                         <label className="block text-xs text-neutral-500 mb-1.5 ml-1 uppercase tracking-wider">{field.label}</label>
@@ -290,6 +333,12 @@ export default function AdminClientDetail() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div className="bg-neutral-950/60 rounded-xl border border-neutral-700 px-4 py-3 flex justify-between items-center">
+                    <span className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Balance Due (auto-calculated)</span>
+                    <span className="text-lg font-black text-tascosa-orange">
+                      ${Math.max(0, (parseFloat(adminForm.total_contract) || 0) - (parseFloat(adminForm.total_paid) || 0)).toFixed(2)}
+                    </span>
                   </div>
                   <div>
                     <label className="block text-xs text-neutral-500 mb-1.5 ml-1 uppercase tracking-wider">Internal Notes</label>
@@ -308,6 +357,30 @@ export default function AdminClientDetail() {
                   >
                     {saveStatus === 'saving' ? 'Saving...' : 'Save Changes'}
                   </button>
+
+                  {/* Send Planner to DJ */}
+                  <div className="pt-2 border-t border-neutral-800">
+                    <button
+                      onClick={sendPlanner}
+                      disabled={sendStatus === 'sending' || sendStatus === 'sent' || !client?.planner_completed}
+                      className="w-full rounded-xl py-3 border border-neutral-700 hover:border-tascosa-orange text-neutral-300 hover:text-tascosa-orange font-bold text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {sendStatus === 'sending' ? 'Sending...' :
+                       sendStatus === 'sent' ? '✓ Planner Sent!' :
+                       !client?.planner_completed ? '📋 Planner Not Yet Complete' :
+                       '📋 Send Planner to Assigned DJ'}
+                    </button>
+                    {sendStatus === 'sent' && (
+                      <p className="text-emerald-400 text-xs mt-2 text-center">
+                        Planner sent to {adminForm.assigned_to}
+                      </p>
+                    )}
+                    {!client?.planner_completed && (
+                      <p className="text-neutral-600 text-xs mt-1 text-center">
+                        Client must complete their wedding planner first
+                      </p>
+                    )}
+                  </div>
                 </div>
               </SectionCard>
 
