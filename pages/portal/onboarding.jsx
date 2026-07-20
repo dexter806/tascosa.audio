@@ -67,14 +67,32 @@ export default function Onboarding() {
       if (!session) { router.push('/portal/login'); return }
       setUser(session.user)
 
-      // If they already completed onboarding, send to dashboard
+      // Load existing data and pre-fill form for editing
       const { data } = await supabase
         .from('clients')
-        .select('id, person1_first_name')
+        .select('*')
         .eq('user_id', session.user.id)
         .single()
 
-      if (data?.person1_first_name) router.push('/portal/dashboard')
+      if (data?.person1_first_name) {
+        const isOtherVenue = data.venue && !VENUES.slice(0, -1).includes(data.venue)
+        setForm({
+          person1_first_name: data.person1_first_name || '',
+          person1_last_name: data.person1_last_name || '',
+          person1_role: data.person1_role || 'Bride',
+          person1_email: data.person1_email || '',
+          person1_phone: data.person1_phone || '',
+          person2_first_name: data.person2_first_name || '',
+          person2_last_name: data.person2_last_name || '',
+          person2_role: data.person2_role || 'Groom',
+          person2_email: data.person2_email || '',
+          person2_phone: data.person2_phone || '',
+          wedding_date: data.wedding_date || '',
+          venue: isOtherVenue ? 'Other' : data.venue || '',
+          venue_other: isOtherVenue ? data.venue : '',
+        })
+        if (isOtherVenue) setVenueOther(true)
+      }
     })
   }, [])
 
@@ -167,10 +185,9 @@ export default function Onboarding() {
           {/* Header */}
           <div className="text-center mb-10">
             <img src="/TA Logo.png" alt="Tascosa Audio" className="h-14 w-auto mx-auto object-contain mb-5" />
-            <h1 className="text-3xl font-extrabold">Welcome to Your Portal!</h1>
+            <h1 className="text-3xl font-extrabold">Your Information</h1>
             <p className="text-neutral-400 mt-3 leading-relaxed">
-              Before we get started, we just need a few details about you and your event.
-              This only takes a minute and you can update anything later.
+              Review and update your details below. Any changes you make will be saved immediately.
             </p>
           </div>
 
