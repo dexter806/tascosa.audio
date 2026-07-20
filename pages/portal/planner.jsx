@@ -244,8 +244,60 @@ export default function Planner() {
   async function saveProgress(isComplete = false) {
     setSaveStatus('saving')
 
-    const payload = { ...form, client_id: client.id }
-    if (isComplete) payload.planner_completed = true
+    // Only include fields that exist in the wedding_planner table
+    // Strip out any UI-only state fields before sending to Supabase
+    const {
+      ceremony_start_time, reception_end_time, event_notes,
+      song_parent_procession_title, song_parent_procession_artist,
+      song_groom_procession_title, song_groom_procession_artist,
+      song_groomsmen_title, song_groomsmen_artist,
+      song_bridesmaids_title, song_bridesmaids_artist,
+      song_bride_procession_title, song_bride_procession_artist,
+      song_interlude_title, song_interlude_artist,
+      song_recessional_title, song_recessional_artist,
+      ceremony_notes,
+      intro_party_first, intro_party_style, intro_party_order,
+      intro_couples, intro_couple_style, intro_notes,
+      song_party_entrance_title, song_party_entrance_artist,
+      song_couple_entrance_title, song_couple_entrance_artist,
+      song_first_dance_title, song_first_dance_artist,
+      song_person1_parent_dance_title, song_person1_parent_dance_artist, song_person1_parent_relation,
+      song_person2_parent_dance_title, song_person2_parent_dance_artist, song_person2_parent_relation,
+      song_cake_cutting_title, song_cake_cutting_artist,
+      song_bouquet_toss_title, song_bouquet_toss_artist,
+      song_garter_toss_title, song_garter_toss_artist,
+      song_last_dance_guests_title, song_last_dance_guests_artist,
+      song_last_dance_private_title, song_last_dance_private_artist,
+      reception_notes,
+      music_requests, music_do_not_play, music_playlist_links, music_notes,
+    } = form
+
+    const payload = {
+      client_id: client.id,
+      ceremony_start_time, reception_end_time, event_notes,
+      song_parent_procession_title, song_parent_procession_artist,
+      song_groom_procession_title, song_groom_procession_artist,
+      song_groomsmen_title, song_groomsmen_artist,
+      song_bridesmaids_title, song_bridesmaids_artist,
+      song_bride_procession_title, song_bride_procession_artist,
+      song_interlude_title, song_interlude_artist,
+      song_recessional_title, song_recessional_artist,
+      ceremony_notes,
+      intro_party_first, intro_party_style, intro_party_order,
+      intro_couples, intro_couple_style, intro_notes,
+      song_party_entrance_title, song_party_entrance_artist,
+      song_couple_entrance_title, song_couple_entrance_artist,
+      song_first_dance_title, song_first_dance_artist,
+      song_person1_parent_dance_title, song_person1_parent_dance_artist, song_person1_parent_relation,
+      song_person2_parent_dance_title, song_person2_parent_dance_artist, song_person2_parent_relation,
+      song_cake_cutting_title, song_cake_cutting_artist,
+      song_bouquet_toss_title, song_bouquet_toss_artist,
+      song_garter_toss_title, song_garter_toss_artist,
+      song_last_dance_guests_title, song_last_dance_guests_artist,
+      song_last_dance_private_title, song_last_dance_private_artist,
+      reception_notes,
+      music_requests, music_do_not_play, music_playlist_links, music_notes,
+    }
 
     let error
 
@@ -274,7 +326,7 @@ export default function Planner() {
     }
 
     if (error) {
-      console.error(error)
+      console.error('Supabase save error:', error)
       setSaveStatus('error')
     } else {
       setSaveStatus('saved')
