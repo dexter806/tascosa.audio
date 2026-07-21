@@ -45,6 +45,10 @@ export default function Onboarding() {
   const [user, setUser] = useState(null)
   const [status, setStatus] = useState('idle')
   const [venueOther, setVenueOther] = useState(false)
+  const [needsPassword, setNeedsPassword] = useState(false)
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [passwordStatus, setPasswordStatus] = useState('idle')
 
   const [form, setForm] = useState({
     person1_first_name: '',
@@ -100,6 +104,27 @@ export default function Onboarding() {
     const { name, value } = e.target
     if (name === 'venue') setVenueOther(value === 'Other')
     setForm(prev => ({ ...prev, [name]: value }))
+  }
+
+  async function handleSetPassword(e) {
+    e.preventDefault()
+    if (password !== confirmPassword) {
+      alert('Passwords do not match. Please try again.')
+      return
+    }
+    if (password.length < 8) {
+      alert('Password must be at least 8 characters.')
+      return
+    }
+    setPasswordStatus('loading')
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) {
+      console.error(error)
+      setPasswordStatus('error')
+    } else {
+      setPasswordStatus('success')
+      setNeedsPassword(false)
+    }
   }
 
   async function handleSubmit(e) {
@@ -183,6 +208,64 @@ export default function Onboarding() {
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100 px-4 py-12">
         <div className="max-w-2xl mx-auto">
+
+          {/* Password creation screen */}
+          {needsPassword && (
+            <div className="min-h-[60vh] flex items-center justify-center">
+              <div className="w-full max-w-md">
+                <div className="text-center mb-8">
+                  <img src="/TA Logo.png" alt="Tascosa Audio" className="h-14 w-auto mx-auto object-contain mb-5" />
+                  <h1 className="text-2xl font-extrabold">Create Your Password</h1>
+                  <p className="text-neutral-400 mt-3 leading-relaxed text-sm">
+                    Set a password so you can log back into your portal anytime.
+                  </p>
+                </div>
+                <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8">
+                  <form onSubmit={handleSetPassword} className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">New Password</label>
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                        placeholder="At least 8 characters"
+                        className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">Confirm Password</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        required
+                        placeholder="Re-enter your password"
+                        className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all"
+                      />
+                    </div>
+                    {passwordStatus === 'error' && (
+                      <p className="text-red-400 text-sm">Something went wrong. Please try again.</p>
+                    )}
+                    <button
+                      type="submit"
+                      disabled={passwordStatus === 'loading'}
+                      className="w-full rounded-2xl py-4 bg-tascosa-orange text-black font-black hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all uppercase tracking-wider text-sm"
+                    >
+                      {passwordStatus === 'loading' ? 'Setting password...' : 'Set Password & Continue →'}
+                    </button>
+                  </form>
+                </div>
+                <p className="text-center text-xs text-neutral-600 mt-6">
+                  Need help? <a href="tel:8066707913" className="text-tascosa-orange hover:underline">Call or text Andy at 806-670-7913</a>
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Main onboarding form — only shown after password is set */}
+          {!needsPassword && (
+          <div>
 
           {/* Header */}
           <div className="text-center mb-10">
@@ -315,6 +398,9 @@ export default function Onboarding() {
             {' '}or{' '}
             <a href="tel:8066707913" className="text-tascosa-orange hover:underline">806-670-7913</a>
           </p>
+
+          </div>
+          )}
 
         </div>
       </div>
