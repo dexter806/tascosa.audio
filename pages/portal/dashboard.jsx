@@ -1,4 +1,3 @@
-
 // FILE LOCATION: pages/portal/dashboard.jsx
 // ─────────────────────────────────────────────────────────────────────────────
 // Client portal dashboard — main hub after onboarding is complete
@@ -27,7 +26,8 @@ function daysUntil(dateStr) {
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  return new Date(d).toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   })
 }
