@@ -18,10 +18,11 @@ function daysUntil(dateStr) {
   if (!dateStr) return null
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  const event = new Date(dateStr)
+  // Append time to prevent UTC midnight timezone shift
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  const event = new Date(d)
   event.setHours(0, 0, 0, 0)
-  const diff = Math.round((event - today) / (1000 * 60 * 60 * 24))
-  return diff
+  return Math.round((event - today) / (1000 * 60 * 60 * 24))
 }
 
 function formatDate(dateStr) {
