@@ -31,9 +31,7 @@ function daysUntil(dateStr) {
   if (!dateStr) return null
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  // Append time to prevent UTC midnight timezone shift
-  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
-  const event = new Date(d)
+  const event = new Date(dateStr)
   event.setHours(0, 0, 0, 0)
   return Math.round((event - today) / (1000 * 60 * 60 * 24))
 }
@@ -161,6 +159,7 @@ export default function AdminDashboard() {
     else if (filter === 'planner_pending') matchFilter = !c.planner_completed
     else if (filter === 'completed') matchFilter = days !== null && days <= 0
     else if (filter === 'unassigned') matchFilter = !c.assigned_to
+    else if (filter === 'balance_due') matchFilter = (c.balance_due || 0) > 0
     return matchSearch && matchFilter
   })
 
@@ -413,6 +412,7 @@ export default function AdminDashboard() {
                   { val: 'planner_pending', label: 'Planner Pending' },
                   { val: 'completed', label: 'Past Events' },
                   { val: 'unassigned', label: 'Unassigned' },
+                  { val: 'balance_due', label: 'Balance Due' },
                 ].map(f => (
                   <button
                     key={f.val}
