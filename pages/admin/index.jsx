@@ -40,8 +40,8 @@ export default function AdminDashboard() {
   const router = useRouter()
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState('all')
+  const [search, setSearch] = useState(() => sessionStorage.getItem('adminSearch') || '')
+  const [filter, setFilter] = useState(() => sessionStorage.getItem('adminFilter') || 'upcoming')
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteStatus, setInviteStatus] = useState('idle')
   const [showReports, setShowReports] = useState(false)
@@ -420,7 +420,7 @@ export default function AdminDashboard() {
                 ].map(f => (
                   <button
                     key={f.val}
-                    onClick={() => setFilter(f.val)}
+                    onClick={() => { setFilter(f.val); sessionStorage.setItem('adminFilter', f.val) }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       filter === f.val ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
                     }`}
