@@ -107,6 +107,8 @@ export default function Onboarding() {
     setStatus('loading')
 
     const venueValue = form.venue === 'Other' ? form.venue_other : form.venue
+    // Fix timezone shift — use noon UTC so date doesn't roll back a day
+    const weddingDate = form.wedding_date ? `${form.wedding_date}T12:00:00` : null
 
     // Check if a client row already exists for this user
     const { data: existing } = await supabase
@@ -132,7 +134,7 @@ export default function Onboarding() {
           person2_role: form.person2_role,
           person2_email: form.person2_email,
           person2_phone: form.person2_phone,
-          wedding_date: form.wedding_date,
+          wedding_date: weddingDate,
           venue: venueValue,
         })
         .eq('user_id', user.id)
@@ -153,7 +155,7 @@ export default function Onboarding() {
           person2_role: form.person2_role,
           person2_email: form.person2_email,
           person2_phone: form.person2_phone,
-          wedding_date: form.wedding_date,
+          wedding_date: weddingDate,
           venue: venueValue,
         })
       error = insertError
