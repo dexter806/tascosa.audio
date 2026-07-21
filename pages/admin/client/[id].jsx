@@ -227,7 +227,7 @@ export default function AdminClientDetail() {
                 <p className="text-neutral-400 mt-1">{label1} & {label2} · {client.venue}</p>
                 <p className="text-tascosa-orange font-semibold mt-1">{formatDate(client.wedding_date)}</p>
               </div>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
                 <span className={`text-xs px-3 py-1.5 rounded-full font-bold ${
                   client.planner_completed ? 'bg-emerald-400/10 text-emerald-400' : 'bg-yellow-400/10 text-yellow-400'
                 }`}>
@@ -236,6 +236,16 @@ export default function AdminClientDetail() {
                 {client.package && (
                   <span className="text-xs px-3 py-1.5 rounded-full font-bold bg-tascosa-orange/10 text-tascosa-orange">
                     {client.package}
+                  </span>
+                )}
+                {!client.user_id && (
+                  <span className="text-xs px-3 py-1.5 rounded-full font-bold bg-neutral-800 text-neutral-400">
+                    No Portal Account
+                  </span>
+                )}
+                {client.user_id && (
+                  <span className="text-xs px-3 py-1.5 rounded-full font-bold bg-emerald-400/10 text-emerald-400">
+                    ✓ Portal Active
                   </span>
                 )}
               </div>
@@ -272,6 +282,36 @@ export default function AdminClientDetail() {
                 <InfoRow label={label2} value={`${client.person2_first_name} ${client.person2_last_name}`} />
                 <InfoRow label={`${label2} Email`} value={client.person2_email} />
                 <InfoRow label={`${label2} Phone`} value={client.person2_phone} />
+              {/* Quick invite button */}
+                {!client.user_id && client.person1_email && (
+                  <div className="mt-4 pt-4 border-t border-neutral-800">
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider mb-2">Portal Invite</p>
+                    <div className="flex items-center gap-2 bg-neutral-950/60 rounded-xl p-3">
+                      <span className="text-xs text-neutral-400 flex-1 truncate">{client.person1_email}</span>
+                      <button
+                        onClick={async () => {
+                          const res = await fetch('/api/invite', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: client.person1_email }),
+                          })
+                          if (res.ok) alert(`✓ Invite sent to ${client.person1_email}!`)
+                          else alert('Failed to send invite. Try again.')
+                        }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-tascosa-orange text-black font-black hover:brightness-110 transition-all whitespace-nowrap flex-shrink-0"
+                      >
+                        Send Invite
+                      </button>
+                    </div>
+                    <p className="text-xs text-neutral-600 mt-1">Sends portal invite to {client.person1_first_name}'s email</p>
+                  </div>
+                )}
+                {client.user_id && (
+                  <div className="mt-4 pt-4 border-t border-neutral-800">
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Portal Status</p>
+                    <p className="text-xs text-emerald-400">✓ {client.person1_first_name} has an active portal account</p>
+                  </div>
+                )}
               </SectionCard>
 
               {/* Event info */}
