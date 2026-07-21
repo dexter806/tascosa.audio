@@ -20,7 +20,9 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  // Append time to prevent UTC midnight timezone shift
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  return new Date(d).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
   })
 }
