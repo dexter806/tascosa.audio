@@ -160,6 +160,8 @@ export default function AdminDashboard() {
     else if (filter === 'completed') matchFilter = days !== null && days <= 0
     else if (filter === 'unassigned') matchFilter = !c.assigned_to
     else if (filter === 'balance_due') matchFilter = (c.balance_due || 0) > 0
+    else if (filter === 'all_inclusive') matchFilter = c.package === 'All-Inclusive Partner'
+    else if (filter === 'full_service') matchFilter = c.package === 'Wedding Full Service'
     return matchSearch && matchFilter
   })
 
@@ -413,6 +415,8 @@ export default function AdminDashboard() {
                   { val: 'completed', label: 'Past Events' },
                   { val: 'unassigned', label: 'Unassigned' },
                   { val: 'balance_due', label: 'Balance Due' },
+                  { val: 'all_inclusive', label: 'All-Inclusive' },
+                  { val: 'full_service', label: 'Full Service' },
                 ].map(f => (
                   <button
                     key={f.val}
@@ -478,7 +482,18 @@ export default function AdminDashboard() {
                             </div>
                           )}
                         </div>
-                        <div className="flex gap-2 flex-shrink-0">
+                        <div className="flex gap-2 flex-shrink-0 flex-wrap">
+                          {client.package && (
+                            <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                              client.package === 'All-Inclusive Partner'
+                                ? 'bg-purple-400/10 text-purple-400'
+                                : client.package === 'Wedding Full Service'
+                                ? 'bg-blue-400/10 text-blue-400'
+                                : 'bg-neutral-700 text-neutral-300'
+                            }`}>
+                              {client.package === 'All-Inclusive Partner' ? '★ All-Inclusive' : client.package}
+                            </span>
+                          )}
                           <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
                             client.planner_completed ? 'bg-emerald-400/10 text-emerald-400' : 'bg-yellow-400/10 text-yellow-400'
                           }`}>
