@@ -71,6 +71,14 @@ export default function Onboarding() {
       if (!session) { router.push('/portal/login'); return }
       setUser(session.user)
 
+      // Check if user arrived via magic link / invite token
+      const hash = typeof window !== 'undefined' ? window.location.hash : ''
+      const hashParams = new URLSearchParams(hash.replace('#', '?'))
+      const linkType = hashParams.get('type')
+      if (linkType === 'invite' || linkType === 'signup' || linkType === 'magiclink') {
+        setNeedsPassword(true)
+      }
+
       // Load existing data and pre-fill form for editing
       const { data } = await supabase
         .from('clients')
