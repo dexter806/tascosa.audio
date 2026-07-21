@@ -21,7 +21,8 @@ const TEAM = ['Andy', 'Austin', 'Joe', 'Danny']
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('en-US', {
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  return new Date(d).toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
   })
 }
