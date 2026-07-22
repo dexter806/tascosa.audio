@@ -1,7 +1,6 @@
 // FILE LOCATION: pages/admin/index.jsx
 // ─────────────────────────────────────────────────────────────────────────────
-// Admin Portal Dashboard — Tascosa Audio (Redesigned)
-// Clean layout: This Weekend → Stats → Client List → Reports (collapsed)
+// Admin Portal Dashboard — Tascosa Audio (Cleaned Up)
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useEffect } from 'react'
@@ -20,7 +19,6 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  // Append time to prevent UTC midnight timezone shift
   const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
   return new Date(d).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric'
@@ -43,12 +41,11 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminSearch') || '' : '')
   const [filter, setFilter] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminFilter') || 'upcoming' : 'upcoming')
-  const [inviteEmail, setInviteEmail] = useState('')
-  const [inviteStatus, setInviteStatus] = useState('idle')
   const [showReports, setShowReports] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState('all')
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [expandedPerson, setExpandedPerson] = useState(null)
+  const [personFilter, setPersonFilter] = useState('upcoming') // upcoming | completed | all
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -69,66 +66,33 @@ export default function AdminDashboard() {
     setLoading(false)
   }
 
-  async function sendInvite(e) {
-    e.preventDefault()
-    setInviteStatus('sending')
-    const res = await fetch('/api/invite', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: inviteEmail }),
-    })
-    if (res.ok) {
-      setInviteStatus('sent')
-      setInviteEmail('')
-      setTimeout(() => setInviteStatus('idle'), 4000)
-    } else {
-      setInviteStatus('error')
-      setTimeout(() => setInviteStatus('idle'), 4000)
-    }
-  }
-
   async function handleSignOut() {
     await supabase.auth.signOut()
     router.push('/portal/login')
   }
 
   // ── COMPUTED VALUES ─────────────────────────────────────────────────────────
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
+  const upcoming = clients.filter(c => (daysUntil(c.wedding_date) ?? -1) >= 0)
+  const completed = clients.filter(c => (daysUntil(c.wedding_date) ?? 0) < 0)
+  const totalCollected = clients.reduce((sum, c) => sum + (c.total_paid || 0), 0)
+  const totalBalanceDue = clients.reduce((sum, c) => sum + (c.balance_due || 0), 0)
+  const plannersDoneUpcoming = upcoming.filter(c => c.planner_completed).length
 
-  // This weekend — Friday through Sunday
-  const dayOfWeek = today.getDay()
-  const daysUntilFriday = dayOfWeek <= 5 ? 5 - dayOfWeek : 6
-  const friday = new Date(today)
-  friday.setDate(today.getDate() + (dayOfWeek === 6 ? 6 : daysUntilFriday === 0 && dayOfWeek === 5 ? 0 : daysUntilFriday))
-  const sunday = new Date(friday)
-  sunday.setDate(friday.getDate() + 2)
-
-  const thisWeekend = clients.filter(c => {
-    if (!c.wedding_date) return false
-    const d = new Date(c.wedding_date)
-    d.setHours(0, 0, 0, 0)
-    return d >= friday && d <= sunday
-  })
-
-  // Also grab next 7 days upcoming
+  // Next 7 days
   const next7 = clients.filter(c => {
     const days = daysUntil(c.wedding_date)
     return days !== null && days >= 0 && days <= 7
   })
 
-  const upcoming = clients.filter(c => daysUntil(c.wedding_date) > 0)
-  const completed = clients.filter(c => daysUntil(c.wedding_date) !== null && daysUntil(c.wedding_date) <= 0)
-  const totalCollected = clients.reduce((sum, c) => sum + (c.total_paid || 0), 0)
-  const totalBalanceDue = clients.reduce((sum, c) => sum + (c.balance_due || 0), 0)
-  const plannersDone = clients.filter(c => c.planner_completed).length
-
-  // Team stats for reports
+  // Team stats
   const personStats = TEAM.map(person => ({
     name: person,
     total: clients.filter(c => c.assigned_to === person).length,
-    upcoming: clients.filter(c => c.assigned_to === person && daysUntil(c.wedding_date) > 0).length,
-    events: clients.filter(c => c.assigned_to === person),
+    upcoming: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? -1) >= 0).length,
+    completed: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? 0) < 0).length,
+    upcomingEvents: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? -1) >= 0),
+    completedEvents: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? 0) < 0),
+    allEvents: clients.filter(c => c.assigned_to === person),
   }))
 
   // Years for monthly report
@@ -139,7 +103,7 @@ export default function AdminDashboard() {
   const monthlyData = MONTHS.map((month, idx) => {
     const monthClients = clients.filter(c => {
       if (!c.wedding_date) return false
-      const d = new Date(c.wedding_date)
+      const d = new Date(c.wedding_date + 'T12:00:00')
       return d.getFullYear() === selectedYear && d.getMonth() === idx
     })
     return {
@@ -150,15 +114,12 @@ export default function AdminDashboard() {
     }
   })
 
-  // Filtered client list
-  const filtered = clients.filter(c => {
+  // Filtered upcoming client list (main dashboard)
+  const filteredUpcoming = upcoming.filter(c => {
     const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
     const matchSearch = name.includes(search.toLowerCase())
-    const days = daysUntil(c.wedding_date)
     let matchFilter = true
-    if (filter === 'upcoming') matchFilter = days !== null && days > 0
-    else if (filter === 'planner_pending') matchFilter = !c.planner_completed
-    else if (filter === 'completed') matchFilter = days !== null && days <= 0
+    if (filter === 'planner_pending') matchFilter = !c.planner_completed
     else if (filter === 'unassigned') matchFilter = !c.assigned_to
     else if (filter === 'balance_due') matchFilter = (c.balance_due || 0) > 0
     else if (filter === 'all_inclusive') matchFilter = c.package === 'All-Inclusive Partner'
@@ -166,10 +127,77 @@ export default function AdminDashboard() {
     return matchSearch && matchFilter
   })
 
+  // All clients for reports
+  const allClients = clients.filter(c => {
+    const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
+    return name.includes(search.toLowerCase())
+  })
+
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
         <div className="text-neutral-400 text-sm animate-pulse">Loading...</div>
+      </div>
+    )
+  }
+
+  const ClientRow = ({ client }) => {
+    const days = daysUntil(client.wedding_date)
+    const sameRole = client.person1_role === client.person2_role
+    const label1 = sameRole ? `${client.person1_first_name} (${client.person1_role})` : client.person1_role
+    const label2 = sameRole ? `${client.person2_first_name} (${client.person2_role})` : client.person2_role
+    return (
+      <div
+        onClick={() => router.push(`/admin/client/${client.id}`)}
+        className="border border-neutral-800 hover:border-tascosa-orange/50 rounded-2xl px-5 py-4 cursor-pointer transition-all duration-200 group bg-neutral-900"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-white group-hover:text-tascosa-orange transition-colors">
+              {client.person1_first_name} {client.person1_last_name} & {client.person2_first_name} {client.person2_last_name}
+            </div>
+            <div className="text-sm text-neutral-400 mt-0.5 truncate">
+              {label1} & {label2} · {client.venue || 'Venue TBD'}
+              {client.assigned_to && <span className="ml-2 text-tascosa-orange/70">· {client.assigned_to}</span>}
+            </div>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <div className="text-sm font-semibold text-white">{formatDate(client.wedding_date)}</div>
+            {days !== null && (
+              <div className={`text-xs font-bold mt-0.5 ${
+                days < 0 ? 'text-neutral-500' :
+                days === 0 ? 'text-red-400' :
+                days <= 7 ? 'text-orange-400' :
+                days <= 30 ? 'text-yellow-400' :
+                'text-emerald-400'
+              }`}>
+                {days < 0 ? 'Past event' : days === 0 ? 'TODAY!' : `${days} days away`}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 flex-shrink-0 flex-wrap">
+            {client.package && (
+              <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                client.package === 'All-Inclusive Partner' ? 'bg-purple-400/10 text-purple-400' :
+                client.package === 'Wedding Full Service' ? 'bg-blue-400/10 text-blue-400' :
+                'bg-neutral-700 text-neutral-300'
+              }`}>
+                {client.package === 'All-Inclusive Partner' ? '★ All-Inclusive' : client.package}
+              </span>
+            )}
+            <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+              client.planner_completed ? 'bg-emerald-400/10 text-emerald-400' : 'bg-yellow-400/10 text-yellow-400'
+            }`}>
+              {client.planner_completed ? '✓ Done' : '⏳ Pending'}
+            </span>
+            {(client.balance_due || 0) > 0 && (
+              <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-tascosa-orange/10 text-tascosa-orange">
+                ${client.balance_due?.toFixed(0)} due
+              </span>
+            )}
+          </div>
+          <div className="text-neutral-600 group-hover:text-tascosa-orange transition-colors">→</div>
+        </div>
       </div>
     )
   }
@@ -195,17 +223,12 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setShowReports(!showReports)}
                 className={`text-xs border rounded-xl px-3 py-2 transition-all ${
-                  showReports
-                    ? 'border-tascosa-orange text-tascosa-orange bg-tascosa-orange/10'
-                    : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white'
+                  showReports ? 'border-tascosa-orange text-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white'
                 }`}
               >
                 📊 Reports
               </button>
-              <button
-                onClick={handleSignOut}
-                className="text-xs text-neutral-500 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-xl px-3 py-2 transition-all"
-              >
+              <button onClick={handleSignOut} className="text-xs text-neutral-500 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-xl px-3 py-2 transition-all">
                 Sign Out
               </button>
             </div>
@@ -219,35 +242,21 @@ export default function AdminDashboard() {
             <div className="rounded-2xl border border-tascosa-orange/40 bg-tascosa-orange/5 overflow-hidden">
               <div className="px-5 py-3 border-b border-tascosa-orange/20 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-tascosa-orange animate-pulse"></span>
-                <h2 className="text-sm font-bold text-tascosa-orange uppercase tracking-wider">
-                  Coming Up — Next 7 Days
-                </h2>
+                <h2 className="text-sm font-bold text-tascosa-orange uppercase tracking-wider">Coming Up — Next 7 Days</h2>
               </div>
               <div className="divide-y divide-tascosa-orange/10">
                 {next7.map(c => {
                   const days = daysUntil(c.wedding_date)
                   return (
-                    <button
-                      key={c.id}
-                      onClick={() => router.push(`/admin/client/${c.id}`)}
-                      className="w-full px-5 py-4 flex items-center justify-between hover:bg-tascosa-orange/10 transition-all text-left"
-                    >
+                    <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
+                      className="w-full px-5 py-4 flex items-center justify-between hover:bg-tascosa-orange/10 transition-all text-left">
                       <div>
-                        <p className="font-bold text-white">
-                          {c.person1_first_name} {c.person1_last_name} & {c.person2_first_name} {c.person2_last_name}
-                        </p>
-                        <p className="text-sm text-neutral-400 mt-0.5">
-                          {c.venue || 'Venue TBD'}
-                          {c.assigned_to && <span className="ml-2 text-tascosa-orange">· {c.assigned_to}</span>}
-                        </p>
+                        <p className="font-bold text-white">{c.person1_first_name} {c.person1_last_name} & {c.person2_first_name} {c.person2_last_name}</p>
+                        <p className="text-sm text-neutral-400 mt-0.5">{c.venue || 'Venue TBD'}{c.assigned_to && <span className="ml-2 text-tascosa-orange">· {c.assigned_to}</span>}</p>
                       </div>
                       <div className="text-right flex-shrink-0 ml-4">
                         <p className="text-sm font-semibold text-white">{formatDate(c.wedding_date)}</p>
-                        <p className={`text-xs font-black mt-0.5 ${
-                          days === 0 ? 'text-red-400' :
-                          days === 1 ? 'text-orange-400' :
-                          'text-tascosa-orange'
-                        }`}>
+                        <p className={`text-xs font-black mt-0.5 ${days === 0 ? 'text-red-400' : days === 1 ? 'text-orange-400' : 'text-tascosa-orange'}`}>
                           {days === 0 ? 'TODAY!' : days === 1 ? 'TOMORROW!' : `${days} days away`}
                         </p>
                       </div>
@@ -258,76 +267,87 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* ── STATS BAR ────────────────────────────────────────────────── */}
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-            {[
-              { label: 'Total', value: clients.length, color: 'text-white' },
-              { label: 'Upcoming', value: upcoming.length, color: 'text-tascosa-orange' },
-              { label: 'Completed', value: completed.length, color: 'text-neutral-400' },
-              { label: 'Planners Done', value: `${plannersDone}/${clients.length}`, color: 'text-emerald-400' },
-              { label: 'Collected', value: `$${totalCollected.toFixed(0)}`, color: 'text-emerald-400' },
-              { label: 'Balance Due', value: `$${totalBalanceDue.toFixed(0)}`, color: 'text-yellow-400' },
-            ].map(stat => (
-              <div key={stat.label} className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-center">
-                <div className={`text-lg font-black ${stat.color}`}>{stat.value}</div>
-                <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">{stat.label}</div>
-              </div>
-            ))}
+          {/* ── SLIM STATS BAR ───────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+              <div className="text-2xl font-black text-tascosa-orange">{upcoming.length}</div>
+              <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Upcoming Events</div>
+            </div>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+              <div className="text-2xl font-black text-emerald-400">{plannersDoneUpcoming}/{upcoming.length}</div>
+              <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Planners Done</div>
+            </div>
           </div>
 
           {/* ── REPORTS (collapsible) ─────────────────────────────────────── */}
           {showReports && (
-            <div className="space-y-4 border border-neutral-800 rounded-2xl p-5 bg-neutral-900/30">
+            <div className="space-y-5 border border-neutral-800 rounded-2xl p-5 bg-neutral-900/30">
               <h2 className="font-bold text-sm uppercase tracking-wider text-neutral-400 flex items-center gap-2">
                 <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
                 Reports
               </h2>
 
+              {/* Summary stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: 'Total Clients', value: clients.length, color: 'text-white' },
+                  { label: 'Completed Events', value: completed.length, color: 'text-neutral-400' },
+                  { label: 'Total Collected', value: `$${totalCollected.toFixed(0)}`, color: 'text-emerald-400' },
+                  { label: 'Balance Due', value: `$${totalBalanceDue.toFixed(0)}`, color: 'text-yellow-400' },
+                ].map(stat => (
+                  <div key={stat.label} className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+                    <div className={`text-xl font-black ${stat.color}`}>{stat.value}</div>
+                    <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+
               {/* Team counters */}
               <div>
-                <p className="text-xs text-neutral-500 uppercase tracking-wider mb-3">Team Events</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {personStats.map(person => (
-                    <div key={person.name} className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-                      <button
-                        onClick={() => setExpandedPerson(expandedPerson === person.name ? null : person.name)}
-                        className="w-full p-4 text-left hover:bg-neutral-800/50 transition-all"
-                      >
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-sm text-white">{person.name}</span>
-                          <span className="text-xs text-neutral-600">{expandedPerson === person.name ? '▲' : '▼'}</span>
-                        </div>
-                        <div className="flex gap-4 mt-2">
-                          <div>
-                            <div className="text-xl font-black text-tascosa-orange">{person.total}</div>
-                            <div className="text-xs text-neutral-500">Total</div>
-                          </div>
-                          <div>
-                            <div className="text-xl font-black text-emerald-400">{person.upcoming}</div>
-                            <div className="text-xs text-neutral-500">Upcoming</div>
-                          </div>
-                        </div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Team Events</p>
+                  <div className="flex gap-2">
+                    {['upcoming', 'completed', 'all'].map(f => (
+                      <button key={f} onClick={() => setPersonFilter(f)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all capitalize ${personFilter === f ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
+                        {f}
                       </button>
-                      {expandedPerson === person.name && (
-                        <div className="border-t border-neutral-800">
-                          {person.events.length === 0 ? (
-                            <p className="text-xs text-neutral-600 p-3 text-center">No events</p>
-                          ) : (
-                            person.events.map(c => (
-                              <button
-                                key={c.id}
-                                onClick={() => router.push(`/admin/client/${c.id}`)}
-                                className="w-full text-left px-4 py-2.5 border-b border-neutral-800 last:border-0 hover:bg-neutral-800/50 transition-all"
-                              >
-                                <p className="text-xs font-medium text-white">{c.person1_first_name} & {c.person2_first_name}</p>
-                                <p className="text-xs text-neutral-500">{formatDate(c.wedding_date)}</p>
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {personStats.map(person => {
+                    const events = personFilter === 'upcoming' ? person.upcomingEvents : personFilter === 'completed' ? person.completedEvents : person.allEvents
+                    const count = personFilter === 'upcoming' ? person.upcoming : personFilter === 'completed' ? person.completed : person.total
+                    return (
+                      <div key={person.name} className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+                        <button onClick={() => setExpandedPerson(expandedPerson === person.name ? null : person.name)}
+                          className="w-full p-4 text-left hover:bg-neutral-800/50 transition-all">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-sm text-white">{person.name}</span>
+                            <span className="text-xs text-neutral-600">{expandedPerson === person.name ? '▲' : '▼'}</span>
+                          </div>
+                          <div className="text-2xl font-black text-tascosa-orange mt-1">{count}</div>
+                          <div className="text-xs text-neutral-500 capitalize">{personFilter} events</div>
+                        </button>
+                        {expandedPerson === person.name && (
+                          <div className="border-t border-neutral-800 max-h-48 overflow-y-auto">
+                            {events.length === 0 ? (
+                              <p className="text-xs text-neutral-600 p-3 text-center">No events</p>
+                            ) : (
+                              events.map(c => (
+                                <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
+                                  className="w-full text-left px-4 py-2.5 border-b border-neutral-800 last:border-0 hover:bg-neutral-800/50 transition-all">
+                                  <p className="text-xs font-medium text-white">{c.person1_first_name} & {c.person2_first_name}</p>
+                                  <p className="text-xs text-neutral-500">{formatDate(c.wedding_date)}</p>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -337,26 +357,16 @@ export default function AdminDashboard() {
                   <p className="text-xs text-neutral-500 uppercase tracking-wider">Monthly Revenue</p>
                   <div className="flex gap-2">
                     {years.map(y => (
-                      <button
-                        key={y}
-                        onClick={() => setSelectedYear(y)}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                          selectedYear === y ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                        }`}
-                      >
+                      <button key={y} onClick={() => setSelectedYear(y)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${selectedYear === y ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
                         {y}
                       </button>
                     ))}
                   </div>
                 </div>
                 <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
-                  {monthlyData.map((m, idx) => (
-                    <div
-                      key={m.month}
-                      className={`rounded-xl p-2.5 text-center border ${
-                        m.count > 0 ? 'border-neutral-700 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/30'
-                      }`}
-                    >
+                  {monthlyData.map((m) => (
+                    <div key={m.month} className={`rounded-xl p-2.5 text-center border ${m.count > 0 ? 'border-neutral-700 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/30'}`}>
                       <p className="text-xs font-bold text-neutral-500">{m.month}</p>
                       <p className={`text-base font-black mt-0.5 ${m.count > 0 ? 'text-white' : 'text-neutral-700'}`}>{m.count}</p>
                       {m.collected > 0 && <p className="text-xs text-emerald-400 font-bold">${m.collected}</p>}
@@ -365,152 +375,62 @@ export default function AdminDashboard() {
                   ))}
                 </div>
               </div>
+
+              {/* Full client list in reports */}
+              <div>
+                <p className="text-xs text-neutral-500 uppercase tracking-wider mb-3">All Clients ({allClients.length})</p>
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                  {allClients.map(client => <ClientRow key={client.id} client={client} />)}
+                </div>
+              </div>
             </div>
           )}
 
-          {/* ── INVITE + SEARCH ───────────────────────────────────────────── */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
-              <h2 className="font-bold text-sm mb-3 flex items-center gap-2">
-                <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
-                Invite New Client
-              </h2>
-              <form onSubmit={sendInvite} className="flex gap-2">
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={e => setInviteEmail(e.target.value)}
-                  required
-                  placeholder="client@email.com"
-                  className="flex-1 rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all"
-                />
-                <button
-                  type="submit"
-                  disabled={inviteStatus === 'sending' || inviteStatus === 'sent'}
-                  className="rounded-xl px-4 py-2.5 bg-tascosa-orange text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all whitespace-nowrap"
-                >
-                  {inviteStatus === 'sending' ? '...' : inviteStatus === 'sent' ? '✓ Sent!' : 'Send Invite'}
+          {/* ── FILTER ───────────────────────────────────────────────────── */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
+            <h2 className="font-bold text-sm mb-3 flex items-center gap-2">
+              <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+              Filter Clients
+            </h2>
+            <input
+              type="text"
+              value={search}
+              onChange={e => { setSearch(e.target.value); sessionStorage.setItem('adminSearch', e.target.value) }}
+              placeholder="Search by name or venue..."
+              className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all mb-3"
+            />
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { val: 'upcoming', label: 'All Upcoming' },
+                { val: 'planner_pending', label: 'Planner Pending' },
+                { val: 'unassigned', label: 'Unassigned' },
+                { val: 'balance_due', label: 'Balance Due' },
+                { val: 'all_inclusive', label: 'All-Inclusive' },
+                { val: 'full_service', label: 'Full Service' },
+              ].map(f => (
+                <button key={f.val}
+                  onClick={() => { setFilter(f.val); sessionStorage.setItem('adminFilter', f.val) }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${filter === f.val ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
+                  {f.label}
                 </button>
-              </form>
-              {inviteStatus === 'error' && <p className="text-red-400 text-xs mt-2">Failed. Try again.</p>}
-              {inviteStatus === 'sent' && <p className="text-emerald-400 text-xs mt-2">✓ Invite sent!</p>}
-            </div>
-
-            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
-              <h2 className="font-bold text-sm mb-3 flex items-center gap-2">
-                <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
-                Filter Clients
-              </h2>
-              <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search by name or venue..."
-                className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all mb-3"
-              />
-              <div className="flex gap-2 flex-wrap">
-                {[
-                  { val: 'all', label: 'All' },
-                  { val: 'upcoming', label: 'Upcoming' },
-                  { val: 'planner_pending', label: 'Planner Pending' },
-                  { val: 'completed', label: 'Past Events' },
-                  { val: 'unassigned', label: 'Unassigned' },
-                  { val: 'balance_due', label: 'Balance Due' },
-                  { val: 'all_inclusive', label: 'All-Inclusive' },
-                  { val: 'full_service', label: 'Full Service' },
-                ].map(f => (
-                  <button
-                    key={f.val}
-                    onClick={() => { setFilter(f.val); sessionStorage.setItem('adminFilter', f.val) }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                      filter === f.val ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* ── CLIENT LIST ───────────────────────────────────────────────── */}
+          {/* ── UPCOMING CLIENT LIST (scrollable) ────────────────────────── */}
           <div>
             <h2 className="font-bold mb-3 flex items-center gap-2">
               <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
-              Clients
-              <span className="text-neutral-500 font-normal text-sm">({filtered.length})</span>
+              Upcoming Clients
+              <span className="text-neutral-500 font-normal text-sm">({filteredUpcoming.length})</span>
             </h2>
-
-            {filtered.length === 0 ? (
+            {filteredUpcoming.length === 0 ? (
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-10 text-center text-neutral-500">
                 No clients found.
               </div>
             ) : (
-              <div className="space-y-2">
-                {filtered.map(client => {
-                  const days = daysUntil(client.wedding_date)
-                  const sameRole = client.person1_role === client.person2_role
-                  const label1 = sameRole ? `${client.person1_first_name} (${client.person1_role})` : client.person1_role
-                  const label2 = sameRole ? `${client.person2_first_name} (${client.person2_role})` : client.person2_role
-
-                  return (
-                    <div
-                      key={client.id}
-                      onClick={() => router.push(`/admin/client/${client.id}`)}
-                      className="bg-neutral-900 border border-neutral-800 hover:border-tascosa-orange/50 rounded-2xl px-5 py-4 cursor-pointer transition-all duration-200 group"
-                    >
-                      <div className="flex items-center justify-between gap-4 flex-wrap">
-                        <div className="flex-1 min-w-0">
-                          <div className="font-bold text-white group-hover:text-tascosa-orange transition-colors">
-                            {client.person1_first_name} {client.person1_last_name} & {client.person2_first_name} {client.person2_last_name}
-                          </div>
-                          <div className="text-sm text-neutral-400 mt-0.5 truncate">
-                            {label1} & {label2} · {client.venue || 'Venue TBD'}
-                            {client.assigned_to && <span className="ml-2 text-tascosa-orange/70">· {client.assigned_to}</span>}
-                          </div>
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <div className="text-sm font-semibold text-white">{formatDate(client.wedding_date)}</div>
-                          {days !== null && (
-                            <div className={`text-xs font-bold mt-0.5 ${
-                              days < 0 ? 'text-neutral-500' :
-                              days === 0 ? 'text-red-400' :
-                              days <= 7 ? 'text-orange-400' :
-                              days <= 30 ? 'text-yellow-400' :
-                              'text-emerald-400'
-                            }`}>
-                              {days < 0 ? 'Past event' : days === 0 ? 'TODAY!' : `${days} days away`}
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2 flex-shrink-0 flex-wrap">
-                          {client.package && (
-                            <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
-                              client.package === 'All-Inclusive Partner'
-                                ? 'bg-purple-400/10 text-purple-400'
-                                : client.package === 'Wedding Full Service'
-                                ? 'bg-blue-400/10 text-blue-400'
-                                : 'bg-neutral-700 text-neutral-300'
-                            }`}>
-                              {client.package === 'All-Inclusive Partner' ? '★ All-Inclusive' : client.package}
-                            </span>
-                          )}
-                          <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
-                            client.planner_completed ? 'bg-emerald-400/10 text-emerald-400' : 'bg-yellow-400/10 text-yellow-400'
-                          }`}>
-                            {client.planner_completed ? '✓ Done' : '⏳ Pending'}
-                          </span>
-                          {(client.balance_due || 0) > 0 && (
-                            <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-tascosa-orange/10 text-tascosa-orange">
-                              ${client.balance_due?.toFixed(0)} due
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-neutral-600 group-hover:text-tascosa-orange transition-colors">→</div>
-                      </div>
-                    </div>
-                  )
-                })}
+              <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                {filteredUpcoming.map(client => <ClientRow key={client.id} client={client} />)}
               </div>
             )}
           </div>
