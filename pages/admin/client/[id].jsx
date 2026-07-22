@@ -76,7 +76,9 @@ export default function AdminClientDetail() {
   const [loading, setLoading] = useState(true)
   const [saveStatus, setSaveStatus] = useState('idle')
   const [sendStatus, setSendStatus] = useState('idle') // idle | sending | sent | error
-  const [activeTab, setActiveTab] = useState('overview') // overview | ceremony | reception | music
+  const [activeTab, setActiveTab] = useState('overview')
+  const [plannerForm, setPlannerForm] = useState(null)
+  const [plannerSaveStatus, setPlannerSaveStatus] = useState('idle')
 
   const [adminForm, setAdminForm] = useState({
     package: '',
@@ -121,6 +123,42 @@ export default function AdminClientDetail() {
         .single()
 
       setPlanner(plannerData)
+      // Initialize planner edit form with existing data or empty
+      setPlannerForm({
+        ceremony_start_time: plannerData?.ceremony_start_time || '',
+        reception_end_time: plannerData?.reception_end_time || '',
+        event_notes: plannerData?.event_notes || '',
+        song_parent_procession_title: plannerData?.song_parent_procession_title || '',
+        song_groom_procession_title: plannerData?.song_groom_procession_title || '',
+        song_groomsmen_title: plannerData?.song_groomsmen_title || '',
+        song_bridesmaids_title: plannerData?.song_bridesmaids_title || '',
+        song_bride_procession_title: plannerData?.song_bride_procession_title || '',
+        song_interlude_title: plannerData?.song_interlude_title || '',
+        song_recessional_title: plannerData?.song_recessional_title || '',
+        ceremony_notes: plannerData?.ceremony_notes || '',
+        intro_party_first: plannerData?.intro_party_first || false,
+        intro_party_style: plannerData?.intro_party_style || '',
+        intro_party_order: plannerData?.intro_party_order || '',
+        intro_couple_style: plannerData?.intro_couple_style || '',
+        intro_notes: plannerData?.intro_notes || '',
+        song_party_entrance_title: plannerData?.song_party_entrance_title || '',
+        song_couple_entrance_title: plannerData?.song_couple_entrance_title || '',
+        song_first_dance_title: plannerData?.song_first_dance_title || '',
+        song_person1_parent_dance_title: plannerData?.song_person1_parent_dance_title || '',
+        song_person1_parent_relation: plannerData?.song_person1_parent_relation || 'Mom',
+        song_person2_parent_dance_title: plannerData?.song_person2_parent_dance_title || '',
+        song_person2_parent_relation: plannerData?.song_person2_parent_relation || 'Mom',
+        song_cake_cutting_title: plannerData?.song_cake_cutting_title || '',
+        song_bouquet_toss_title: plannerData?.song_bouquet_toss_title || '',
+        song_garter_toss_title: plannerData?.song_garter_toss_title || '',
+        song_last_dance_guests_title: plannerData?.song_last_dance_guests_title || '',
+        song_last_dance_private_title: plannerData?.song_last_dance_private_title || '',
+        reception_notes: plannerData?.reception_notes || '',
+        music_requests: plannerData?.music_requests || '',
+        music_do_not_play: plannerData?.music_do_not_play || '',
+        music_playlist_links: plannerData?.music_playlist_links || '',
+        music_notes: plannerData?.music_notes || '',
+      })
       setLoading(false)
     })
   }, [id])
@@ -174,6 +212,34 @@ export default function AdminClientDetail() {
     }
   }
 
+  async function savePlanner() {
+    setPlannerSaveStatus('saving')
+    
+    if (planner) {
+      // Update existing planner
+      const { error } = await supabase
+        .from('wedding_planner')
+        .update(plannerForm)
+        .eq('client_id', id)
+      if (error) { console.error(error); setPlannerSaveStatus('error'); return }
+    } else {
+      // Insert new planner
+      const { error } = await supabase
+        .from('wedding_planner')
+        .insert({ ...plannerForm, client_id: id })
+      if (error) { console.error(error); setPlannerSaveStatus('error'); return }
+    }
+
+    // Mark planner as complete
+    await supabase
+      .from('clients')
+      .update({ planner_completed: true })
+      .eq('id', id)
+
+    setPlannerSaveStatus('saved')
+    setTimeout(() => setPlannerSaveStatus('idle'), 3000)
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
@@ -186,7 +252,7 @@ export default function AdminClientDetail() {
   const label1 = sameRole ? `${client.person1_first_name} (${client.person1_role})` : client.person1_role
   const label2 = sameRole ? `${client.person2_first_name} (${client.person2_role})` : client.person2_role
 
-  const TABS = ['overview', 'ceremony', 'reception', 'music']
+  const TABS = ['overview', 'ceremony', 'reception', 'music', 'edit planner']
 
   return (
     <>
@@ -551,6 +617,160 @@ export default function AdminClientDetail() {
                   )}
                 </>
               )}
+            </div>
+          )}
+
+          {/* ── EDIT PLANNER TAB ──────────────────────────────────── */}
+          {activeTab === 'edit planner' && plannerForm && (
+            <div className="max-w-2xl space-y-6">
+              <div className="bg-tascosa-orange/5 border border-tascosa-orange/20 rounded-2xl p-4 text-sm text-neutral-400">
+                ✏️ Fill out or update the wedding planner on behalf of this client. Saves directly to the database.
+              </div>
+
+              <SectionCard title="Event Timeline">
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Ceremony Start</label>
+                    <input type="time" value={plannerForm.ceremony_start_time} onChange={e => setPlannerForm(p => ({...p, ceremony_start_time: e.target.value}))} className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange [color-scheme:dark]" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Reception End</label>
+                    <input type="time" value={plannerForm.reception_end_time} onChange={e => setPlannerForm(p => ({...p, reception_end_time: e.target.value}))} className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange [color-scheme:dark]" />
+                  </div>
+                </div>
+                <textarea value={plannerForm.event_notes} onChange={e => setPlannerForm(p => ({...p, event_notes: e.target.value}))} rows={3} placeholder="Event notes..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-3 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+              </SectionCard>
+
+              <SectionCard title="Ceremony Songs">
+                <div className="space-y-3">
+                  {[
+                    { label: 'Parent/Grandparent Procession', key: 'song_parent_procession_title' },
+                    { label: 'Groom Procession', key: 'song_groom_procession_title' },
+                    { label: 'Wedding Party / Groomsmen', key: 'song_groomsmen_title' },
+                    { label: 'Wedding Party / Bridesmaids', key: 'song_bridesmaids_title' },
+                    { label: 'Bride Procession', key: 'song_bride_procession_title' },
+                    { label: 'Interlude', key: 'song_interlude_title' },
+                    { label: 'Recessional', key: 'song_recessional_title' },
+                  ].map(field => (
+                    <div key={field.key}>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">{field.label}</label>
+                      <input value={plannerForm[field.key]} onChange={e => setPlannerForm(p => ({...p, [field.key]: e.target.value}))} placeholder="Song title — Artist" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                  ))}
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Ceremony Notes</label>
+                    <textarea value={plannerForm.ceremony_notes} onChange={e => setPlannerForm(p => ({...p, ceremony_notes: e.target.value}))} rows={2} placeholder="Notes..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                  </div>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Wedding Party Introductions">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider mb-2">Party Introduced First?</p>
+                    <div className="flex gap-3">
+                      {['Yes', 'No'].map(opt => (
+                        <button key={opt} type="button"
+                          onClick={() => setPlannerForm(p => ({...p, intro_party_first: opt === 'Yes'}))}
+                          className={`flex-1 py-2.5 rounded-xl font-bold text-sm transition-all ${
+                            (opt === 'Yes' && plannerForm.intro_party_first) || (opt === 'No' && !plannerForm.intro_party_first)
+                              ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                          }`}>
+                          {opt}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  {plannerForm.intro_party_first && (
+                    <>
+                      <div>
+                        <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Introduction Style</label>
+                        <input value={plannerForm.intro_party_style} onChange={e => setPlannerForm(p => ({...p, intro_party_style: e.target.value}))} placeholder="As one group / As couples..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                      </div>
+                      <div>
+                        <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Party Walk-in Order</label>
+                        <textarea value={plannerForm.intro_party_order} onChange={e => setPlannerForm(p => ({...p, intro_party_order: e.target.value}))} rows={4} placeholder="List couples in order..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                      </div>
+                    </>
+                  )}
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Couple Introduction</label>
+                    <textarea value={plannerForm.intro_couple_style} onChange={e => setPlannerForm(p => ({...p, intro_couple_style: e.target.value}))} rows={2} placeholder="How would you like to be introduced..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Intro Notes</label>
+                    <textarea value={plannerForm.intro_notes} onChange={e => setPlannerForm(p => ({...p, intro_notes: e.target.value}))} rows={2} placeholder="Notes..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                  </div>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Reception Songs">
+                <div className="space-y-3">
+                  {[
+                    { label: 'Wedding Party Entrance', key: 'song_party_entrance_title' },
+                    { label: `${label1} & ${label2} Entrance`, key: 'song_couple_entrance_title' },
+                    { label: 'First Dance', key: 'song_first_dance_title' },
+                    { label: 'Cake Cutting', key: 'song_cake_cutting_title' },
+                    { label: 'Bouquet Toss', key: 'song_bouquet_toss_title' },
+                    { label: 'Garter Toss', key: 'song_garter_toss_title' },
+                    { label: 'Last Dance with Guests', key: 'song_last_dance_guests_title' },
+                    { label: 'Last Dance — Private', key: 'song_last_dance_private_title' },
+                  ].map(field => (
+                    <div key={field.key}>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">{field.label}</label>
+                      <input value={plannerForm[field.key]} onChange={e => setPlannerForm(p => ({...p, [field.key]: e.target.value}))} placeholder="Song title — Artist" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                  ))}
+                  {[
+                    { label: `${label1} & Parent Dance`, titleKey: 'song_person1_parent_dance_title', relationKey: 'song_person1_parent_relation' },
+                    { label: `${label2} & Parent Dance`, titleKey: 'song_person2_parent_dance_title', relationKey: 'song_person2_parent_relation' },
+                  ].map(field => (
+                    <div key={field.titleKey} className="bg-neutral-950/50 rounded-xl p-3 border border-neutral-800">
+                      <p className="text-xs text-neutral-400 font-semibold mb-2">{field.label}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <select value={plannerForm[field.relationKey]} onChange={e => setPlannerForm(p => ({...p, [field.relationKey]: e.target.value}))} className="rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none appearance-none">
+                          {['Mom','Dad','Stepmom','Stepdad','Brother','Sister','Grandparent','Other'].map(r => <option key={r}>{r}</option>)}
+                        </select>
+                        <input value={plannerForm[field.titleKey]} onChange={e => setPlannerForm(p => ({...p, [field.titleKey]: e.target.value}))} placeholder="Song — Artist" className="rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                      </div>
+                    </div>
+                  ))}
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Reception Notes</label>
+                    <textarea value={plannerForm.reception_notes} onChange={e => setPlannerForm(p => ({...p, reception_notes: e.target.value}))} rows={2} placeholder="Notes..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                  </div>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="Music Preferences">
+                <div className="space-y-4">
+                  {[
+                    { label: 'Songs / Artists / Genres to PLAY', key: 'music_requests' },
+                    { label: 'DO NOT PLAY', key: 'music_do_not_play' },
+                    { label: 'Playlist Links', key: 'music_playlist_links' },
+                    { label: 'Music Notes', key: 'music_notes' },
+                  ].map(field => (
+                    <div key={field.key}>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">{field.label}</label>
+                      <textarea value={plannerForm[field.key]} onChange={e => setPlannerForm(p => ({...p, [field.key]: e.target.value}))} rows={3} placeholder="..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                    </div>
+                  ))}
+                </div>
+              </SectionCard>
+
+              <div className="sticky bottom-4">
+                <button
+                  onClick={savePlanner}
+                  disabled={plannerSaveStatus === 'saving'}
+                  className="w-full rounded-2xl py-4 bg-tascosa-orange text-black font-black hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all shadow-lg shadow-tascosa-orange/20"
+                >
+                  {plannerSaveStatus === 'saving' ? 'Saving...' :
+                   plannerSaveStatus === 'saved' ? '✓ Planner Saved!' :
+                   plannerSaveStatus === 'error' ? 'Save Failed — Try Again' :
+                   'Save Wedding Planner'}
+                </button>
+              </div>
+
             </div>
           )}
 
