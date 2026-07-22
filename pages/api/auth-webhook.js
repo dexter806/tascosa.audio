@@ -1,8 +1,7 @@
 // FILE LOCATION: pages/api/auth-webhook.js
 // ─────────────────────────────────────────────────────────────────────────────
 // Auth Webhook — fires when a new user creates a portal account
-// Supabase calls this endpoint automatically on user signup
-// Sends Andy a notification email via Resend
+// Uses email to look up client record since user_id isn't assigned yet
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { createClient } from '@supabase/supabase-js'
@@ -23,30 +22,28 @@ export default async function handler(req, res) {
   try {
     const payload = req.body
 
-    // Supabase sends the user object in the payload
-    const email = payload?.record?.email || payload?.email || 'Unknown'
-    const userId = payload?.record?.id || payload?.user?.id || null
+    // Extract email from payload — Supabase sends it in different places
+    const email = payload?.user?.email
+      || payload?.record?.email
+      || payload?.email
+      || 'Unknown'
 
-    // Look up their client record to get their name
-    let clientName = 'New Client'
-    let clientId = null
+    // Look up client by email address
+    let clientName = email
     let profileLink = 'https://www.tascosaaudio.com/admin'
 
-    if (userId) {
-      const { data: client } = await supabaseAdmin
-        .from('clients')
-        .select('id, person1_first_name, person1_last_name')
-        .eq('user_id', userId)
-        .single()
+    const { data: client } = await supabaseAdmin
+      .from('clients')
+      .select('id, person1_first_name, person1_last_name')
+      .ilike('person1_email', email)
+      .single()
 
-      if (client) {
-        clientName = `${client.person1_first_name || ''} ${client.person1_last_name || ''}`.trim()
-        clientId = client.id
-        profileLink = `https://www.tascosaaudio.com/admin/client/${client.id}`
-      }
+    if (client) {
+      clientName = `${client.person1_first_name || ''} ${client.person1_last_name || ''}`.trim()
+      profileLink = `https://www.tascosaaudio.com/admin/client/${client.id}`
     }
 
-    // Send notification email to Andy
+    // Send notification to Andy
     await resend.emails.send({
       from: 'info@tascosaaudio.com',
       to: 'andy@tascosaaudio.com',
@@ -54,10 +51,12 @@ export default async function handler(req, res) {
       text: `Hey Andy!\n\n${clientName} just created their Tascosa Audio client portal account.\n\nEmail: ${email}\n\nView their profile:\n${profileLink}\n\nTascosa Audio Portal`,
     })
 
-    return res.status(200).json({ success: true })
+    // Must return this for Supabase "Before User Created" hook
+    return res.status(200).json({ decision: 'continue' })
 
   } catch (err) {
     console.error('Auth webhook error:', err)
-    return res.status(500).json({ error: 'Server error' })
+    // Still return continue so the signup isn't blocked
+    return res.status(200).json({ decision: 'continue' })
   }
 }
