@@ -132,8 +132,10 @@ export default function QuoteBuilder() {
   .greeting { font-size: 16px; color: #333; margin-bottom: 20px; }
   .event-details { background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
   .event-details h3 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
-  .event-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; border-bottom: 1px solid #eee; }
+  .event-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #eee; gap: 16px; }
   .event-row:last-child { border-bottom: none; }
+  .event-row span:first-child { color: #888; min-width: 100px; }
+  .event-row span:last-child { text-align: right; color: #333; }
   .quote-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
   .quote-table th { background: #0f0f0f; color: white; padding: 10px 14px; text-align: left; font-size: 13px; }
   .quote-table td { padding: 10px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -166,9 +168,9 @@ export default function QuoteBuilder() {
     ${eventDate || venue || eventType ? `
     <div class="event-details">
       <h3>Event Details</h3>
-      ${eventDate ? `<div class="event-row"><span>Date</span><span>${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span></div>` : ''}
-      ${venue ? `<div class="event-row"><span>Venue</span><span>${venue}</span></div>` : ''}
-      ${eventType ? `<div class="event-row"><span>Event Type</span><span>${eventType}</span></div>` : ''}
+      ${eventDate ? `<div class="event-row"><span><strong>Date</strong></span><span>${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span></div>` : ''}
+      ${venue ? `<div class="event-row"><span><strong>Venue</strong></span><span>${venue}</span></div>` : ''}
+      ${eventType ? `<div class="event-row"><span><strong>Event Type</strong></span><span>${eventType}</span></div>` : ''}
     </div>
     ` : ''}
 
