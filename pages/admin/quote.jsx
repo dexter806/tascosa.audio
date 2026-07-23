@@ -190,7 +190,7 @@ export default function QuoteBuilder() {
           return `<div class="payment-pill">${m.icon} ${m.label}</div>`
         }).join('')}
       </div>
-      <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to: andy@tascosaaudio.com · @TascosaAudio (Venmo/Cash App) · 806-670-7913 (Zelle)</p>
+      <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to:@TascosaAudio (Venmo/Cash App) · andy@tascosaaudio.com (Zelle) · Request an invoice</p>
     </div>
 
     <!-- Package includes -->
