@@ -178,7 +178,7 @@ export default function QuoteBuilder() {
         ${lineItems.map(item => `<tr><td>${item.label}</td><td class="amount">$${item.amount.toFixed(2)}</td></tr>`).join('')}
         <tr class="total-row"><td><strong>Total</strong></td><td class="amount"><strong>$${total.toFixed(2)}</strong></td></tr>
         <tr class="deposit-row"><td>Deposit Due to Reserve Your Date</td><td class="amount">$${deposit.toFixed(2)}</td></tr>
-        <tr class="balance-row"><td>Balance Due (Due 1 week before event)</td><td class="amount">$${balanceDue.toFixed(2)}</td></tr>
+        <tr class="balance-row"><td>Balance Due (day of event)</td><td class="amount">$${balanceDue.toFixed(2)}</td></tr>
       </tbody>
     </table>
 
@@ -190,7 +190,7 @@ export default function QuoteBuilder() {
           return `<div class="payment-pill">${m.icon} ${m.label}</div>`
         }).join('')}
       </div>
-      <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to:@TascosaAudio (Venmo/Cash App) · andy@tascosaaudio.com (Zelle) · Request an invoice</p>
+      <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to: @TascosaAudio (Venmo/Cash App) · andy@tascosaaudio.com (Zelle) · Request an invoice</p>
     </div>
 
     <!-- Package includes -->
@@ -223,7 +223,7 @@ export default function QuoteBuilder() {
       <h3>📝 Ready to Book?</h3>
       <p>To secure your date, please sign this quote and pay your $${deposit} deposit. Your date is not reserved until your deposit is received.</p>
       <p>By signing, you agree to the terms outlined in this quote and authorize Tascosa Audio to provide services for your event.</p>
-      <a href="https://www.tascosaaudio.com/portal/login" class="sign-btn">Log In to Sign & Book →</a>
+      <a href="https://www.tascosaaudio.com/pay" class="sign-btn">Review, Sign & Pay Deposit →</a>
     </div>
 
     <p style="font-size:13px;color:#888;">Questions? Call or text Andy directly at <strong>806-670-7913</strong> or reply to this email.</p>
