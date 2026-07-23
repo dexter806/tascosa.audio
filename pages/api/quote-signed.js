@@ -2,7 +2,13 @@
 // Fires when a client signs the quote and hits "Sign & Continue to Payment"
 
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
+
 const resend = new Resend(process.env.RESEND_API_KEY)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -22,6 +28,19 @@ export default async function handler(req, res) {
   })
 
   try {
+    // Save signature to database
+    if (quoteId) {
+      await supabaseAdmin
+        .from('quotes')
+        .update({
+          signed_by: signature,
+          signed_at: new Date().toISOString(),
+          signed_grand_total: grandTotal || 0,
+          add_on_total: addOnTotal || 0,
+        })
+        .eq('id', quoteId)
+    }
+
     await resend.emails.send({
       from: 'info@tascosaaudio.com',
       to: 'andy@tascosaaudio.com',
