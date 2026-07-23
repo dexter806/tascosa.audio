@@ -1,6 +1,5 @@
 // FILE LOCATION: pages/api/quote-signed.js
 // Fires when a client signs the quote and hits "Sign & Continue to Payment"
-// Notifies Andy immediately with signature, add-ons, and new total
 
 import { Resend } from 'resend'
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -8,16 +7,19 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { signature, addOns, addOnTotal } = req.body
+  const { signature, clientName, packageName, addOns, addOnTotal, grandTotal, deposit } = req.body
 
-  const addOnList = [
-    addOns?.rehearsal ? 'Rehearsal Coverage — +$150' : null,
-    addOns?.extraHoursBefore > 0 ? `Extra Hours Before Midnight x${addOns.extraHoursBefore} — +$${addOns.extraHoursBefore * 100}` : null,
-    addOns?.extraHoursAfter > 0 ? `Extra Hours After Midnight x${addOns.extraHoursAfter} — +$${addOns.extraHoursAfter * 200}` : null,
+  // Only list NEW add-ons the client added on the pay page
+  const newAddOns = [
+    addOns?.rehearsalAdded ? 'Rehearsal Coverage (added by client) — +$150' : null,
+    addOns?.extraHoursBeforeAdded > 0 ? `Extra Hours Before Midnight x${addOns.extraHoursBeforeAdded} (added by client) — +$${addOns.extraHoursBeforeAdded * 100}` : null,
+    addOns?.extraHoursAfterAdded > 0 ? `Extra Hours After Midnight x${addOns.extraHoursAfterAdded} (added by client) — +$${addOns.extraHoursAfterAdded * 200}` : null,
   ].filter(Boolean)
 
-  const totalDue = 200 + (addOnTotal || 0)
-  const signedDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const balanceDue = (grandTotal || 0) - (deposit || 200)
+  const signedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  })
 
   try {
     await resend.emails.send({
@@ -31,25 +33,32 @@ export default async function handler(req, res) {
           <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
           <p><strong>Signature:</strong> <em>${signature}</em></p>
           <p><strong>Signed at:</strong> ${signedDate}</p>
+          ${packageName ? `<p><strong>Package:</strong> ${packageName}</p>` : ''}
           <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
           <h3 style="margin-bottom:8px;">Quote Breakdown</h3>
           <table style="width:100%;border-collapse:collapse;font-size:14px;">
             <tr style="border-bottom:1px solid #eee;">
-              <td style="padding:8px 0;">Deposit (non-refundable)</td>
-              <td style="text-align:right;padding:8px 0;font-weight:bold;">$200.00</td>
+              <td style="padding:8px 0;">Grand Total</td>
+              <td style="text-align:right;padding:8px 0;font-weight:bold;">$${(grandTotal || 0).toFixed(2)}</td>
             </tr>
-            ${addOnList.map(a => `
             <tr style="border-bottom:1px solid #eee;">
-              <td style="padding:8px 0;color:#666;">${a.split(' — ')[0]}</td>
-              <td style="text-align:right;padding:8px 0;color:#dc5f14;">${a.split(' — ')[1]}</td>
-            </tr>`).join('')}
-            <tr>
-              <td style="padding:12px 0;font-size:16px;font-weight:bold;">Total Due Now</td>
-              <td style="text-align:right;padding:12px 0;font-size:18px;font-weight:bold;color:#dc5f14;">$${totalDue}.00</td>
+              <td style="padding:8px 0;color:#dc5f14;">Deposit Due Now</td>
+              <td style="text-align:right;padding:8px 0;color:#dc5f14;font-weight:bold;">$${(deposit || 200).toFixed(2)}</td>
+            </tr>
+            <tr style="border-bottom:1px solid #eee;">
+              <td style="padding:8px 0;color:#666;">Balance Due (1 week before event)</td>
+              <td style="text-align:right;padding:8px 0;color:#666;">$${balanceDue.toFixed(2)}</td>
             </tr>
           </table>
+          ${newAddOns.length > 0 ? `
           <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
-          ${addOnList.length > 0 ? `<p style="color:#888;font-size:13px;">⚠️ Client selected add-ons. Update their contract total if they pay via Venmo/Cash App/Zelle. If they request an invoice you'll get a separate email.</p>` : ''}
+          <h4 style="margin-bottom:8px;color:#dc5f14;">⚠️ Client Added Extra Items</h4>
+          <ul style="padding-left:16px;color:#666;font-size:13px;">
+            ${newAddOns.map(a => `<li>${a.split(' — ')[0]}</li>`).join('')}
+          </ul>
+          <p style="font-size:13px;color:#888;">Add-on total: +$${addOnTotal}. Update their contract total if they pay via Venmo/Cash App/Zelle.</p>
+          ` : '<p style="color:#888;font-size:13px;">No add-ons selected beyond what was quoted.</p>'}
+          <hr style="border:none;border-top:1px solid #eee;margin:16px 0;" />
           <p style="color:#888;font-size:13px;">Client is now on the payment page choosing how to pay their deposit.</p>
         </div>
       `,
