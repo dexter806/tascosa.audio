@@ -17,10 +17,26 @@ const supabase = createClient(
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
 
 const PACKAGES = [
-  { id: 'private_party', name: 'Private Party', price: 600, description: 'Perfect for private events and celebrations' },
-  { id: 'wedding_reception', name: 'Wedding Reception', price: 900, description: '4 hours · Reception only, no ceremony' },
-  { id: 'full_service', name: 'Wedding Full Service', price: 1250, description: '6 hours · Ceremony + Reception' },
-  { id: 'partner_venue', name: 'Partner Venue Deal', price: 1000, description: '6 hours · Special rate for partner venues' },
+  {
+    id: 'private_party', name: 'Private Party', price: 600,
+    description: 'Perfect for private events and celebrations',
+    features: ['DJ Service', 'Dinner/Party Music', 'Wireless Mic', 'Dance Lighting'],
+  },
+  {
+    id: 'wedding_reception', name: 'Wedding Reception', price: 900,
+    description: '4 hours · Reception only, no ceremony',
+    features: ['Up to 4 hours of MC/DJ Service', 'Reception/Dinner Music', 'Wireless Mic', 'Dance Lighting'],
+  },
+  {
+    id: 'full_service', name: 'Wedding Full Service', price: 1250,
+    description: '6 hours · Ceremony + Reception',
+    features: ['Up to 6 hours of MC/DJ Service', 'Ceremony Music', 'Reception/Dinner Music', 'Wireless Mics', 'Dance Lighting'],
+  },
+  {
+    id: 'partner_venue', name: 'Partner Venue Deal', price: 1000,
+    description: '6 hours · Special rate for partner venues',
+    features: ['Up to 6 hours of MC/DJ Service', 'Ceremony Music', 'Reception/Dinner Music', 'Wireless Mics', 'Dance Lighting'],
+  },
 ]
 
 const TRAVEL_FEES = [
@@ -153,7 +169,8 @@ export default function QuoteBuilder() {
       ${eventDate ? `<div class="event-row"><span>Date</span><span>${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span></div>` : ''}
       ${venue ? `<div class="event-row"><span>Venue</span><span>${venue}</span></div>` : ''}
       ${eventType ? `<div class="event-row"><span>Event Type</span><span>${eventType}</span></div>` : ''}
-    </div>` : ''}
+    </div>
+    ` : ''}
 
     <table class="quote-table">
       <thead><tr><th>Description</th><th class="amount">Amount</th></tr></thead>
@@ -174,6 +191,30 @@ export default function QuoteBuilder() {
         }).join('')}
       </div>
       <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to: andy@tascosaaudio.com · @TascosaAudio (Venmo/Cash App) · 806-670-7913 (Zelle)</p>
+    </div>
+
+    <!-- Package includes -->
+    ${pkg ? `
+    <div style="background:#f9f9f9;border-radius:8px;padding:16px;margin-bottom:20px;">
+      <h3 style="margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#888;">What's Included</h3>
+      ${pkg.features.map(f => `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px;color:#333;"><span style="color:#dc5f14;font-weight:bold;">✓</span>${f}</div>`).join('')}
+    </div>` : ''}
+
+    <!-- Available add-ons -->
+    <div style="background:#fff8f0;border:1px solid #fde8d0;border-radius:8px;padding:16px;margin-bottom:20px;">
+      <h3 style="margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#dc5f14;">Available Add-Ons</h3>
+      <p style="font-size:13px;color:#666;margin:0 0 10px;">Want to customize your experience? You can add these extras — just reach out to Andy!</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
+          <span>⏰ Extra Hours (before midnight)</span><span style="font-weight:bold;color:#dc5f14;">$100/hr</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
+          <span>🌙 Extra Hours (after midnight)</span><span style="font-weight:bold;color:#dc5f14;">$200/hr</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
+          <span>🎤 Rehearsal Coverage</span><span style="font-weight:bold;color:#dc5f14;">$150</span>
+        </div>
+      </div>
     </div>
 
     ${notes ? `<div class="notes"><strong>Notes from Andy:</strong><br/>${notes}</div>` : ''}
@@ -296,12 +337,21 @@ export default function QuoteBuilder() {
                       onClick={() => { setSelectedPackage(pkg.id); setUseCustomPrice(false) }}
                       className={`w-full text-left p-4 rounded-xl border transition-all ${selectedPackage === pkg.id && !useCustomPrice ? 'border-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-800 hover:border-neutral-700'}`}
                     >
-                      <div className="flex justify-between items-center">
-                        <div>
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
                           <p className="font-bold text-sm text-white">{pkg.name}</p>
                           <p className="text-xs text-neutral-500 mt-0.5">{pkg.description}</p>
+                          {selectedPackage === pkg.id && !useCustomPrice && (
+                            <ul className="mt-2 space-y-1">
+                              {pkg.features.map(f => (
+                                <li key={f} className="text-xs text-neutral-300 flex items-center gap-1.5">
+                                  <span className="text-tascosa-orange">✓</span> {f}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
-                        <span className={`text-lg font-black ${selectedPackage === pkg.id && !useCustomPrice ? 'text-tascosa-orange' : 'text-neutral-400'}`}>
+                        <span className={`text-lg font-black ml-4 flex-shrink-0 ${selectedPackage === pkg.id && !useCustomPrice ? 'text-tascosa-orange' : 'text-neutral-400'}`}>
                           ${pkg.price}
                         </span>
                       </div>
