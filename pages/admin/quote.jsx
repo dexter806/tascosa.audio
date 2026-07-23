@@ -182,7 +182,7 @@ export default function QuoteBuilder() {
         ${lineItems.map(item => `<tr><td>${item.label}</td><td class="amount">$${item.amount.toFixed(2)}</td></tr>`).join('')}
         <tr class="total-row"><td><strong>Total</strong></td><td class="amount"><strong>$${total.toFixed(2)}</strong></td></tr>
         <tr class="deposit-row"><td>Deposit Due to Reserve Your Date</td><td class="amount">$${deposit.toFixed(2)}</td></tr>
-        <tr class="balance-row"><td>Balance Due (day of event)</td><td class="amount">$${balanceDue.toFixed(2)}</td></tr>
+        <tr class="balance-row"><td>Balance Due </td><td class="amount">$${balanceDue.toFixed(2)}</td></tr>
       </tbody>
     </table>
 
