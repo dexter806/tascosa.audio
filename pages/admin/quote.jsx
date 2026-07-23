@@ -166,11 +166,13 @@ export default function QuoteBuilder() {
     <p class="greeting">Thank you for your interest in Tascosa Audio! I'm excited to be a part of your special day. Here's your personalized quote:</p>
 
     ${eventDate || venue || eventType ? `
-    <div class="event-details">
-      <h3>Event Details</h3>
-      ${eventDate ? `<div class="event-row"><span><strong>Date</strong></span><span>${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span></div>` : ''}
-      ${venue ? `<div class="event-row"><span><strong>Venue</strong></span><span>${venue}</span></div>` : ''}
-      ${eventType ? `<div class="event-row"><span><strong>Event Type</strong></span><span>${eventType}</span></div>` : ''}
+    <div style="background:#f9f9f9;border-radius:8px;padding:16px;margin-bottom:24px;">
+      <p style="margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#888;font-weight:bold;">Event Details</p>
+      <table style="width:100%;border-collapse:collapse;">
+        ${eventDate ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Date</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>` : ''}
+        ${venue ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Venue</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${venue}</td></tr>` : ''}
+        ${eventType ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Event Type</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${eventType}</td></tr>` : ''}
+      </table>
     </div>
     ` : ''}
 
