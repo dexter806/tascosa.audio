@@ -221,10 +221,10 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={() => router.push('/admin/quote')}
+                onClick={() => router.push('/admin/quotes')}
                 className="text-xs border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white rounded-xl px-3 py-2 transition-all"
               >
-                📋 New Quote
+                📋 Quotes
               </button>
               <button
                 onClick={() => setShowReports(!showReports)}
