@@ -153,8 +153,9 @@ export default function AdminDashboard() {
       >
         <div className="flex items-center justify-between gap-4 flex-wrap">
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-white group-hover:text-tascosa-orange transition-colors">
+            <div className="font-bold text-white group-hover:text-tascosa-orange transition-colors flex items-center gap-1.5">
               {client.person1_first_name} {client.person1_last_name} & {client.person2_first_name} {client.person2_last_name}
+              {client.user_id && <span className="text-emerald-400 text-xs">✓</span>}
             </div>
             <div className="text-sm text-neutral-400 mt-0.5 truncate">
               {label1} & {label2} · {client.venue || 'Venue TBD'}
