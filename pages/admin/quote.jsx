@@ -118,127 +118,7 @@ export default function QuoteBuilder() {
       ...(travelCost > 0 ? [{ label: `Travel Fee (${TRAVEL_FEES[travelFeeIdx].label})`, amount: travelCost }] : []),
     ]
 
-    const emailBody = `
-<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><style>
-  body { font-family: -apple-system, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-  .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-  .header { background: #0f0f0f; padding: 30px; text-align: center; }
-  .header img { height: 50px; }
-  .header h1 { color: white; margin: 15px 0 5px; font-size: 22px; }
-  .header p { color: #dc5f14; margin: 0; font-size: 14px; }
-  .body { padding: 30px; }
-  .greeting { font-size: 16px; color: #333; margin-bottom: 20px; }
-  .event-details { background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
-  .event-details h3 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
-  .event-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #eee; gap: 16px; }
-  .event-row:last-child { border-bottom: none; }
-  .event-row span:first-child { color: #888; min-width: 100px; }
-  .event-row span:last-child { text-align: right; color: #333; }
-  .quote-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-  .quote-table th { background: #0f0f0f; color: white; padding: 10px 14px; text-align: left; font-size: 13px; }
-  .quote-table td { padding: 10px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
-  .quote-table .amount { text-align: right; }
-  .total-row { background: #f9f9f9; font-weight: bold; }
-  .deposit-row { color: #dc5f14; font-weight: bold; }
-  .balance-row { color: #333; }
-  .payment-section { background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
-  .payment-section h3 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
-  .payment-methods { display: flex; gap: 10px; flex-wrap: wrap; }
-  .payment-pill { background: white; border: 1px solid #ddd; border-radius: 20px; padding: 6px 14px; font-size: 13px; }
-  .sign-section { border: 2px solid #dc5f14; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
-  .sign-section h3 { margin: 0 0 10px; color: #dc5f14; font-size: 16px; }
-  .sign-section p { font-size: 13px; color: #555; margin: 0 0 16px; line-height: 1.6; }
-  .sign-btn { display: block; background: #dc5f14; color: white; text-align: center; padding: 14px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; }
-  .notes { background: #fffbf0; border-left: 3px solid #dc5f14; padding: 14px; border-radius: 0 8px 8px 0; margin-bottom: 24px; font-size: 14px; color: #555; }
-  .footer { background: #0f0f0f; padding: 20px; text-align: center; color: #888; font-size: 12px; }
-  .footer a { color: #dc5f14; text-decoration: none; }
-</style></head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>Your Quote from Tascosa Audio</h1>
-    <p>Professional DJ & Audio Services · Amarillo, TX</p>
-  </div>
-  <div class="body">
-    <p class="greeting">Hi ${clientName},</p>
-    <p class="greeting">Thank you for your interest in Tascosa Audio! I'm excited to be a part of your special day. Here's your personalized quote:</p>
-
-    ${eventDate || venue || eventType ? `
-    <div style="background:#f9f9f9;border-radius:8px;padding:16px;margin-bottom:24px;">
-      <p style="margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#888;font-weight:bold;">Event Details</p>
-      <table style="width:100%;border-collapse:collapse;">
-        ${eventDate ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Date</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>` : ''}
-        ${venue ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Venue</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${venue}</td></tr>` : ''}
-        ${eventType ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Event Type</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${eventType}</td></tr>` : ''}
-      </table>
-    </div>
-    ` : ''}
-
-    <table class="quote-table">
-      <thead><tr><th>Description</th><th class="amount">Amount</th></tr></thead>
-      <tbody>
-        ${lineItems.map(item => `<tr><td>${item.label}</td><td class="amount">$${item.amount.toFixed(2)}</td></tr>`).join('')}
-        <tr class="total-row"><td><strong>Total</strong></td><td class="amount"><strong>$${total.toFixed(2)}</strong></td></tr>
-        <tr class="deposit-row"><td>Deposit Due to Reserve Your Date</td><td class="amount">$${deposit.toFixed(2)}</td></tr>
-        <tr class="balance-row"><td>Balance Due (1 week before event)</td><td class="amount">$${balanceDue.toFixed(2)}</td></tr>
-      </tbody>
-    </table>
-
-    <div class="payment-section">
-      <h3>Deposit Payment Options</h3>
-      <div class="payment-methods">
-        ${selectedPayments.map(id => {
-          const m = PAYMENT_METHODS.find(m => m.id === id)
-          return `<div class="payment-pill">${m.icon} ${m.label}</div>`
-        }).join('')}
-      </div>
-      <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to: @TascosaAudio (Venmo/Cash App) · andy@tascosaaudio.com (Zelle) · Request an invoice</p>
-    </div>
-
-    <!-- Package includes -->
-    ${pkg ? `
-    <div style="background:#f9f9f9;border-radius:8px;padding:16px;margin-bottom:20px;">
-      <h3 style="margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#888;">What's Included</h3>
-      ${pkg.features.map(f => `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px;color:#333;"><span style="color:#dc5f14;font-weight:bold;">✓</span>${f}</div>`).join('')}
-    </div>` : ''}
-
-    <!-- Available add-ons -->
-    <div style="background:#fff8f0;border:1px solid #fde8d0;border-radius:8px;padding:16px;margin-bottom:20px;">
-      <h3 style="margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#dc5f14;">Available Add-Ons</h3>
-      <p style="font-size:13px;color:#666;margin:0 0 10px;">Want to customize your experience? You can add these extras — just reach out to Andy!</p>
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
-          <span>⏰ Extra Hours (before midnight)</span><span style="font-weight:bold;color:#dc5f14;">$100/hr</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
-          <span>🌙 Extra Hours (after midnight)</span><span style="font-weight:bold;color:#dc5f14;">$200/hr</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
-          <span>🎤 Rehearsal Coverage</span><span style="font-weight:bold;color:#dc5f14;">$150</span>
-        </div>
-      </div>
-    </div>
-
-    ${notes ? `<div class="notes"><strong>Notes from Andy:</strong><br/>${notes}</div>` : ''}
-
-    <div class="sign-section">
-      <h3>📝 Ready to Book?</h3>
-      <p>To secure your date, please sign this quote and pay your $${deposit} deposit. Your date is not reserved until your deposit is received.</p>
-      <p>By signing, you agree to the terms outlined in this quote and authorize Tascosa Audio to provide services for your event.</p>
-      <a href="https://www.tascosaaudio.com/pay" class="sign-btn">Review, Sign & Pay Deposit →</a>
-    </div>
-
-    <p style="font-size:13px;color:#888;">Questions? Call or text Andy directly at <strong>806-670-7913</strong> or reply to this email.</p>
-  </div>
-  <div class="footer">
-    <p>Tascosa Audio · Amarillo, TX · <a href="https://www.tascosaaudio.com">tascosaaudio.com</a></p>
-    <p>andy@tascosaaudio.com · 806-670-7913</p>
-  </div>
-</div>
-</body>
-</html>`
+    // emailBody is computed at component level
 
     const res = await fetch('/api/send-quote', {
       method: 'POST',
@@ -290,8 +170,8 @@ export default function QuoteBuilder() {
         <header className="border-b border-neutral-800 bg-neutral-950/80 backdrop-blur sticky top-0 z-50">
           <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button onClick={() => router.push('/admin')} className="text-neutral-400 hover:text-white transition-colors text-sm">
-                ← Admin
+              <button onClick={() => router.push('/admin/quotes')} className="text-neutral-400 hover:text-white transition-colors text-sm">
+                ← Quotes
               </button>
               <span className="text-neutral-600">/</span>
               <span className="font-bold text-sm">Quote Builder</span>
@@ -299,9 +179,9 @@ export default function QuoteBuilder() {
             <div className="flex gap-3">
               <button
                 onClick={() => setPreviewMode(!previewMode)}
-                className={`text-xs border rounded-xl px-3 py-2 transition-all ${previewMode ? 'border-tascosa-orange text-tascosa-orange' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+                className={`text-xs border rounded-xl px-3 py-2 transition-all ${previewMode ? 'border-tascosa-orange text-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
               >
-                {previewMode ? '✏️ Edit' : '👁 Preview'}
+                {previewMode ? '✏️ Hide Preview' : '👁 Preview Email'}
               </button>
             </div>
           </div>
@@ -406,7 +286,130 @@ export default function QuoteBuilder() {
               {/* Add-ons */}
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
                 <h2 className="font-bold text-sm mb-4 flex items-center gap-2">
-                  <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+                  <span className="h-4 w-1 bg-tascosa-oran
+  const emailBody = `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><style>
+  body { font-family: -apple-system, sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+  .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+  .header { background: #0f0f0f; padding: 30px; text-align: center; }
+  .header img { height: 50px; }
+  .header h1 { color: white; margin: 15px 0 5px; font-size: 22px; }
+  .header p { color: #dc5f14; margin: 0; font-size: 14px; }
+  .body { padding: 30px; }
+  .greeting { font-size: 16px; color: #333; margin-bottom: 20px; }
+  .event-details { background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+  .event-details h3 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+  .event-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid #eee; gap: 16px; }
+  .event-row:last-child { border-bottom: none; }
+  .event-row span:first-child { color: #888; min-width: 100px; }
+  .event-row span:last-child { text-align: right; color: #333; }
+  .quote-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+  .quote-table th { background: #0f0f0f; color: white; padding: 10px 14px; text-align: left; font-size: 13px; }
+  .quote-table td { padding: 10px 14px; border-bottom: 1px solid #eee; font-size: 14px; }
+  .quote-table .amount { text-align: right; }
+  .total-row { background: #f9f9f9; font-weight: bold; }
+  .deposit-row { color: #dc5f14; font-weight: bold; }
+  .balance-row { color: #333; }
+  .payment-section { background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+  .payment-section h3 { margin: 0 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #888; }
+  .payment-methods { display: flex; gap: 10px; flex-wrap: wrap; }
+  .payment-pill { background: white; border: 1px solid #ddd; border-radius: 20px; padding: 6px 14px; font-size: 13px; }
+  .sign-section { border: 2px solid #dc5f14; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+  .sign-section h3 { margin: 0 0 10px; color: #dc5f14; font-size: 16px; }
+  .sign-section p { font-size: 13px; color: #555; margin: 0 0 16px; line-height: 1.6; }
+  .sign-btn { display: block; background: #dc5f14; color: white; text-align: center; padding: 14px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; }
+  .notes { background: #fffbf0; border-left: 3px solid #dc5f14; padding: 14px; border-radius: 0 8px 8px 0; margin-bottom: 24px; font-size: 14px; color: #555; }
+  .footer { background: #0f0f0f; padding: 20px; text-align: center; color: #888; font-size: 12px; }
+  .footer a { color: #dc5f14; text-decoration: none; }
+</style></head>
+<body>
+<div class="container">
+  <div class="header">
+  <h1>Your Quote from Tascosa Audio</h1>
+  <p>Professional DJ & Audio Services · Amarillo, TX</p>
+  </div>
+  <div class="body">
+  <p class="greeting">Hi ${clientName},</p>
+  <p class="greeting">Thank you for your interest in Tascosa Audio! I'm excited to be a part of your special day. Here's your personalized quote:</p>
+
+  ${eventDate || venue || eventType ? `
+  <div style="background:#f9f9f9;border-radius:8px;padding:16px;margin-bottom:24px;">
+    <p style="margin:0 0 12px;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#888;font-weight:bold;">Event Details</p>
+    <table style="width:100%;border-collapse:collapse;">
+      ${eventDate ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Date</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</td></tr>` : ''}
+      ${venue ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Venue</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${venue}</td></tr>` : ''}
+      ${eventType ? `<tr><td style="padding:6px 0;color:#888;font-size:14px;width:110px;vertical-align:top;">Event Type</td><td style="padding:6px 0;color:#333;font-size:14px;font-weight:600;">${eventType}</td></tr>` : ''}
+    </table>
+  </div>
+  ` : ''}
+
+  <table class="quote-table">
+    <thead><tr><th>Description</th><th class="amount">Amount</th></tr></thead>
+    <tbody>
+      ${lineItems.map(item => `<tr><td>${item.label}</td><td class="amount">$${item.amount.toFixed(2)}</td></tr>`).join('')}
+      <tr class="total-row"><td><strong>Total</strong></td><td class="amount"><strong>$${total.toFixed(2)}</strong></td></tr>
+      <tr class="deposit-row"><td>Deposit Due to Reserve Your Date</td><td class="amount">$${deposit.toFixed(2)}</td></tr>
+      <tr class="balance-row"><td>Balance Due (1 week before event)</td><td class="amount">$${balanceDue.toFixed(2)}</td></tr>
+    </tbody>
+  </table>
+
+  <div class="payment-section">
+    <h3>Deposit Payment Options</h3>
+    <div class="payment-methods">
+      ${selectedPayments.map(id => {
+        const m = PAYMENT_METHODS.find(m => m.id === id)
+        return `<div class="payment-pill">${m.icon} ${m.label}</div>`
+      }).join('')}
+    </div>
+    <p style="font-size:12px;color:#888;margin-top:10px;">Please send deposit to: @TascosaAudio (Venmo/Cash App) · andy@tascosaaudio.com (Zelle) · Request an invoice</p>
+  </div>
+
+  <!-- Package includes -->
+  ${pkg ? `
+  <div style="background:#f9f9f9;border-radius:8px;padding:16px;margin-bottom:20px;">
+    <h3 style="margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#888;">What's Included</h3>
+    ${pkg.features.map(f => `<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:14px;color:#333;"><span style="color:#dc5f14;font-weight:bold;">✓</span>${f}</div>`).join('')}
+  </div>` : ''}
+
+  <!-- Available add-ons -->
+  <div style="background:#fff8f0;border:1px solid #fde8d0;border-radius:8px;padding:16px;margin-bottom:20px;">
+    <h3 style="margin:0 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:1px;color:#dc5f14;">Available Add-Ons</h3>
+    <p style="font-size:13px;color:#666;margin:0 0 10px;">Want to customize your experience? You can add these extras — just reach out to Andy!</p>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
+        <span>⏰ Extra Hours (before midnight)</span><span style="font-weight:bold;color:#dc5f14;">$100/hr</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
+        <span>🌙 Extra Hours (after midnight)</span><span style="font-weight:bold;color:#dc5f14;">$200/hr</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:8px;background:white;border-radius:6px;">
+        <span>🎤 Rehearsal Coverage</span><span style="font-weight:bold;color:#dc5f14;">$150</span>
+      </div>
+    </div>
+  </div>
+
+  ${notes ? `<div class="notes"><strong>Notes from Andy:</strong><br/>${notes}</div>` : ''}
+
+  <div class="sign-section">
+    <h3>📝 Ready to Book?</h3>
+    <p>To secure your date, please sign this quote and pay your $${deposit} deposit. Your date is not reserved until your deposit is received.</p>
+    <p>By signing, you agree to the terms outlined in this quote and authorize Tascosa Audio to provide services for your event.</p>
+    <a href="https://www.tascosaaudio.com/pay" class="sign-btn">Review, Sign & Pay Deposit →</a>
+  </div>
+
+  <p style="font-size:13px;color:#888;">Questions? Call or text Andy directly at <strong>806-670-7913</strong> or reply to this email.</p>
+  </div>
+  <div class="footer">
+  <p>Tascosa Audio · Amarillo, TX · <a href="https://www.tascosaaudio.com">tascosaaudio.com</a></p>
+  <p>andy@tascosaaudio.com · 806-670-7913</p>
+  </div>
+</div>
+</body>
+</html>`
+
+ge rounded-full"></span>
                   Add-Ons
                 </h2>
                 <div className="space-y-4">
@@ -616,6 +619,59 @@ export default function QuoteBuilder() {
               </div>
             </div>
           </div>
+          {/* ── EMAIL PREVIEW ────────────────────────────────────────── */}
+          {previewMode && (
+            <div className="mt-6 border border-tascosa-orange/30 rounded-2xl overflow-hidden">
+              <div className="bg-tascosa-orange/10 border-b border-tascosa-orange/20 px-5 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 rounded-full bg-tascosa-orange"></span>
+                  <p className="text-sm font-bold text-tascosa-orange">Email Preview</p>
+                </div>
+                <p className="text-xs text-neutral-500">This is how the email will appear to {clientEmail || 'your client'}</p>
+              </div>
+              <div className="bg-white rounded-b-2xl overflow-hidden p-6" style={{color:'#333',fontFamily:'sans-serif'}}>
+                {/* Simplified preview */}
+                <div style={{maxWidth:'560px',margin:'0 auto'}}>
+                  <div style={{background:'#0f0f0f',padding:'24px',borderRadius:'8px 8px 0 0',textAlign:'center'}}>
+                    <p style={{color:'white',fontWeight:'bold',fontSize:'18px',margin:'0 0 4px'}}>Your Quote from Tascosa Audio</p>
+                    <p style={{color:'#dc5f14',margin:0,fontSize:'13px'}}>Professional DJ & Audio Services · Amarillo, TX</p>
+                  </div>
+                  <div style={{border:'1px solid #eee',borderTop:'none',padding:'24px',borderRadius:'0 0 8px 8px'}}>
+                    <p style={{fontSize:'15px'}}>Hi <strong>{clientName || '[Client Name]'}</strong>,</p>
+                    <p style={{fontSize:'14px',color:'#555'}}>Thank you for your interest in Tascosa Audio! Here's your personalized quote:</p>
+                    {(eventDate || venue || eventType) && (
+                      <div style={{background:'#f9f9f9',borderRadius:'6px',padding:'14px',marginBottom:'16px'}}>
+                        <p style={{fontSize:'11px',textTransform:'uppercase',letterSpacing:'1px',color:'#888',margin:'0 0 10px',fontWeight:'bold'}}>Event Details</p>
+                        {eventDate && <div style={{display:'flex',gap:'16px',padding:'5px 0',fontSize:'13px'}}><span style={{color:'#888',minWidth:'90px'}}>Date</span><span style={{fontWeight:'600'}}>{new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})}</span></div>}
+                        {venue && <div style={{display:'flex',gap:'16px',padding:'5px 0',fontSize:'13px'}}><span style={{color:'#888',minWidth:'90px'}}>Venue</span><span style={{fontWeight:'600'}}>{venue}</span></div>}
+                        {eventType && <div style={{display:'flex',gap:'16px',padding:'5px 0',fontSize:'13px'}}><span style={{color:'#888',minWidth:'90px'}}>Event Type</span><span style={{fontWeight:'600'}}>{eventType}</span></div>}
+                      </div>
+                    )}
+                    <table style={{width:'100%',borderCollapse:'collapse',marginBottom:'16px',fontSize:'14px'}}>
+                      <thead><tr style={{background:'#0f0f0f'}}><th style={{color:'white',padding:'8px 12px',textAlign:'left'}}>Description</th><th style={{color:'white',padding:'8px 12px',textAlign:'right'}}>Amount</th></tr></thead>
+                      <tbody>
+                        {pkg && <tr><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>{pkg.name}</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>${basePrice.toFixed(2)}</td></tr>}
+                        {extraHours > 0 && <tr><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>Extra Hours ({extraHours}hr)</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>${(extraHours*100).toFixed(2)}</td></tr>}
+                        {extraHoursAfterMidnight > 0 && <tr><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>Extra Hours After Midnight ({extraHoursAfterMidnight}hr)</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>${(extraHoursAfterMidnight*200).toFixed(2)}</td></tr>}
+                        {rehearsal && <tr><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>Rehearsal Coverage</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>$150.00</td></tr>}
+                        {travelCost > 0 && <tr><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>Travel Fee ({TRAVEL_FEES[travelFeeIdx].label})</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>${travelCost.toFixed(2)}</td></tr>}
+                        <tr style={{fontWeight:'bold',background:'#f9f9f9'}}><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>Total</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>${total.toFixed(2)}</td></tr>
+                        <tr style={{color:'#dc5f14',fontWeight:'bold'}}><td style={{padding:'8px 12px',borderBottom:'1px solid #eee'}}>Deposit Due to Reserve Your Date</td><td style={{padding:'8px 12px',borderBottom:'1px solid #eee',textAlign:'right'}}>${deposit.toFixed(2)}</td></tr>
+                        <tr><td style={{padding:'8px 12px'}}>Balance Due (1 week before event)</td><td style={{padding:'8px 12px',textAlign:'right'}}>${balanceDue.toFixed(2)}</td></tr>
+                      </tbody>
+                    </table>
+                    {notes && <div style={{background:'#fffbf0',borderLeft:'3px solid #dc5f14',padding:'12px',marginBottom:'16px',fontSize:'13px',color:'#555'}}><strong>Notes from Andy:</strong><br/>{notes}</div>}
+                    <div style={{border:'2px solid #dc5f14',borderRadius:'8px',padding:'16px',textAlign:'center'}}>
+                      <p style={{fontWeight:'bold',color:'#dc5f14',margin:'0 0 8px',fontSize:'15px'}}>📝 Ready to Book?</p>
+                      <p style={{fontSize:'13px',color:'#555',margin:'0 0 12px'}}>Sign your quote and pay your ${deposit} deposit to secure your date.</p>
+                      <div style={{background:'#dc5f14',color:'white',padding:'12px',borderRadius:'6px',fontWeight:'bold'}}>Review, Sign & Pay Deposit →</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </>
