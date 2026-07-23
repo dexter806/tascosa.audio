@@ -59,10 +59,14 @@ export default function PayPage() {
       })
   }, [quoteId])
 
+  // Only count add-ons BEYOND what was already in the quote
+  const rehearsalAdded = addOns.rehearsal && !quote?.rehearsal
+  const extraHoursBeforeAdded = Math.max(0, addOns.extraHoursBefore - (quote?.extra_hours_before || 0))
+  const extraHoursAfterAdded = Math.max(0, addOns.extraHoursAfter - (quote?.extra_hours_after || 0))
   const addOnTotal =
-    (addOns.rehearsal && !quote?.rehearsal ? 150 : 0) +
-    (Math.max(0, addOns.extraHoursBefore - (quote?.extra_hours_before || 0)) * 100) +
-    (Math.max(0, addOns.extraHoursAfter - (quote?.extra_hours_after || 0)) * 200)
+    (rehearsalAdded ? 150 : 0) +
+    (extraHoursBeforeAdded * 100) +
+    (extraHoursAfterAdded * 200)
 
   const grandTotal = (quote?.total || 0) + addOnTotal
   const balanceDue = grandTotal - (quote?.deposit || 200)
@@ -79,7 +83,12 @@ export default function PayPage() {
         quoteId,
         clientName: quote?.client_name,
         packageName: quote?.package_name,
-        addOns,
+        addOns: {
+          ...addOns,
+          rehearsalAdded,
+          extraHoursBeforeAdded,
+          extraHoursAfterAdded,
+        },
         addOnTotal,
         grandTotal,
         deposit: quote?.deposit || 200,
@@ -530,7 +539,12 @@ export default function PayPage() {
                               signature,
                               quoteId,
                               clientName: quote?.client_name,
-                              addOns,
+                              addOns: {
+                                ...addOns,
+                                rehearsalAdded,
+                                extraHoursBeforeAdded,
+                                extraHoursAfterAdded,
+                              },
                               addOnTotal,
                               grandTotal,
                               deposit: quote?.deposit || 200,
