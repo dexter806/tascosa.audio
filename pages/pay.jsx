@@ -19,6 +19,7 @@ export default function PayPage() {
   const [signature, setSignature] = useState('')
   const [paymentMethod, setPaymentMethod] = useState(null)
   const [invoiceStatus, setInvoiceStatus] = useState('idle')
+  const [fundsSent, setFundsSent] = useState(false)
   const [showVenmoQR, setShowVenmoQR] = useState(false)
   const [showCashAppQR, setShowCashAppQR] = useState(false)
   const [showZelleQR, setShowZelleQR] = useState(false)
@@ -31,6 +32,14 @@ export default function PayPage() {
   function handleSign() {
     if (!agreed) { alert('Please check the agreement box.'); return }
     if (!signature.trim()) { alert('Please type your name as your signature.'); return }
+
+    // Notify Andy immediately on signature
+    fetch('/api/quote-signed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ signature, addOns, addOnTotal }),
+    }).catch(err => console.error('Signature notification failed:', err))
+
     setStep(2)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -373,9 +382,8 @@ export default function PayPage() {
                       </div>
                     </div>
                     {invoiceStatus === 'sent' ? (
-                      <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-xl p-3 text-center">
-                        <p className="text-emerald-400 font-bold text-sm">✓ Invoice Requested!</p>
-                        <p className="text-xs text-neutral-400 mt-1">Andy will send your Stripe invoice shortly.</p>
+                      <div className="bg-neutral-800 rounded-xl p-3 text-center">
+                        <p className="text-neutral-400 text-sm">Invoice requested — Andy will be in touch shortly.</p>
                       </div>
                     ) : (
                       <button
@@ -391,12 +399,37 @@ export default function PayPage() {
                 </div>
               </div>
 
-              {/* After payment note */}
-              <div className="bg-neutral-900/50 border border-neutral-800 rounded-2xl p-5 text-center">
-                <p className="text-sm text-neutral-400 leading-relaxed">
-                  After sending your deposit, please text or call Andy to confirm receipt.<br />
-                  <span className="text-tascosa-orange font-bold">806-670-7913</span>
-                </p>
+              {/* Sent funds confirmation */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
+                <h2 className="font-bold text-sm mb-4 flex items-center gap-2">
+                  <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+                  Sent Your Payment?
+                </h2>
+                {fundsSent ? (
+                  <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-xl p-4 text-center">
+                    <p className="text-emerald-400 font-bold">✓ Thanks! We've got your confirmation.</p>
+                    <p className="text-sm text-neutral-400 mt-2 leading-relaxed">
+                      Once your deposit is received and verified, you will receive a booking confirmation email within <span className="text-white font-semibold">24–48 hours</span>.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-sm text-neutral-400 mb-4">After sending your deposit via Venmo, Cash App, or Zelle, tap the button below to let Andy know.</p>
+                    <button
+                      onClick={async () => {
+                        setFundsSent(true)
+                        fetch('/api/deposit-sent', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ signature, addOns, addOnTotal }),
+                        }).catch(err => console.error('Deposit notification failed:', err))
+                      }}
+                      className="w-full py-3 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 active:scale-95 transition-all"
+                    >
+                      ✓ I've Sent My Deposit
+                    </button>
+                  </div>
+                )}
               </div>
 
             </div>
