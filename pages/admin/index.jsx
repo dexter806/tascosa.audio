@@ -36,20 +36,6 @@ function djColor(assignedTo) {
   if (assignedTo === 'Danny') return '5'
   return '6'
 }
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZF3UN7mhV-uNyqRCZnNzOG6I2GbWQzW_SakqiCZqdKepoKv4QvO0ZrXis7Y0jhanr/exec'
-
-async function calendarEvent(payload) {
-  try {
-    await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-  } catch (err) {
-    console.error('Calendar sync error:', err)
-  }
-}
 const TEAM = ['Andy', 'Austin', 'Joe', 'Danny']
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -161,7 +147,7 @@ export default function AdminDashboard() {
 
     if (!error && newHold) {
       // Create calendar event — color 5 = yellow/banana for holds
-      await calendarEvent({
+      await calendarSync({
         action: 'create',
         date: holdForm.event_date,
         title: `📌 HOLD — ${holdForm.client_name}`,
@@ -190,7 +176,7 @@ export default function AdminDashboard() {
 
     // Remove from calendar if we have event info
     if (hold) {
-      await calendarEvent({
+      await calendarSync({
         action: 'delete_by_title',
         date: hold.event_date,
         title: `📌 HOLD — ${hold.client_name}`,
