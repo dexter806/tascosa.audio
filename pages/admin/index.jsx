@@ -35,6 +35,38 @@ function daysUntil(dateStr) {
   return Math.round((event - today) / (1000 * 60 * 60 * 24))
 }
 
+const HoldRow = ({ hold, onDelete }) => {
+  const days = Math.ceil((new Date(hold.event_date + 'T12:00:00') - new Date()) / (1000 * 60 * 60 * 24))
+  const formattedDate = new Date(hold.event_date + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+  })
+  return (
+    <div className="border border-yellow-500/40 bg-yellow-400/5 hover:border-yellow-400/70 rounded-2xl px-5 py-4 transition-all duration-200">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-yellow-400/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold">📌 Hold</span>
+            <p className="font-bold text-white">{hold.client_name}</p>
+          </div>
+          <p className="text-sm text-neutral-400 mt-0.5">{formattedDate}{hold.notes ? ` · ${hold.notes}` : ''}</p>
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="text-right">
+            <p className="text-sm font-bold text-yellow-400">{days > 0 ? `${days}d` : 'Today'}</p>
+            <p className="text-xs text-neutral-500">until event</p>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(hold.id) }}
+            className="text-xs px-2 py-1 rounded-lg border border-red-900 text-red-400 hover:bg-red-400/10 transition-all"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const [clients, setClients] = useState([])
@@ -46,6 +78,10 @@ export default function AdminDashboard() {
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [expandedPerson, setExpandedPerson] = useState(null)
   const [personFilter, setPersonFilter] = useState('upcoming') // upcoming | completed | all
+  const [holds, setHolds] = useState([])
+  const [showAddHold, setShowAddHold] = useState(false)
+  const [holdForm, setHoldForm] = useState({ event_date: '', client_name: '', notes: '' })
+  const [holdSaving, setHoldSaving] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -63,7 +99,34 @@ export default function AdminDashboard() {
       .order('wedding_date', { ascending: true })
     if (error) { console.error(error); return }
     setClients(data || [])
+
+    const { data: holdsData } = await supabase
+      .from('holds')
+      .select('*')
+      .order('event_date', { ascending: true })
+    setHolds(holdsData || [])
     setLoading(false)
+  }
+
+  async function addHold() {
+    if (!holdForm.event_date || !holdForm.client_name) {
+      alert('Please enter a date and client name.')
+      return
+    }
+    setHoldSaving(true)
+    const { error } = await supabase.from('holds').insert(holdForm)
+    if (!error) {
+      setHoldForm({ event_date: '', client_name: '', notes: '' })
+      setShowAddHold(false)
+      await loadClients()
+    }
+    setHoldSaving(false)
+  }
+
+  async function deleteHold(id) {
+    if (!confirm('Remove this hold?')) return
+    await supabase.from('holds').delete().eq('id', id)
+    setHolds(prev => prev.filter(h => h.id !== id))
   }
 
   async function handleSignOut() {
@@ -113,6 +176,12 @@ export default function AdminDashboard() {
       due: monthClients.reduce((sum, c) => sum + (c.balance_due || 0), 0),
     }
   })
+
+  // Merge holds into upcoming list as tagged objects
+  const holdsAsRows = holds.filter(h => {
+    const d = new Date(h.event_date + 'T12:00:00')
+    return d >= new Date()
+  }).map(h => ({ ...h, _isHold: true }))
 
   // Filtered upcoming client list (main dashboard)
   const filteredUpcoming = upcoming.filter(c => {
@@ -226,6 +295,12 @@ export default function AdminDashboard() {
                 className="text-xs border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white rounded-xl px-3 py-2 transition-all"
               >
                 📋 Quotes
+              </button>
+              <button
+                onClick={() => setShowAddHold(true)}
+                className="text-xs border border-yellow-500/50 text-yellow-400 hover:bg-yellow-400/10 rounded-xl px-3 py-2 transition-all"
+              >
+                📌 Hold Date
               </button>
               <button
                 onClick={() => setShowReports(!showReports)}
@@ -437,12 +512,80 @@ export default function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
-                {filteredUpcoming.map(client => <ClientRow key={client.id} client={client} />)}
+                {[
+                  ...filteredUpcoming.map(c => ({ ...c, _isHold: false })),
+                  ...holdsAsRows
+                ]
+                  .sort((a, b) => new Date(a.wedding_date || a.event_date) - new Date(b.wedding_date || b.event_date))
+                  .map(item => item._isHold
+                    ? <HoldRow key={item.id} hold={item} onDelete={deleteHold} />
+                    : <ClientRow key={item.id} client={item} />
+                  )
+                }
               </div>
             )}
           </div>
 
         </main>
+
+        {/* Add Hold Modal */}
+        {showAddHold && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-neutral-900 border border-yellow-500/30 rounded-2xl p-6 w-full max-w-md">
+              <h2 className="font-bold text-lg mb-5 flex items-center gap-2">
+                <span className="h-4 w-1 bg-yellow-400 rounded-full"></span>
+                Hold a Date
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Date *</label>
+                  <input
+                    type="date"
+                    value={holdForm.event_date}
+                    onChange={e => setHoldForm(p => ({ ...p, event_date: e.target.value }))}
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Client Name *</label>
+                  <input
+                    type="text"
+                    value={holdForm.client_name}
+                    onChange={e => setHoldForm(p => ({ ...p, client_name: e.target.value }))}
+                    placeholder="Sarah & John Smith"
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Notes</label>
+                  <textarea
+                    value={holdForm.notes}
+                    onChange={e => setHoldForm(p => ({ ...p, notes: e.target.value }))}
+                    rows={2}
+                    placeholder="Venue, event type, any details..."
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 mt-5">
+                <button
+                  onClick={() => { setShowAddHold(false); setHoldForm({ event_date: '', client_name: '', notes: '' }) }}
+                  className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addHold}
+                  disabled={holdSaving}
+                  className="flex-1 py-2.5 rounded-xl bg-yellow-400 text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all"
+                >
+                  {holdSaving ? 'Saving...' : '📌 Hold Date'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </>
   )
