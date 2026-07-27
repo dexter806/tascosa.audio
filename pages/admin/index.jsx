@@ -14,6 +14,20 @@ const supabase = createClient(
 )
 
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwz6UrjvUr4YKQitJG-GWJabWwQjOdKr6fnKMUWFlIrVDJ1bWxRwHA0dwh7QkYyU3SB/exec'
+
+async function calendarEvent(payload) {
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch (err) {
+    console.error('Calendar sync error:', err)
+  }
+}
 const TEAM = ['Andy', 'Austin', 'Joe', 'Danny']
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
@@ -114,8 +128,27 @@ export default function AdminDashboard() {
       return
     }
     setHoldSaving(true)
-    const { error } = await supabase.from('holds').insert(holdForm)
-    if (!error) {
+
+    // Save hold to Supabase
+    const { data: newHold, error } = await supabase
+      .from('holds')
+      .insert(holdForm)
+      .select()
+      .single()
+
+    if (!error && newHold) {
+      // Create calendar event — color 5 = yellow/banana for holds
+      await calendarEvent({
+        action: 'create',
+        date: holdForm.event_date,
+        title: `📌 HOLD — ${holdForm.client_name}`,
+        notes: holdForm.notes || '',
+        color: '5',
+      }).then(async () => {
+        // Note: no-cors means we can't read the eventId back
+        // Calendar event will show up, deletion handled by title match
+      })
+
       setHoldForm({ event_date: '', client_name: '', notes: '' })
       setShowAddHold(false)
       await loadClients()
@@ -125,8 +158,21 @@ export default function AdminDashboard() {
 
   async function deleteHold(id) {
     if (!confirm('Remove this hold?')) return
+    
+    // Get hold details before deleting so we can remove from calendar
+    const hold = holds.find(h => h.id === id)
+    
     await supabase.from('holds').delete().eq('id', id)
     setHolds(prev => prev.filter(h => h.id !== id))
+
+    // Remove from calendar if we have event info
+    if (hold) {
+      await calendarEvent({
+        action: 'delete_by_title',
+        date: hold.event_date,
+        title: `📌 HOLD — ${hold.client_name}`,
+      })
+    }
   }
 
   async function handleSignOut() {
