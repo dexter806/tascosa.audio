@@ -16,6 +16,28 @@ const supabase = createClient(
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZF3UN7mhV-uNyqRCZnNzOG6I2GbWQzW_SakqiCZqdKepoKv4QvO0ZrXis7Y0jhanr/exec'
 
+async function calendarSync(payload) {
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch (err) {
+    console.error('Calendar sync error:', err)
+  }
+}
+
+function djColor(assignedTo) {
+  if (assignedTo === 'Andy') return '6'
+  if (assignedTo === 'Austin') return '3'
+  if (assignedTo === 'Joe') return '4'
+  if (assignedTo === 'Danny') return '5'
+  return '6'
+}
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZF3UN7mhV-uNyqRCZnNzOG6I2GbWQzW_SakqiCZqdKepoKv4QvO0ZrXis7Y0jhanr/exec'
+
 async function calendarEvent(payload) {
   try {
     await fetch(APPS_SCRIPT_URL, {
@@ -96,6 +118,7 @@ export default function AdminDashboard() {
   const [showAddHold, setShowAddHold] = useState(false)
   const [holdForm, setHoldForm] = useState({ event_date: '', client_name: '', notes: '' })
   const [holdSaving, setHoldSaving] = useState(false)
+  const [syncAllStatus, setSyncAllStatus] = useState('idle') // idle | syncing | done | error
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -178,6 +201,30 @@ export default function AdminDashboard() {
   async function handleSignOut() {
     await supabase.auth.signOut()
     router.push('/portal/login')
+  }
+
+  async function syncAllToCalendar() {
+    if (!confirm(`Sync all ${clients.length} upcoming clients to Google Calendar? This will create or update calendar events for everyone.`)) return
+    setSyncAllStatus('syncing')
+    let count = 0
+    const today = new Date()
+    const upcoming = clients.filter(c => c.wedding_date && new Date(c.wedding_date + 'T12:00:00') >= today)
+    for (const client of upcoming) {
+      const eventTitle = `${client.person1_first_name} ${client.person1_last_name} & ${client.person2_first_name} ${client.person2_last_name} — ${client.venue || 'Venue TBD'}`
+      const description = `Venue: ${client.venue || 'TBD'}\nPackage: ${client.package || 'TBD'}\nAssigned To: ${client.assigned_to || 'TBD'}\n${client.person1_first_name}: ${client.person1_email} · ${client.person1_phone || ''}\n${client.person2_first_name}: ${client.person2_email || ''} · ${client.person2_phone || ''}`
+      await calendarSync({
+        action: 'create',
+        date: client.wedding_date,
+        title: eventTitle,
+        notes: description,
+        color: djColor(client.assigned_to),
+      })
+      count++
+      // Small delay to avoid rate limiting
+      await new Promise(r => setTimeout(r, 300))
+    }
+    setSyncAllStatus('done')
+    setTimeout(() => setSyncAllStatus('idle'), 5000)
   }
 
   // ── COMPUTED VALUES ─────────────────────────────────────────────────────────
@@ -347,6 +394,13 @@ export default function AdminDashboard() {
                 className="text-xs border border-yellow-500/50 text-yellow-400 hover:bg-yellow-400/10 rounded-xl px-3 py-2 transition-all"
               >
                 📌 Hold Date
+              </button>
+              <button
+                onClick={syncAllToCalendar}
+                disabled={syncAllStatus === 'syncing'}
+                className="text-xs border border-blue-500/50 text-blue-400 hover:bg-blue-400/10 rounded-xl px-3 py-2 transition-all disabled:opacity-50"
+              >
+                {syncAllStatus === 'syncing' ? '⏳ Syncing...' : syncAllStatus === 'done' ? '✓ Synced!' : '📅 Sync Calendar'}
               </button>
               <button
                 onClick={() => setShowReports(!showReports)}
