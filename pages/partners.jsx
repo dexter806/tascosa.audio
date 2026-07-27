@@ -73,6 +73,17 @@ const VENDORS = [
     instagram: "https://www.instagram.com/oliviabridgesphotography",
     phone: "(952) 687-7923",
   },
+    {
+    name: "Keirstyn Kelly",
+    business: "Photo by Keirstyn",
+    category: "Photographer",
+    description:
+      "Keirstyn effortlessly captures the moments that mean the most. A gifted photographer who brings a genuinely warm and personal feel to every shoot.",
+    website: "https://www.photobykeirstyn.com/",
+    facebook: "https://www.facebook.com/profile.php?id=100091302426814",
+    instagram: https://www.instagram.com/photobykeirstyn",
+    phone: "(952) 687-7923",
+  },
   {
     name: "The HazyHop Mobile Bar",
     business: "The HazyHop Mobile Bar",
