@@ -190,25 +190,48 @@ export default function AdminDashboard() {
   }
 
   async function syncAllToCalendar() {
-    if (!confirm(`Sync all ${clients.length} upcoming clients to Google Calendar? This will create or update calendar events for everyone.`)) return
-    setSyncAllStatus('syncing')
-    let count = 0
     const today = new Date()
     const upcoming = clients.filter(c => c.wedding_date && new Date(c.wedding_date + 'T12:00:00') >= today)
+    if (!confirm(`Sync ${upcoming.length} upcoming clients to Google Calendar? Existing portal events will be updated, new ones will be created.`)) return
+    setSyncAllStatus('syncing')
+
     for (const client of upcoming) {
       const eventTitle = `${client.person1_first_name} ${client.person1_last_name} & ${client.person2_first_name} ${client.person2_last_name} — ${client.venue || 'Venue TBD'}`
       const description = `Venue: ${client.venue || 'TBD'}\nPackage: ${client.package || 'TBD'}\nAssigned To: ${client.assigned_to || 'TBD'}\n${client.person1_first_name}: ${client.person1_email} · ${client.person1_phone || ''}\n${client.person2_first_name}: ${client.person2_email || ''} · ${client.person2_phone || ''}`
-      await calendarSync({
-        action: 'create',
-        date: client.wedding_date,
-        title: eventTitle,
-        notes: description,
-        color: djColor(client.assigned_to),
-      })
-      count++
-      // Small delay to avoid rate limiting
+      const color = djColor(client.assigned_to)
+
+      if (client.calendar_event_id === 'synced') {
+        // Already synced before — delete by title then recreate fresh
+        await calendarSync({
+          action: 'delete_by_title',
+          date: client.wedding_date,
+          title: eventTitle,
+        })
+        await new Promise(r => setTimeout(r, 200))
+        await calendarSync({
+          action: 'create',
+          date: client.wedding_date,
+          title: eventTitle,
+          notes: description,
+          color,
+        })
+      } else {
+        // First time syncing — create and mark as synced
+        await calendarSync({
+          action: 'create',
+          date: client.wedding_date,
+          title: eventTitle,
+          notes: description,
+          color,
+        })
+        await supabase
+          .from('clients')
+          .update({ calendar_event_id: 'synced' })
+          .eq('id', client.id)
+      }
       await new Promise(r => setTimeout(r, 300))
     }
+
     setSyncAllStatus('done')
     setTimeout(() => setSyncAllStatus('idle'), 5000)
   }
