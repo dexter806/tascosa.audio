@@ -79,9 +79,9 @@ const VENDORS = [
     category: "Photographer",
     description:
       "Keirstyn effortlessly captures the moments that mean the most. A gifted photographer who brings a genuinely warm and personal feel to every shoot.",
-    website: "https://www.photobykeirstyn.com/",
-    facebook: "https://www.facebook.com/profile.php?id=100091302426814",
-    instagram: https://www.instagram.com/photobykeirstyn",
+    website:   "https://www.photobykeirstyn.com/",
+    facebook:  "https://www.facebook.com/profile.php?id=100091302426814",
+    instagram: "https://www.instagram.com/photobykeirstyn",
     phone: "(952) 687-7923",
   },
   {
