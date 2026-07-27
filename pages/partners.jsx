@@ -82,7 +82,7 @@ const VENDORS = [
     website:   "https://www.photobykeirstyn.com/",
     facebook:  "https://www.facebook.com/profile.php?id=100091302426814",
     instagram: "https://www.instagram.com/photobykeirstyn",
-    phone: "(952) 687-7923",
+    phone: "(806) 881-6370",
   },
   {
     name: "The HazyHop Mobile Bar",
