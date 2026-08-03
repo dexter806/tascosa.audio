@@ -210,11 +210,23 @@ export default function Planner() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/portal/login'); return }
 
-      const { data: clientData } = await supabase
+      // Check user_id (person 1) or user_id_2 (person 2)
+      let clientData = null
+      const { data: cd1 } = await supabase
         .from('clients')
         .select('*')
         .eq('user_id', session.user.id)
         .single()
+      if (cd1) {
+        clientData = cd1
+      } else {
+        const { data: cd2 } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('user_id_2', session.user.id)
+          .single()
+        clientData = cd2
+      }
 
       if (!clientData?.person1_first_name) { router.push('/portal/onboarding'); return }
       setClient(clientData)
