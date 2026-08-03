@@ -80,11 +80,23 @@ export default function Onboarding() {
       }
 
       // Load existing data and pre-fill form for editing
-      const { data } = await supabase
+      // Check user_id (person 1) or user_id_2 (person 2)
+      let data = null
+      const { data: d1 } = await supabase
         .from('clients')
         .select('*')
         .eq('user_id', session.user.id)
         .single()
+      if (d1) {
+        data = d1
+      } else {
+        const { data: d2 } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('user_id_2', session.user.id)
+          .single()
+        data = d2
+      }
 
       if (data?.person1_first_name) {
         const isOtherVenue = data.venue && !VENUES.slice(0, -1).includes(data.venue)
