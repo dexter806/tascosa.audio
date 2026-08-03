@@ -35,6 +35,11 @@ export default async function handler(req, res) {
       .ilike('person1_email', email)
       .single()
 
+    // Determine if this is person 1 or person 2 signing up
+    const isPerson1 = client
+      ? client.person1_email?.toLowerCase() === email.toLowerCase()
+      : false
+
     const clientName = client
       ? `${client.person1_first_name || ''} ${client.person1_last_name || ''}`.trim()
       : email
@@ -50,6 +55,46 @@ export default async function handler(req, res) {
       subject: `🎉 New Portal Account — ${clientName}`,
       text: `Hey Andy!\n\n${clientName} just created their Tascosa Audio client portal account.\n\nEmail: ${email}\n\nView their profile:\n${profileLink}\n\nTascosa Audio Portal`,
     })
+
+    // Create Google Contacts for both partners — only when person 1 signs up
+    // (person 2 auto-links to existing record, contacts already created)
+    if (client && isPerson1) {
+      const contactsToCreate = [
+        {
+          firstName: client.person1_first_name,
+          lastName: client.person1_last_name,
+          email: client.person1_email,
+          phone: client.person1_phone,
+        },
+        {
+          firstName: client.person2_first_name,
+          lastName: client.person2_last_name,
+          email: client.person2_email,
+          phone: client.person2_phone,
+        },
+      ]
+
+      for (const contact of contactsToCreate) {
+        if (!contact.firstName) continue
+        try {
+          await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'create_contact',
+              firstName: contact.firstName,
+              lastName: contact.lastName || '',
+              email: contact.email || '',
+              phone: contact.phone || '',
+              venue: client.venue || '',
+              eventDate: client.wedding_date ? client.wedding_date.substring(0, 10) : '',
+            }),
+          })
+        } catch (e) {
+          console.error('Contact creation error:', e)
+        }
+      }
+    }
 
     // Create Google Calendar event if client has a wedding date
     if (client && client.wedding_date) {
