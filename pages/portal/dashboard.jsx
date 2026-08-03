@@ -18,11 +18,10 @@ function daysUntil(dateStr) {
   if (!dateStr) return null
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  // Append time to prevent UTC midnight timezone shift
-  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
-  const event = new Date(d)
+  const event = new Date(dateStr)
   event.setHours(0, 0, 0, 0)
-  return Math.round((event - today) / (1000 * 60 * 60 * 24))
+  const diff = Math.round((event - today) / (1000 * 60 * 60 * 24))
+  return diff
 }
 
 function formatDate(dateStr) {
@@ -43,12 +42,24 @@ export default function Dashboard() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/portal/login'); return }
 
-      // Get client data
-      const { data: clientData } = await supabase
+      // Get client data — check both user_id (person 1) and user_id_2 (person 2)
+      let clientData = null
+      const { data: data1 } = await supabase
         .from('clients')
         .select('*')
         .eq('user_id', session.user.id)
         .single()
+      
+      if (data1) {
+        clientData = data1
+      } else {
+        const { data: data2 } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('user_id_2', session.user.id)
+          .single()
+        clientData = data2
+      }
 
       if (!clientData || !clientData.person1_first_name) {
         router.push('/portal/onboarding')
