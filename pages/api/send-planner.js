@@ -83,7 +83,31 @@ async function generatePlannerPDF(client, planner, label1, label2) {
     y -= 10
   }
 
-  // Helper to draw text
+  // Word wrap helper — splits text into lines that fit within maxWidth
+  function wrapText(text, font, fontSize, maxWidth) {
+    const safe = (text || '').replace(/[^\x20-\x7E\n]/g, ' ')
+    const paragraphs = safe.split('\n')
+    const lines = []
+    for (const para of paragraphs) {
+      if (!para.trim()) { lines.push(''); continue }
+      const words = para.split(' ')
+      let current = ''
+      for (const word of words) {
+        const test = current ? current + ' ' + word : word
+        const width = font.widthOfTextAtSize(test, fontSize)
+        if (width > maxWidth && current) {
+          lines.push(current)
+          current = word
+        } else {
+          current = test
+        }
+      }
+      if (current) lines.push(current)
+    }
+    return lines
+  }
+
+  // Helper to draw a single line of text (short labels, truncated values)
   function drawText(text, { fontSize = 10, font = regularFont, color = black, x = margin, indent = 0 } = {}) {
     checkPage(fontSize + 6)
     const safeText = (text || '').replace(/[^\x20-\x7E]/g, ' ').substring(0, 200)
@@ -95,6 +119,25 @@ async function generatePlannerPDF(client, planner, label1, label2) {
       color,
     })
     y -= fontSize + 6
+  }
+
+  // Helper to draw wrapped multi-line text (notes, long values)
+  function drawWrappedText(text, { fontSize = 9, font = regularFont, color = black, indent = 0 } = {}) {
+    const maxWidth = colWidth - indent - 16
+    const lines = wrapText(text, font, fontSize, maxWidth)
+    for (const line of lines) {
+      checkPage(fontSize + 5)
+      if (line) {
+        page.drawText(line, {
+          x: margin + indent,
+          y,
+          size: fontSize,
+          font,
+          color,
+        })
+      }
+      y -= fontSize + 5
+    }
   }
 
   // Helper to draw a section header
@@ -182,7 +225,7 @@ async function generatePlannerPDF(client, planner, label1, label2) {
   if (planner.event_notes) {
     y -= 4
     drawText('Event Notes:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.event_notes.substring(0, 300), { indent: 8, fontSize: 9, color: black })
+    drawWrappedText(planner.event_notes, { indent: 8, fontSize: 9, color: black })
   }
 
   // ── CEREMONY SONGS ──────────────────────────────────────────────────────────
@@ -198,7 +241,7 @@ async function generatePlannerPDF(client, planner, label1, label2) {
   if (planner.ceremony_notes) {
     y -= 4
     drawText('Ceremony Notes:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.ceremony_notes.substring(0, 300), { indent: 8, fontSize: 9 })
+    drawWrappedText(planner.ceremony_notes, { indent: 8, fontSize: 9 })
   }
 
   // ── INTRODUCTIONS ───────────────────────────────────────────────────────────
@@ -216,11 +259,11 @@ async function generatePlannerPDF(client, planner, label1, label2) {
   }
   if (planner.intro_couple_style) {
     drawText('Couple Introduction:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.intro_couple_style.substring(0, 200), { indent: 8, fontSize: 9 })
+    drawWrappedText(planner.intro_couple_style, { indent: 8, fontSize: 9 })
   }
   if (planner.intro_notes) {
     drawText('Intro Notes:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.intro_notes.substring(0, 200), { indent: 8, fontSize: 9 })
+    drawWrappedText(planner.intro_notes, { indent: 8, fontSize: 9 })
   }
 
   // ── RECEPTION SONGS ─────────────────────────────────────────────────────────
@@ -239,26 +282,26 @@ async function generatePlannerPDF(client, planner, label1, label2) {
   if (planner.reception_notes) {
     y -= 4
     drawText('Reception Notes:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.reception_notes.substring(0, 300), { indent: 8, fontSize: 9 })
+    drawWrappedText(planner.reception_notes, { indent: 8, fontSize: 9 })
   }
 
   // ── MUSIC PREFERENCES ───────────────────────────────────────────────────────
   drawSection('Music Preferences')
   y -= 4
   drawText('PLAY:', { font: boldFont, color: gray, fontSize: 9 })
-  drawText((planner.music_requests || 'None provided').substring(0, 400), { indent: 8, fontSize: 9 })
+  drawWrappedText(planner.music_requests || 'None provided', { indent: 8, fontSize: 9 })
   y -= 6
   drawText('DO NOT PLAY:', { font: boldFont, color: gray, fontSize: 9 })
-  drawText((planner.music_do_not_play || 'None provided').substring(0, 400), { indent: 8, fontSize: 9 })
+  drawWrappedText(planner.music_do_not_play || 'None provided', { indent: 8, fontSize: 9 })
   if (planner.music_playlist_links) {
     y -= 6
     drawText('Playlist Links:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.music_playlist_links.substring(0, 300), { indent: 8, fontSize: 9 })
+    drawWrappedText(planner.music_playlist_links, { indent: 8, fontSize: 9 })
   }
   if (planner.music_notes) {
     y -= 6
     drawText('Music Notes:', { font: boldFont, color: gray, fontSize: 9 })
-    drawText(planner.music_notes.substring(0, 300), { indent: 8, fontSize: 9 })
+    drawWrappedText(planner.music_notes, { indent: 8, fontSize: 9 })
   }
 
   // ── FOOTER on last page ──────────────────────────────────────────────────────
