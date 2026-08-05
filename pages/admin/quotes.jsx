@@ -1,4 +1,4 @@
-// FILE LOCATION: pages/admin/quotes.jsx
+                            className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"// FILE LOCATION: pages/admin/quotes.jsx
 // ─────────────────────────────────────────────────────────────────────────────
 // Quotes Dashboard — Tascosa Audio Admin
 // Shows all sent quotes with status: Sent, Signed, or Booked
