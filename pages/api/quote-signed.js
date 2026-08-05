@@ -13,7 +13,7 @@ const supabaseAdmin = createClient(
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { signature, clientName, packageName, addOns, addOnTotal, grandTotal, deposit } = req.body
+  const { quoteId, signature, clientName, packageName, addOns, addOnTotal, grandTotal, deposit } = req.body
 
   // Only list NEW add-ons the client added on the pay page
   const newAddOns = [
