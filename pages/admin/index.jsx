@@ -14,7 +14,7 @@ const supabase = createClient(
 )
 
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZF3UN7mhV-uNyqRCZnNzOG6I2GbWQzW_SakqiCZqdKepoKv4QvO0ZrXis7Y0jhanr/exec'
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZnSg-uYwHIkH6JT6xXSWgA-WBpioUwYTwag0ihGab-Q7Ig21PJrljlMTlSism63VL/exec'
 
 async function calendarSync(payload) {
   try {
