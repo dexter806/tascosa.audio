@@ -1,14 +1,20 @@
 // FILE LOCATION: pages/api/deposit-sent.js
 // Fires when a client clicks "I've Sent My Deposit" on the pay page
-// Notifies Andy to go check Venmo/Cash App/Zelle
+// Notifies Andy, stamps timestamp, and creates a hold in the admin dashboard
 
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
+
 const resend = new Resend(process.env.RESEND_API_KEY)
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { signature, addOns, addOnTotal } = req.body
+  const { quoteId, signature, clientName, addOns, addOnTotal, grandTotal, deposit } = req.body
 
   const addOnList = [
     addOns?.rehearsal ? 'Rehearsal Coverage — +$150' : null,
@@ -22,6 +28,34 @@ export default async function handler(req, res) {
   })
 
   try {
+    // 1. Stamp deposit_sent_at on the quote
+    if (quoteId) {
+      await supabaseAdmin
+        .from('quotes')
+        .update({ deposit_sent_at: new Date().toISOString() })
+        .eq('id', quoteId)
+
+      // 2. Pull quote details to get event_date and venue for the hold
+      const { data: quoteData } = await supabaseAdmin
+        .from('quotes')
+        .select('event_date, venue, client_name, client_email, deposit, signed_grand_total')
+        .eq('id', quoteId)
+        .single()
+
+      // 3. Create a hold so it shows in the admin dashboard
+      if (quoteData) {
+        const depositAmount = quoteData.deposit || deposit || 200
+        const total = quoteData.signed_grand_total || grandTotal || 0
+        await supabaseAdmin
+          .from('holds')
+          .insert({
+            event_date: quoteData.event_date,
+            client_name: quoteData.client_name || clientName || signature,
+            notes: `Deposit claimed — $${depositAmount} of $${total} total. Email: ${quoteData.client_email || ''}. Venue: ${quoteData.venue || ''}. Verify payment before confirming.`,
+          })
+      }
+    }
+
     await resend.emails.send({
       from: 'info@tascosaaudio.com',
       to: 'andy@tascosaaudio.com',
