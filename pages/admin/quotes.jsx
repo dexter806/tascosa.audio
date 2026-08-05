@@ -65,6 +65,26 @@ export default function QuotesDashboard() {
     setLoading(false)
   }
 
+  async function createHoldFromQuote(quote) {
+    if (!quote.event_date) {
+      alert('This quote does not have an event date.')
+      return
+    }
+    const { error } = await supabase
+      .from('holds')
+      .insert({
+        event_date: quote.event_date,
+        client_name: quote.client_name,
+        notes: `Deposit claimed — $${quote.deposit || 200} of $${quote.signed_grand_total || quote.total || 0} total. Email: ${quote.client_email}. Venue: ${quote.venue || ''}. Verify payment before confirming.`,
+      })
+    if (error) {
+      alert('Failed to create hold. Please try again.')
+      console.error(error)
+    } else {
+      alert(`Hold created for ${quote.client_name} on ${formatDate(quote.event_date)}!`)
+    }
+  }
+
   async function deleteQuote(id) {
     if (!confirm('Delete this quote? This cannot be undone.')) return
     const res = await fetch('/api/delete-quote', {
@@ -285,6 +305,12 @@ export default function QuotesDashboard() {
                             className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"
                           >
                             Send New Quote
+                          </button>
+                          <button
+                            onClick={() => createHoldFromQuote(quote)}
+                            className="text-xs px-3 py-2 rounded-xl border border-yellow-500/50 text-yellow-400 hover:bg-yellow-400/10 transition-all"
+                          >
+                            📌 Add Hold
                           </button>
                           <button
                             onClick={() => deleteQuote(quote.id)}
