@@ -1,871 +1,723 @@
-// Last updated: June 25, 2026
+// FILE LOCATION: pages/admin/index.jsx
 // ─────────────────────────────────────────────────────────────────────────────
-// Tascosa Audio — pages/index.jsx
-//
-// CHANGELOG:
-//  ✅ [Jun 25] Full site build: SEO head, nav, hero, services, about, pricing,
-//              testimonials, partners banner, gallery, FAQ, contact, footer
-//  ✅ [Jun 25] DJ pricing: 3 packages + collapsible travel fee table
-//  ✅ [Jun 25] Diagnostic pricing: service blocks at $125/hr, education tiers,
-//              retainer by request, collapsible travel fee table
-//  ✅ [Jun 25] Partner venue callout below DJ pricing + banner strip above gallery
-//  ✅ [Jun 25] Reviews carousel: manual TESTIMONIALS array, 3-up desktop / 1 mobile,
-//              fixed-height cards, line-clamped quotes, dots by page not review
-//  ✅ [Jun 25] Background watermark logo: fixed left, opacity 0.08, full color
-//  ✅ [Jun 25] Real form submission via /api/contact (Resend)
-//  ✅ [Jun 25] Sticky mobile "Text Us" bar
-//
-// TO ADD A REVIEW: scroll to TESTIMONIALS array, copy a block, paste before the
-// closing ]; — the carousel adjusts automatically.
+// Admin Portal Dashboard — Tascosa Audio (Cleaned Up)
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useRef } from "react";
-import Head from "next/head";
+import { useState, useEffect } from 'react'
+import { createClient } from '@supabase/supabase-js'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
 
-// ─── DATA ────────────────────────────────────────────────────────────────────
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+)
 
-const DJ_PACKAGES = ["Private Party", "Wedding Reception", "Wedding Full Service"];
+const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZF3UN7mhV-uNyqRCZnNzOG6I2GbWQzW_SakqiCZqdKepoKv4QvO0ZrXis7Y0jhanr/exec'
 
-// To add a review: copy one block and paste before the closing ];
-// To remove one:   delete its { } block and the comma before it.
-// To hide all:     set the array to [] — the section disappears automatically.
-const TESTIMONIALS = [
-  {
-    quote: "Absolutely amazing DJ. I am the owner of Knotting Hill Wedding Venue and Andy does a phenomenal job! He has done countless weddings for us! Highly recommend!",
-    name: "Nikki P.",
-    event: "Owner Knotting Hill Wedding Venue — Amarillo, TX",
-    rating: 5,
-  },
-  {
-    quote: "Really awesome people to have work sound! Very knowledgeable and communicates well when they have a question or if you have a specific need for your event.",
-    name: "Izaak C.",
-    event: "Wedding Reception — Lubbock, TX",
-    rating: 5,
-  },
-  {
-    quote: "Andy is fantastic! He recently DJ'd my 40th birthday party and did a phenomenal job. Andy is easy to communicate with, is reliable and makes the event fun. Highly recommend him and Tascosa Audio! You can't go wrong booking him!",
-    name: "Tanya P.",
-    event: "Private Party — Amarillo, TX",
-    rating: 5,
-  },
-  {
-    quote: "Andy was absolutely incredible as the DJ for our wedding. He did everything we asked for and then some — like adding soft music during our knot tying so it wasn't awkwardly quiet. He even stayed late so my husband and I could have our private last dance. Would recommend him to anyone looking for an event DJ.",
-    name: "Lindsey S.",
-    event: "Wedding — Amarillo, TX",
-    rating: 5,
-  },
-  {
-    quote: "Andy was the DJ at a Karaoke night for our non-profit organization. He was INCREDIBLE! Kept the night moving and the vibes going the whole night. Book him! You won't regret it!",
-    name: "Jessica C.",
-    event: "Corporate Event — Amarillo, TX",
-    rating: 5,
-  },
-  {
-    quote: "You guys are the best. Always on time, all the best songs and I can't recommend you guys enough.",
-    name: "Grant M.",
-    event: "Owner Iron Rose Wedding & Event Center — Amarillo, TX",
-    rating: 5,
-  },
-  // ── ADD NEW REVIEWS BELOW THIS LINE ──
-  // {
-  //   quote: "Paste the review text here.",
-  //   name: "First Last Initial — e.g. John D.",
-  //   event: "Event type — City, TX",
-  //   rating: 5,
-  // },
-];
+async function calendarSync(payload) {
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+  } catch (err) {
+    console.error('Calendar sync error:', err)
+  }
+}
 
-const GALLERY = [
-  { src: "/gallery-01.jpg", alt: "Tascosa Audio event lighting and DJ setup" },
-  { src: "/gallery-02.jpg", alt: "Live event DJ services Amarillo TX" },
-  { src: "/gallery-03.jpg", alt: "Wedding reception dance floor Amarillo" },
-  { src: "/gallery-04.jpg", alt: "Packed wedding dance floor with colorful lighting" },
-  { src: "/gallery-05.jpg", alt: "DJ booth setup at Amarillo event" },
-  { src: "/gallery-06.jpg", alt: "Professional event lighting Tascosa Audio" },
-  { src: "/gallery-07.jpg", alt: "Wedding reception lighting and audio setup" },
-  { src: "/gallery-08.jpg", alt: "Live sound production Amarillo TX" },
-  { src: "/gallery-09.jpg", alt: "Event DJ services Texas Panhandle" },
-  { src: "/gallery-10.jpg", alt: "Professional DJ setup and dance lighting" },
-  { src: "/gallery-11.jpg", alt: "Wedding dance floor packed with guests" },
-  { src: "/gallery-12.jpg", alt: "Tascosa Audio live event production" },
-  { src: "/gallery-13.jpg", alt: "Professional audio and lighting setup Amarillo" },
-];
+function djColor(assignedTo) {
+  if (assignedTo === 'Andy') return '6'
+  if (assignedTo === 'Austin') return '3'
+  if (assignedTo === 'Joe') return '4'
+  if (assignedTo === 'Danny') return '5'
+  return '6'
+}
+const TEAM = ['Andy', 'Austin', 'Joe', 'Danny']
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
-const FAQ_ITEMS = [
-  { q: "Do you take song requests and do-not-play lists?", a: "Absolutely. We encourage both. You can share your must-play songs, special requests, and any songs you'd prefer we skip. Your playlist is personal to you and we treat it that way." },
-  { q: "How do you handle music for the ceremony vs. the reception?", a: "We treat them as two completely separate experiences. Ceremony music is carefully curated for the tone and emotion of each moment — processional, recessional, and everything in between. The reception is where we shift gears and focus on keeping the energy high and the dance floor packed all night." },
-  { q: "How early do you arrive to set up?", a: "We typically arrive two hours before the ceremony begins so everything is dialed in well ahead of time. We have music playing 30 minutes before the ceremony starts so your guests are welcomed with great sound as they arrive." },
-  { q: "Does setup and breakdown time cost extra?", a: "Never. Setup and breakdown are always included in your package price. Your event time is your event time — we handle everything else around it." },
-  { q: "What happens if there's a technical issue during the event?", a: "We come prepared with backup equipment for exactly this reason. In over a decade of events we've learned that preparation is everything. A technical issue has never stopped one of our shows and we intend to keep it that way." },
-  { q: "Do you provide your own equipment?", a: "Yes — we bring everything. Professional speakers, wireless microphones, dance floor lighting, and all the cables and gear needed for a seamless setup. You don't need to worry about a thing." },
-  { q: "Do you require a deposit?", a: "Yes. A non-refundable deposit is required to secure your date. The remaining balance can be paid any time up to the day before your event. We accept credit cards, Venmo, and Cash App." },
-  { q: "How far in advance should we book?", a: "As soon as you have your date confirmed — especially for weddings. Peak season weekends book up quickly. We recommend reaching out at least 3 to 6 months in advance to guarantee your date." },
-  { q: "Do you travel outside of Amarillo?", a: "Absolutely. We serve all of the Texas Panhandle, the South Plains, New Mexico, and Oklahoma. Travel fees apply based on distance from Amarillo — see our travel fee schedule in the pricing section for exact rates." },
-];
+function formatDate(dateStr) {
+  if (!dateStr) return '—'
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  return new Date(d).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric'
+  })
+}
 
-const TRAVEL_ZONES = [
-  { zone: "0 – 30 miles", fee: "Free",  note: "Amarillo & immediate surrounding area", highlight: false },
-  { zone: "31 – 60 miles", fee: "$50",  note: "Pampa, Hereford, Tulia area",           highlight: false },
-  { zone: "61 – 100 miles", fee: "$75", note: "Lubbock, Childress, Dalhart area",       highlight: false },
-  { zone: "100+ miles", fee: "$125",    note: "NM, OK, extended Panhandle",             highlight: true  },
-];
+function daysUntil(dateStr) {
+  if (!dateStr) return null
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  const event = new Date(d)
+  event.setHours(0, 0, 0, 0)
+  return Math.round((event - today) / (1000 * 60 * 60 * 24))
+}
 
-// ─── SMALL REUSABLE COMPONENTS ───────────────────────────────────────────────
-
-const FormInput = ({ label, id, ...props }) => (
-  <div className="w-full">
-    <label htmlFor={id} className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">{label}</label>
-    <input
-      id={id}
-      {...props}
-      className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all"
-    />
-  </div>
-);
-
-const StarRating = ({ rating = 5 }) => (
-  <div className="flex gap-0.5 mb-5">
-    {[...Array(5)].map((_, i) => (
-      <svg key={i} className={`h-4 w-4 ${i < rating ? "text-tascosa-orange" : "text-neutral-700"}`} fill="currentColor" viewBox="0 0 20 20">
-        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-      </svg>
-    ))}
-  </div>
-);
-
-const ChevronDown = ({ className = "" }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-  </svg>
-);
-
-const FAQItem = ({ question, answer }) => {
-  const [open, setOpen] = useState(false);
+const HoldRow = ({ hold, onDelete }) => {
+  const days = Math.ceil((new Date(hold.event_date + 'T12:00:00') - new Date()) / (1000 * 60 * 60 * 24))
+  const formattedDate = new Date(hold.event_date + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+  })
   return (
-    <div className="py-5">
-      <button onClick={() => setOpen(!open)} className="flex items-center justify-between w-full text-left gap-6 group">
-        <span className="text-base font-semibold text-white group-hover:text-tascosa-orange transition-colors">{question}</span>
-        <span className={"flex-none h-6 w-6 rounded-full border flex items-center justify-center transition-all " + (open ? "border-tascosa-orange bg-tascosa-orange/10" : "border-neutral-700 group-hover:border-neutral-500")}>
-          <ChevronDown className={"h-3 w-3 text-tascosa-orange transition-transform duration-300 " + (open ? "rotate-180" : "")} />
-        </span>
-      </button>
-      {open && (
-        <p className="mt-4 text-sm text-neutral-400 leading-relaxed pr-10 animate-in fade-in slide-in-from-top-2 duration-200">{answer}</p>
-      )}
-    </div>
-  );
-};
-
-// Collapsible travel fee table — click or hover to expand
-const TravelFeeTable = () => {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="mt-8 rounded-2xl border border-neutral-800 bg-neutral-900/40 overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        onMouseEnter={() => setOpen(true)}
-        className="w-full px-6 py-4 flex items-center justify-between gap-2 group focus:outline-none"
-        aria-expanded={open}
-      >
-        <div className="flex items-center gap-2">
-          <svg className="h-4 w-4 text-tascosa-orange flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <h4 className="text-sm font-bold text-white uppercase tracking-widest group-hover:text-tascosa-orange transition-colors">Travel Fee Schedule</h4>
-        </div>
-        <div className="flex items-center gap-2 flex-none">
-          <span className="text-xs text-neutral-500 group-hover:text-neutral-400 transition-colors">{open ? "hide" : "view rates"}</span>
-          <span className={"flex h-5 w-5 items-center justify-center rounded-full border transition-all " + (open ? "border-tascosa-orange bg-tascosa-orange/10" : "border-neutral-700 group-hover:border-neutral-500")}>
-            <ChevronDown className={"h-2.5 w-2.5 text-tascosa-orange transition-transform duration-300 " + (open ? "rotate-180" : "")} />
-          </span>
-        </div>
-      </button>
-      {open && (
-        <div className="border-t border-neutral-800 animate-in fade-in slide-in-from-top-2 duration-200" onMouseLeave={() => setOpen(false)}>
-          <div className="divide-y divide-neutral-800">
-            {TRAVEL_ZONES.map((row) => (
-              <div key={row.zone} className="flex items-center justify-between px-6 py-3 gap-4">
-                <div>
-                  <p className="text-sm font-semibold text-white">{row.zone}</p>
-                  <p className="text-xs text-neutral-500 mt-0.5">{row.note}</p>
-                </div>
-                <span className={`text-sm font-black flex-none ${row.highlight ? "text-tascosa-orange" : "text-white"}`}>{row.fee}</span>
-              </div>
-            ))}
+    <div className="border border-yellow-500/40 bg-yellow-400/5 hover:border-yellow-400/70 rounded-2xl px-5 py-4 transition-all duration-200">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-yellow-400/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold">📌 Hold</span>
+            <p className="font-bold text-white">{hold.client_name}</p>
           </div>
-          <p className="px-6 py-3 text-[10px] text-neutral-600 uppercase tracking-widest border-t border-neutral-800">
-            Distance measured from Amarillo, TX · Fees are one-way and added to your package total
-          </p>
+          <p className="text-sm text-neutral-400 mt-0.5">{formattedDate}{hold.notes ? ` · ${hold.notes}` : ''}</p>
         </div>
-      )}
-    </div>
-  );
-};
-
-// Auto-scrolling reviews carousel — 3-up on desktop, 1 on mobile
-// Dots represent pages not individual cards. Pauses on hover.
-const ReviewsCarousel = ({ reviews }) => {
-  const [current, setCurrent] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [perPage, setPerPage] = useState(3);
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    const update = () => setPerPage(window.innerWidth < 768 ? 1 : 3);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
-  const totalPages = Math.ceil(reviews.length / perPage);
-  const next = () => setCurrent((c) => (c + 1) % totalPages);
-  const prev = () => setCurrent((c) => (c - 1 + totalPages) % totalPages);
-
-  useEffect(() => {
-    if (paused || totalPages <= 1) return;
-    timerRef.current = setInterval(next, 5000);
-    return () => clearInterval(timerRef.current);
-  }, [paused, totalPages, current]);
-
-  if (!reviews.length) return null;
-
-  const visible = reviews.slice(current * perPage, current * perPage + perPage);
-
-  return (
-    <div className="relative" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{ height: "320px" }}>
-        {visible.map((t, i) => (
-          <div
-            key={`${current}-${i}`}
-            className="rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 flex flex-col justify-between hover:border-tascosa-orange/30 transition-all duration-300 animate-in fade-in duration-300 h-full"
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <div className="text-right">
+            <p className="text-sm font-bold text-yellow-400">{days > 0 ? `${days}d` : 'Today'}</p>
+            <p className="text-xs text-neutral-500">until event</p>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(hold.id) }}
+            className="text-xs px-2 py-1 rounded-lg border border-red-900 text-red-400 hover:bg-red-400/10 transition-all"
           >
-            <div>
-              <StarRating rating={t.rating} />
-              <p
-                className="text-neutral-300 text-sm leading-relaxed italic overflow-hidden"
-                style={{ display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical" }}
-              >
-                "{t.quote}"
-              </p>
-            </div>
-            <div className="mt-6 pt-6 border-t border-neutral-800">
-              <p className="text-white font-semibold text-sm">{t.name}</p>
-              <p className="text-neutral-500 text-xs mt-0.5">{t.event}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-4">
-          <button onClick={prev} aria-label="Previous reviews" className="h-9 w-9 rounded-full border border-neutral-700 hover:border-tascosa-orange flex items-center justify-center text-neutral-400 hover:text-tascosa-orange transition-all">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <div className="flex gap-2">
-            {[...Array(totalPages)].map((_, i) => (
-              <button key={i} onClick={() => setCurrent(i)} aria-label={`Go to page ${i + 1}`}
-                className={`h-2 rounded-full transition-all duration-300 ${i === current ? "w-6 bg-tascosa-orange" : "w-2 bg-neutral-700 hover:bg-neutral-500"}`}
-              />
-            ))}
-          </div>
-          <button onClick={next} aria-label="Next reviews" className="h-9 w-9 rounded-full border border-neutral-700 hover:border-tascosa-orange flex items-center justify-center text-neutral-400 hover:text-tascosa-orange transition-all">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+            Remove
           </button>
         </div>
-      )}
+      </div>
     </div>
-  );
-};
+  )
+}
 
-// ─── SVG ICONS ───────────────────────────────────────────────────────────────
+export default function AdminDashboard() {
+  const router = useRouter()
+  const [clients, setClients] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminSearch') || '' : '')
+  const [filter, setFilter] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminFilter') || 'upcoming' : 'upcoming')
+  const [showReports, setShowReports] = useState(false)
+  const [selectedMonth, setSelectedMonth] = useState('all')
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [expandedPerson, setExpandedPerson] = useState(null)
+  const [personFilter, setPersonFilter] = useState('upcoming') // upcoming | completed | all
+  const [holds, setHolds] = useState([])
+  const [showAddHold, setShowAddHold] = useState(false)
+  const [holdForm, setHoldForm] = useState({ event_date: '', client_name: '', notes: '' })
+  const [holdSaving, setHoldSaving] = useState(false)
+  const [syncAllStatus, setSyncAllStatus] = useState('idle') // idle | syncing | done | error
 
-const IconInstagram = () => (
-  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-  </svg>
-);
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) { router.push('/portal/login'); return }
+      if (session.user.id !== ADMIN_USER_ID) { router.push('/portal/dashboard'); return }
+      await loadClients()
+    })
+  }, [])
 
-const IconFacebook = () => (
-  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-  </svg>
-);
+  async function loadClients() {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('is_active', true)
+      .order('wedding_date', { ascending: true })
+    if (error) { console.error(error); return }
+    setClients(data || [])
 
-const IconSMS = () => (
-  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-    <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-  </svg>
-);
-
-// ─── MAIN PAGE COMPONENT ─────────────────────────────────────────────────────
-
-export default function Home() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [form, setForm] = useState({
-    name: "", email: "", phone: "", service: "DJ Services", pkg: "", eventDate: "", message: "",
-  });
-  const [formStatus, setFormStatus] = useState("idle"); // idle | sending | success | error
-
-  function handleChange(e) {
-    const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value, ...(name === "service" ? { pkg: "" } : {}) }));
+    const { data: holdsData } = await supabase
+      .from('holds')
+      .select('*')
+      .order('event_date', { ascending: true })
+    setHolds(holdsData || [])
+    setLoading(false)
   }
 
-  function jumpToContactWith(service, pkg = "") {
-    setForm(prev => ({ ...prev, service, pkg: service === "DJ Services" ? pkg : "" }));
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setFormStatus("sending");
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        setFormStatus("success");
-        setForm({ name: "", email: "", phone: "", service: "DJ Services", pkg: "", eventDate: "", message: "" });
-      } else {
-        setFormStatus("error");
-      }
-    } catch {
-      setFormStatus("error");
+  async function addHold() {
+    if (!holdForm.event_date || !holdForm.client_name) {
+      alert('Please enter a date and client name.')
+      return
     }
-    setTimeout(() => setFormStatus("idle"), 6000);
+    setHoldSaving(true)
+
+    // Save hold to Supabase
+    const { data: newHold, error } = await supabase
+      .from('holds')
+      .insert(holdForm)
+      .select()
+      .single()
+
+    if (!error && newHold) {
+      // Create calendar event — color 5 = yellow/banana for holds
+      await calendarSync({
+        action: 'create',
+        date: holdForm.event_date,
+        title: `📌 HOLD — ${holdForm.client_name}`,
+        notes: holdForm.notes || '',
+        color: '5',
+      }).then(async () => {
+        // Note: no-cors means we can't read the eventId back
+        // Calendar event will show up, deletion handled by title match
+      })
+
+      setHoldForm({ event_date: '', client_name: '', notes: '' })
+      setShowAddHold(false)
+      await loadClients()
+    }
+    setHoldSaving(false)
   }
 
-  const navLinks = [
-    { name: "Services", href: "#services" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "About", href: "#about" },
-    { name: "Partners & Vendors", href: "/partners" },
-    { name: "Request a Quote", href: "#contact" },
-  ];
+  async function deleteHold(id) {
+    if (!confirm('Remove this hold?')) return
+    
+    // Get hold details before deleting so we can remove from calendar
+    const hold = holds.find(h => h.id === id)
+    
+    await supabase.from('holds').delete().eq('id', id)
+    setHolds(prev => prev.filter(h => h.id !== id))
+
+    // Remove from calendar if we have event info
+    if (hold) {
+      await calendarSync({
+        action: 'delete_by_title',
+        date: hold.event_date,
+        title: `📌 HOLD — ${hold.client_name}`,
+      })
+    }
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut()
+    router.push('/portal/login')
+  }
+
+  async function syncAllToCalendar() {
+    const today = new Date()
+    const upcoming = clients.filter(c => c.wedding_date && new Date(c.wedding_date + 'T12:00:00') >= today)
+    if (!confirm(`Sync ${upcoming.length} upcoming clients to Google Calendar? Existing portal events will be updated, new ones will be created.`)) return
+    setSyncAllStatus('syncing')
+
+    for (const client of upcoming) {
+      const eventTitle = `${client.person1_first_name} ${client.person1_last_name} & ${client.person2_first_name} ${client.person2_last_name} — ${client.venue || 'Venue TBD'}`
+      const description = `Venue: ${client.venue || 'TBD'}\nPackage: ${client.package || 'TBD'}\nAssigned To: ${client.assigned_to || 'TBD'}\n${client.person1_first_name}: ${client.person1_email} · ${client.person1_phone || ''}\n${client.person2_first_name}: ${client.person2_email || ''} · ${client.person2_phone || ''}`
+      const color = djColor(client.assigned_to)
+
+      if (client.calendar_event_id === 'synced') {
+        // Already synced before — delete by title then recreate fresh
+        await calendarSync({
+          action: 'delete_by_title',
+          date: client.wedding_date,
+          title: eventTitle,
+        })
+        await new Promise(r => setTimeout(r, 200))
+        await calendarSync({
+          action: 'create',
+          date: client.wedding_date,
+          title: eventTitle,
+          notes: description,
+          color,
+        })
+      } else {
+        // First time syncing — create and mark as synced
+        await calendarSync({
+          action: 'create',
+          date: client.wedding_date,
+          title: eventTitle,
+          notes: description,
+          color,
+        })
+        await supabase
+          .from('clients')
+          .update({ calendar_event_id: 'synced' })
+          .eq('id', client.id)
+      }
+      await new Promise(r => setTimeout(r, 300))
+    }
+
+    setSyncAllStatus('done')
+    setTimeout(() => setSyncAllStatus('idle'), 5000)
+  }
+
+  // ── COMPUTED VALUES ─────────────────────────────────────────────────────────
+  const upcoming = clients.filter(c => (daysUntil(c.wedding_date) ?? -1) >= 0)
+  const completed = clients.filter(c => (daysUntil(c.wedding_date) ?? 0) < 0)
+  const totalCollected = clients.reduce((sum, c) => sum + (c.total_paid || 0), 0)
+  const totalBalanceDue = clients.reduce((sum, c) => sum + (c.balance_due || 0), 0)
+  const plannersDoneUpcoming = upcoming.filter(c => c.planner_completed).length
+
+  // Next 7 days
+  const next7 = clients.filter(c => {
+    const days = daysUntil(c.wedding_date)
+    return days !== null && days >= 0 && days <= 7
+  })
+
+  // Team stats
+  const personStats = TEAM.map(person => ({
+    name: person,
+    total: clients.filter(c => c.assigned_to === person).length,
+    upcoming: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? -1) >= 0).length,
+    completed: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? 0) < 0).length,
+    upcomingEvents: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? -1) >= 0),
+    completedEvents: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? 0) < 0),
+    allEvents: clients.filter(c => c.assigned_to === person),
+  }))
+
+  // Years for monthly report
+  const years = [...new Set(clients.map(c => c.wedding_date ? new Date(c.wedding_date).getFullYear() : null).filter(Boolean))].sort()
+  if (!years.includes(new Date().getFullYear())) years.push(new Date().getFullYear())
+
+  // Monthly data
+  const monthlyData = MONTHS.map((month, idx) => {
+    const monthClients = clients.filter(c => {
+      if (!c.wedding_date) return false
+      const d = new Date(c.wedding_date + 'T12:00:00')
+      return d.getFullYear() === selectedYear && d.getMonth() === idx
+    })
+    return {
+      month,
+      count: monthClients.length,
+      collected: monthClients.reduce((sum, c) => sum + (c.total_paid || 0), 0),
+      due: monthClients.reduce((sum, c) => sum + (c.balance_due || 0), 0),
+    }
+  })
+
+  // Merge holds into upcoming list as tagged objects
+  const holdsAsRows = holds.filter(h => {
+    const d = new Date(h.event_date + 'T12:00:00')
+    return d >= new Date()
+  }).map(h => ({ ...h, _isHold: true }))
+
+  // Filtered upcoming client list (main dashboard)
+  const filteredUpcoming = upcoming.filter(c => {
+    const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
+    const matchSearch = name.includes(search.toLowerCase())
+    let matchFilter = true
+    if (filter === 'planner_pending') matchFilter = !c.planner_completed
+    else if (filter === 'unassigned') matchFilter = !c.assigned_to
+    else if (filter === 'balance_due') matchFilter = (c.balance_due || 0) > 0
+    else if (filter === 'all_inclusive') matchFilter = c.package === 'All-Inclusive Partner'
+    else if (filter === 'full_service') matchFilter = c.package === 'Wedding Full Service'
+    return matchSearch && matchFilter
+  })
+
+  // All clients for reports
+  const allClients = clients.filter(c => {
+    const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
+    return name.includes(search.toLowerCase())
+  })
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
+        <div className="text-neutral-400 text-sm animate-pulse">Loading...</div>
+      </div>
+    )
+  }
+
+  const ClientRow = ({ client }) => {
+    const days = daysUntil(client.wedding_date)
+    const sameRole = client.person1_role === client.person2_role
+    const label1 = sameRole ? `${client.person1_first_name} (${client.person1_role})` : client.person1_role
+    const label2 = sameRole ? `${client.person2_first_name} (${client.person2_role})` : client.person2_role
+    return (
+      <div
+        onClick={() => router.push(`/admin/client/${client.id}`)}
+        className="border border-neutral-800 hover:border-tascosa-orange/50 rounded-2xl px-5 py-4 cursor-pointer transition-all duration-200 group bg-neutral-900"
+      >
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-white group-hover:text-tascosa-orange transition-colors flex items-center gap-1.5">
+              {client.person1_first_name} {client.person1_last_name} & {client.person2_first_name} {client.person2_last_name}
+              {(client.user_id || client.user_id_2) && <span className="text-emerald-400 text-xs">✓</span>}
+            </div>
+            <div className="text-sm text-neutral-400 mt-0.5 truncate">
+              {label1} & {label2} · {client.venue || 'Venue TBD'}
+              {client.assigned_to && <span className="ml-2 text-tascosa-orange/70">· {client.assigned_to}</span>}
+            </div>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <div className="text-sm font-semibold text-white">{formatDate(client.wedding_date)}</div>
+            {days !== null && (
+              <div className={`text-xs font-bold mt-0.5 ${
+                days < 0 ? 'text-neutral-500' :
+                days === 0 ? 'text-red-400' :
+                days <= 7 ? 'text-orange-400' :
+                days <= 30 ? 'text-yellow-400' :
+                'text-emerald-400'
+              }`}>
+                {days < 0 ? 'Past event' : days === 0 ? 'TODAY!' : `${days} days away`}
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2 flex-shrink-0 flex-wrap">
+            {client.package && (
+              <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                client.package === 'All-Inclusive Partner' ? 'bg-purple-400/10 text-purple-400' :
+                client.package === 'Wedding Full Service' ? 'bg-blue-400/10 text-blue-400' :
+                'bg-neutral-700 text-neutral-300'
+              }`}>
+                {client.package === 'All-Inclusive Partner' ? '★ All-Inclusive' : client.package}
+              </span>
+            )}
+            <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+              client.planner_completed ? 'bg-emerald-400/10 text-emerald-400' : 'bg-yellow-400/10 text-yellow-400'
+            }`}>
+              {client.planner_completed ? '✓ Done' : '⏳ Pending'}
+            </span>
+            {(client.balance_due || 0) > 0 && (
+              <span className="text-xs px-2.5 py-1 rounded-full font-bold bg-tascosa-orange/10 text-tascosa-orange">
+                ${client.balance_due?.toFixed(0)} due
+              </span>
+            )}
+          </div>
+          <div className="text-neutral-600 group-hover:text-tascosa-orange transition-colors">→</div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
       <Head>
-        <title>Tascosa Audio | DJ & Audio Services — Amarillo, TX</title>
-        <meta name="description" content="Professional DJ services, live sound production, and audio system troubleshooting in Amarillo, TX. Serving the Texas Panhandle, Lubbock, New Mexico & Oklahoma. Get a free quote today." />
-        <meta name="robots" content="index, follow" />
-        <link rel="canonical" href="https://www.tascosaaudio.com" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.tascosaaudio.com" />
-        <meta property="og:title" content="Tascosa Audio | DJ & Audio Services — Amarillo, TX" />
-        <meta property="og:description" content="Professional DJ, live sound, and audio troubleshooting in Amarillo, TX. 10+ years of experience. Get a free quote." />
-        <meta property="og:image" content="https://www.tascosaaudio.com/og-image.jpg" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Tascosa Audio | DJ & Audio Services — Amarillo, TX" />
-        <meta name="twitter:description" content="Professional DJ, live sound, and audio troubleshooting in Amarillo, TX." />
-        <meta name="twitter:image" content="https://www.tascosaaudio.com/og-image.jpg" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "LocalBusiness",
-          "name": "Tascosa Audio",
-          "description": "Professional DJ services, live sound production, and audio system troubleshooting in Amarillo, TX.",
-          "url": "https://www.tascosaaudio.com",
-          "telephone": "+18066707913",
-          "email": "info@tascosaaudio.com",
-          "address": { "@type": "PostalAddress", "addressLocality": "Amarillo", "addressRegion": "TX", "addressCountry": "US" },
-          "areaServed": ["Amarillo, TX", "Canyon, TX", "Lubbock, TX", "Texas Panhandle", "South Plains, TX", "New Mexico", "Oklahoma"],
-          "sameAs": ["https://www.instagram.com/tascosaaudio", "https://www.facebook.com/people/Tascosa-Audio/61583130066383/"],
-          "priceRange": "$$",
-          "openingHours": "Mo-Su 09:00-21:00",
-        })}} />
+        <title>Admin — Tascosa Audio</title>
+        <meta name="robots" content="noindex, nofollow" />
       </Head>
 
-      <div className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-tascosa-orange selection:text-black">
+      <div className="min-h-screen bg-neutral-950 text-neutral-100">
 
-        {/* Background watermark logo — fixed left, behind all content */}
-        <div className="fixed left-0 top-0 h-full w-96 flex items-center justify-start pointer-events-none z-0 select-none" aria-hidden="true">
-          <img src="/TA Logo.png" alt="" className="w-96 opacity-[0.08]" style={{ userSelect: "none" }} />
-        </div>
-
-        {/* ── NAV ─────────────────────────────────────────────────────── */}
-        <header className="sticky top-0 z-50 backdrop-blur-md border-b border-neutral-800/60 bg-neutral-950/80">
-          <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-16 items-center justify-between">
-              <a href="#" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <img src="/TA Logo.png" alt="Tascosa Audio Logo" className="h-9 w-auto object-contain" />
-                <span className="text-lg font-bold tracking-wide">Tascosa Audio</span>
-              </a>
-
-              <div className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-300">
-                {navLinks.map((l) => (
-                  <a key={l.name} href={l.href} className="hover:text-tascosa-orange transition-colors">{l.name}</a>
-                ))}
-                <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" aria-label="Tascosa Audio on Instagram" className="text-neutral-400 hover:text-tascosa-orange transition-colors"><IconInstagram /></a>
-                <a href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/" target="_blank" rel="noopener noreferrer" aria-label="Tascosa Audio on Facebook" className="text-neutral-400 hover:text-tascosa-orange transition-colors"><IconFacebook /></a>
-              </div>
-
-              <div className="md:hidden">
-                <button onClick={() => setIsMenuOpen(!isMenuOpen)} aria-label={isMenuOpen ? "Close menu" : "Open menu"} aria-expanded={isMenuOpen} className="p-2 text-neutral-400 hover:text-white focus:outline-none">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    {isMenuOpen
-                      ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />}
-                  </svg>
-                </button>
-              </div>
+        {/* Nav */}
+        <header className="border-b border-neutral-800 bg-neutral-950/80 backdrop-blur sticky top-0 z-50">
+          <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/TA Logo.png" alt="Tascosa Audio" className="h-8 w-auto object-contain" />
+              <span className="font-bold text-sm tracking-wide">Admin</span>
+              <span className="text-xs bg-tascosa-orange/20 text-tascosa-orange px-2 py-0.5 rounded-full font-bold">ANDY</span>
             </div>
-
-            {isMenuOpen && (
-              <div className="md:hidden border-t border-neutral-800 py-4 px-2 space-y-1 bg-neutral-950">
-                {navLinks.map((l) => (
-                  <a key={l.name} href={l.href} onClick={() => setIsMenuOpen(false)} className="block px-4 py-3 text-base font-medium text-neutral-300 hover:bg-neutral-900 hover:text-tascosa-orange rounded-xl transition-all">{l.name}</a>
-                ))}
-                <div className="pt-4 pb-2 px-4">
-                  <a href="sms:+18066707913" className="flex items-center justify-center gap-3 w-full py-4 bg-tascosa-orange text-black font-black rounded-2xl shadow-lg active:scale-95 transition-all">
-                    <IconSMS /> TEXT US: 806-670-7913
-                  </a>
-                </div>
-              </div>
-            )}
-          </nav>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push('/admin/quotes')}
+                className="text-xs border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white rounded-xl px-3 py-2 transition-all"
+              >
+                📋 Quotes
+              </button>
+              <button
+                onClick={() => setShowAddHold(true)}
+                className="text-xs border border-yellow-500/50 text-yellow-400 hover:bg-yellow-400/10 rounded-xl px-3 py-2 transition-all"
+              >
+                📌 Hold Date
+              </button>
+              <button
+                onClick={syncAllToCalendar}
+                disabled={syncAllStatus === 'syncing'}
+                className="text-xs border border-blue-500/50 text-blue-400 hover:bg-blue-400/10 rounded-xl px-3 py-2 transition-all disabled:opacity-50"
+              >
+                {syncAllStatus === 'syncing' ? '⏳ Syncing...' : syncAllStatus === 'done' ? '✓ Synced!' : '📅 Sync Calendar'}
+              </button>
+              <button
+                onClick={() => setShowReports(!showReports)}
+                className={`text-xs border rounded-xl px-3 py-2 transition-all ${
+                  showReports ? 'border-tascosa-orange text-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white'
+                }`}
+              >
+                📊 Reports
+              </button>
+              <button onClick={handleSignOut} className="text-xs text-neutral-500 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-xl px-3 py-2 transition-all">
+                Sign Out
+              </button>
+            </div>
+          </div>
         </header>
 
-        <main>
+        <main className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
-          {/* ── HERO ────────────────────────────────────────────────────── */}
-          <section className="relative isolate overflow-hidden">
-            <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_50%_0%,rgba(255,255,255,0.06),transparent_60%)]" />
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-28">
-              <div className="grid md:grid-cols-2 gap-10 items-center">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-tascosa-orange mb-4">Audio solutions made simple.</p>
-                  <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
-                    Your Amarillo <span className="text-tascosa-orange">audio experts.</span>
-                  </h1>
-                  <div className="mt-5 text-neutral-300 text-lg max-w-prose space-y-4">
-                    <p>At Tascosa Audio, we're your partners in finding your audio solution.</p>
-                    <p>From professional DJ services to expert setup and troubleshooting, our team proudly serves Amarillo, Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma.</p>
-                  </div>
-                  <div className="mt-8 flex gap-3 flex-wrap">
-                    <a href="#services" className="rounded-2xl px-6 py-3 bg-tascosa-orange text-black font-semibold shadow hover:brightness-110 transition-all">See Services</a>
-                    <a href="#pricing" className="rounded-2xl px-6 py-3 border border-neutral-700 hover:border-neutral-500 transition-colors">See Pricing</a>
-                    <a href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="rounded-2xl px-4 py-3 border border-neutral-700 hover:border-tascosa-orange hover:text-tascosa-orange transition-all flex items-center gap-2 text-sm text-neutral-300">
-                      <IconFacebook /> Facebook
-                    </a>
-                  </div>
-                  <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/60 px-4 py-1.5 text-xs text-neutral-400">
-                    <span className="h-1.5 w-1.5 rounded-full bg-tascosa-orange"></span>
-                    Serving Amarillo · Canyon · Lubbock · Panhandle · NM · OK
-                  </div>
-                  <div className="mt-4 text-sm text-neutral-400">10+ years of experience • Professional gear • Easy scheduling</div>
-                </div>
-
-                <div className="relative">
-                  <div className="aspect-[4/3] rounded-3xl border border-neutral-800 bg-neutral-900 shadow-xl overflow-hidden">
-                    <img src="/gallery-13.jpg" alt="DJ setup and event lighting at an Amarillo wedding — Tascosa Audio" className="h-full w-full object-cover" fetchpriority="high" />
-                  </div>
-                  <div className="absolute -bottom-6 -right-6 rounded-3xl bg-neutral-900/80 border border-neutral-800 backdrop-blur p-4 shadow-xl max-w-[280px]">
-                    <p className="text-sm">Next-level vibes for weddings, private parties, school dances, and more.</p>
-                  </div>
-                </div>
+          {/* ── THIS WEEKEND ─────────────────────────────────────────────── */}
+          {next7.length > 0 && (
+            <div className="rounded-2xl border border-tascosa-orange/40 bg-tascosa-orange/5 overflow-hidden">
+              <div className="px-5 py-3 border-b border-tascosa-orange/20 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-tascosa-orange animate-pulse"></span>
+                <h2 className="text-sm font-bold text-tascosa-orange uppercase tracking-wider">Coming Up — Next 7 Days</h2>
               </div>
-            </div>
-          </section>
-
-          {/* ── SERVICES ────────────────────────────────────────────────── */}
-          <section id="services" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Services</h2>
-              <p className="mt-4 text-neutral-300 leading-relaxed text-lg">Professional audio solutions tailored to your event or venue. Pick what fits your need.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {[
-                { title: "DJ Services", desc: "Weddings, Private Parties, and School Events. We bring the energy and the expertise to keep your dance floor moving all night long.", items: ["Professional MC Services", "Club-style Dance Lighting", "High-end Wireless Microphones", "Custom Playlist Planning"], href: "#dj-packages" },
-                { title: "Diagnostic, Repair & Education", desc: "Don't let technical issues ruin your sound. We help you fix current problems and teach you how to prevent future ones.", items: ["On-site System Troubleshooting", "Venue & Church Sound Tuning", "Feedback & Signal Flow Fixes", "1-on-1 Equipment Training"], href: "#diagnostic" },
-              ].map((card) => (
-                <div key={card.title} className="group relative rounded-3xl border border-neutral-800 bg-neutral-900/50 p-8 shadow-sm transition-all duration-300 hover:border-tascosa-orange/50 hover:bg-neutral-900 flex flex-col justify-between">
-                  <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-100 transition-opacity"><div className="h-2 w-2 rounded-full bg-tascosa-orange"></div></div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-white group-hover:text-tascosa-orange transition-colors">{card.title}</h3>
-                    <p className="mt-4 text-neutral-400 text-sm leading-relaxed">{card.desc}</p>
-                    <div className="mt-6 pt-6 border-t border-neutral-800">
-                      <ul className="space-y-3 text-sm text-neutral-300">
-                        {card.items.map((item) => (
-                          <li key={item} className="flex items-center gap-3"><span className="h-1.5 w-1.5 rounded-full bg-tascosa-orange flex-none"></span>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  <a href={card.href} className="mt-10 inline-block text-center rounded-2xl px-6 py-4 bg-neutral-800 text-white font-bold transition-all hover:bg-tascosa-orange hover:text-black active:scale-95 shadow-lg">
-                    Explore {card.title === "DJ Services" ? "Packages" : "Service"}
-                  </a>
-                </div>
-              ))}
-            </div>
-            <div className="mt-16 text-center">
-              <p className="text-xs uppercase tracking-[0.2em] text-neutral-500 font-semibold">Serving Amarillo • Canyon • Lubbock • The Texas Panhandle • The South Plains • New Mexico • Oklahoma</p>
-            </div>
-          </section>
-
-          {/* ── ABOUT ───────────────────────────────────────────────────── */}
-          <section id="about" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">The People Behind the Sound</h2>
-              <p className="mt-4 text-tascosa-orange font-medium uppercase tracking-widest text-sm">Local • Professional • Experienced</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
-              <div className="order-2 md:order-1 space-y-6 text-neutral-300 leading-relaxed">
-                <p>We're a local, owner-operated team born and raised right here in Amarillo. For us, audio isn't just a business — it's a career built on over a decade of hands-on experience.</p>
-                <p>Our owner, Andy, brings 10+ years of expertise in music retail and is a proud graduate of the <span className="text-white font-semibold">Conservatory of Recording Arts and Sciences (CRAS)</span>. We've spent years behind the board running live sound and providing professional DJ services across the Panhandle, South Plains, Oklahoma, and New Mexico.</p>
-                <p>Whether we are reading a crowd to keep a wedding dance floor packed or troubleshooting a complex system for a local venue, we bring a level of technical precision you won't find anywhere else. At the end of the day, we're your neighbors, and we're here to make sure your event sounds perfect.</p>
-                <div className="pt-6">
-                  <ul className="space-y-4">
-                    {["CRAS Certified Technical Expertise", "10+ Years of Music Industry Experience", "On-site setup & professional, local service"].map((item) => (
-                      <li key={item} className="flex items-center gap-3 text-sm text-white font-medium">
-                        <div className="flex-none rounded-full bg-tascosa-orange/20 p-1">
-                          <svg className="h-4 w-4 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                        </div>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-              <div className="order-1 md:order-2 relative">
-                <div className="absolute -inset-4 bg-tascosa-orange/5 rounded-full blur-3xl -z-10"></div>
-                <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
-                  <img src="/Party 2025.jpg" alt="Andy Martinez — owner of Tascosa Audio — at a live DJ event in Amarillo TX" className="h-full w-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" loading="lazy" />
-                </div>
-                <div className="absolute -bottom-4 -left-4 bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-xl hidden sm:block">
-                  <p className="text-xs font-bold uppercase tracking-tighter text-neutral-400">Established Expertise</p>
-                  <p className="text-lg font-black text-tascosa-orange">10+ YEARS</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-16 text-center">
-              <a href="#testimonials" className="inline-flex items-center gap-2 rounded-2xl px-8 py-4 border border-neutral-700 hover:border-tascosa-orange hover:text-tascosa-orange text-neutral-300 font-semibold transition-all">
-                See What Clients Say
-                <ChevronDown className="h-4 w-4 -rotate-90" />
-              </a>
-            </div>
-          </section>
-
-          {/* ── PRICING ─────────────────────────────────────────────────── */}
-          <section id="pricing" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
-
-            {/* DJ Packages */}
-            <div id="dj-packages" className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">DJ Services</h2>
-              <p className="mt-4 text-neutral-300 leading-relaxed">Transparent base packages. All packages run until 12:00 AM. Per-hour add-on available for the 6-hour package only.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[
-                { tier: "Private Party", price: "$600", features: ["DJ Service", "Dinner/Party Music", "Wireless mic", "Dance lighting"] },
-                { tier: "Wedding Reception", price: "$900", features: ["Up to 4 hours of MC / DJ Service", "Reception/Dinner Music", "Wireless mic", "Dance lighting"] },
-                { tier: "Wedding Full Service", price: "$1,250", features: ["Up to 6 hours of MC / DJ Service", "Ceremony Music", "Reception/Dinner Music", "Wireless mics", "Dance lighting"], highlight: true },
-              ].map((p) => (
-                <div key={p.tier} className={`flex flex-col rounded-3xl border p-8 transition-all duration-300 ${p.highlight ? "border-tascosa-orange bg-neutral-900 shadow-[0_0_20px_rgba(255,100,0,0.1)] scale-105 z-10" : "border-neutral-800 bg-neutral-900/50 hover:border-neutral-700"}`}>
-                  {p.highlight && <div className="mb-4 text-center"><span className="text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-4 py-1 rounded-full">Most Popular</span></div>}
-                  <div className="flex items-baseline justify-between mb-6">
-                    <h3 className="text-xl font-bold">{p.tier}</h3>
-                    <span className={`text-2xl font-black ${p.highlight ? "text-tascosa-orange" : "text-white"}`}>{p.price}</span>
-                  </div>
-                  <ul className="flex-grow space-y-4 text-sm text-neutral-300">
-                    {p.features.map((f) => <li key={f} className="flex items-start gap-3"><span className="text-tascosa-orange mt-0.5">✓</span>{f}</li>)}
-                  </ul>
-                  <button type="button" onClick={() => jumpToContactWith("DJ Services", p.tier)} className={`mt-8 w-full rounded-xl py-3 font-bold transition-all active:scale-95 ${p.highlight ? "bg-tascosa-orange text-black hover:brightness-110" : "border border-neutral-700 text-white hover:bg-neutral-800"}`}>
-                    Choose Package
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            <div className="max-w-2xl mx-auto mt-10">
-              <TravelFeeTable />
-            </div>
-
-            {/* Partner venue pricing callout */}
-            <div className="max-w-2xl mx-auto mt-6">
-              <div className="flex items-center gap-4 rounded-2xl border border-neutral-800 bg-neutral-900/40 px-6 py-4">
-                <span className="text-tascosa-orange text-lg flex-none">✦</span>
-                <p className="text-sm text-neutral-400 leading-relaxed">
-                  <span className="text-white font-semibold">Booked with a partner venue?</span>{" "}
-                  Clients of Knotting Hill, Iron Rose, and River Falls may qualify for exclusive pricing.{" "}
-                  <a href="/partners" className="text-tascosa-orange hover:underline font-medium">See our partners →</a>
-                </p>
-              </div>
-            </div>
-
-            {/* Diagnostic, Repair & Education */}
-            <div id="diagnostic" className="mt-32 text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Diagnostic, Repair & Education</h2>
-              <p className="mt-4 text-neutral-300 leading-relaxed">We come to you, assess your system honestly, and recommend only what you actually need. All work is billed in 2-hour blocks — no surprises.</p>
-            </div>
-
-            {/* Free diagnostic banner */}
-            <div className="max-w-4xl mx-auto mb-12">
-              <div className="rounded-3xl border border-tascosa-orange/40 bg-tascosa-orange/5 p-8 relative overflow-hidden">
-                <div className="absolute -top-16 -right-16 h-48 w-48 bg-tascosa-orange/10 blur-3xl rounded-full" />
-                <div className="flex flex-col md:flex-row md:items-center gap-6">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-black text-white">Free Diagnostic <span className="text-tascosa-orange">When You Book.</span></h3>
-                    <p className="mt-2 text-sm text-neutral-300 leading-relaxed">
-                      Not sure what's wrong? We'll come out, evaluate your setup, and give you a straight answer — no guesswork, no pressure. Book any service block and the diagnostic is completely <span className="text-white font-semibold">on us</span>. If you choose not to proceed, a one-time trip &amp; assessment fee of <span className="text-white font-semibold">$50</span> applies.
-                    </p>
-                  </div>
-                  <button type="button" onClick={() => jumpToContactWith("Diagnostic, Repair & Education")} className="flex-none rounded-2xl px-8 py-4 bg-tascosa-orange text-black font-black hover:brightness-110 transition-all active:scale-95 shadow-lg shadow-tascosa-orange/20 whitespace-nowrap">
-                    Schedule Free Diagnostic
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Service blocks */}
-            <div className="max-w-4xl mx-auto mb-6">
-              <h3 className="text-xl font-bold text-white mb-2">Service Blocks</h3>
-              <p className="text-sm text-neutral-400 mb-8">Billed in 2-hour blocks at <span className="text-white font-semibold">$125/hr</span>. The more hours you book, the more you save. Additional time is billed at <span className="text-white font-semibold">$125/hr</span>.</p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                {[
-                  { name: "Block 1 — Quick Fix", hours: "2 hours", price: "$250", savings: null, desc: "Minor repairs, quick signal flow fixes, basic troubleshooting.", highlight: false },
-                  { name: "Block 2 — Standard", hours: "4 hours", price: "$425", savings: "Save $75", desc: "Deeper diagnostics, wiring issues, system tuning and optimization.", highlight: true },
-                  { name: "Block 3 — Half Day", hours: "6 hours", price: "$600", savings: "Save $150", desc: "Complex installs, full system overhauls, multi-zone setups.", highlight: false },
-                ].map((block) => (
-                  <div key={block.name} className={`relative flex flex-col rounded-3xl border p-7 transition-all duration-300 ${block.highlight ? "border-tascosa-orange bg-neutral-900 shadow-[0_0_20px_rgba(255,100,0,0.1)] scale-105 z-10" : "border-neutral-800 bg-neutral-900/50 hover:border-neutral-700"}`}>
-                    {block.savings && <div className="mb-3"><span className="text-xs font-bold uppercase tracking-widest text-tascosa-orange bg-tascosa-orange/10 px-3 py-1 rounded-full">{block.savings}</span></div>}
-                    <h4 className="text-base font-bold text-white">{block.name}</h4>
-                    <p className="text-xs text-neutral-500 mt-0.5 mb-4">{block.hours}</p>
-                    <p className={`text-3xl font-black mb-3 ${block.highlight ? "text-tascosa-orange" : "text-white"}`}>{block.price}</p>
-                    <p className="text-sm text-neutral-400 leading-relaxed flex-grow">{block.desc}</p>
-                    <button type="button" onClick={() => jumpToContactWith("Diagnostic, Repair & Education")} className={`mt-6 w-full rounded-xl py-3 text-sm font-bold transition-all active:scale-95 ${block.highlight ? "bg-tascosa-orange text-black hover:brightness-110" : "border border-neutral-700 text-white hover:bg-neutral-800"}`}>
-                      Book This Block
+              <div className="divide-y divide-tascosa-orange/10">
+                {next7.map(c => {
+                  const days = daysUntil(c.wedding_date)
+                  return (
+                    <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
+                      className="w-full px-5 py-4 flex items-center justify-between hover:bg-tascosa-orange/10 transition-all text-left">
+                      <div>
+                        <p className="font-bold text-white">{c.person1_first_name} {c.person1_last_name} & {c.person2_first_name} {c.person2_last_name}</p>
+                        <p className="text-sm text-neutral-400 mt-0.5">{c.venue || 'Venue TBD'}{c.assigned_to && <span className="ml-2 text-tascosa-orange">· {c.assigned_to}</span>}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0 ml-4">
+                        <p className="text-sm font-semibold text-white">{formatDate(c.wedding_date)}</p>
+                        <p className={`text-xs font-black mt-0.5 ${days === 0 ? 'text-red-400' : days === 1 ? 'text-orange-400' : 'text-tascosa-orange'}`}>
+                          {days === 0 ? 'TODAY!' : days === 1 ? 'TOMORROW!' : `${days} days away`}
+                        </p>
+                      </div>
                     </button>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-6 text-center text-xs text-neutral-500 uppercase tracking-widest">Overtime billed at $125/hr</p>
-            </div>
-
-            <div className="max-w-2xl mx-auto mt-10">
-              <TravelFeeTable />
-            </div>
-
-            {/* Education sessions */}
-            <div className="max-w-4xl mx-auto mt-20">
-              <div className="text-center mb-10">
-                <h3 className="text-2xl font-bold text-white">Education Sessions</h3>
-                <p className="mt-2 text-sm text-neutral-400">One-on-one or small group training — learn your system, stop the guesswork. Bookable standalone or added to any service block.</p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {[
-                  { name: "Intro Session", detail: "1 hour · 1 person", price: "$100", note: "Great starting point — heads up, it goes fast." },
-                  { name: "Deep Dive", detail: "2 hours · 1 person", price: "$175", note: "Enough time to really get into your system." },
-                  { name: "Small Group", detail: "2 hours · up to 3 people", price: "$225", note: "Perfect for church AV teams or venue staff." },
-                  { name: "Add to Service Block", detail: "Any block", price: "+$100", note: "Combine hands-on repair with guided training." },
-                ].map((edu) => (
-                  <div key={edu.name} className="rounded-2xl border border-neutral-800 bg-neutral-900/50 p-6 hover:border-tascosa-orange/30 transition-all duration-300 flex flex-col">
-                    <p className="text-base font-bold text-white">{edu.name}</p>
-                    <p className="text-xs text-neutral-500 mt-0.5 mb-3">{edu.detail}</p>
-                    <p className="text-2xl font-black text-tascosa-orange mb-3">{edu.price}</p>
-                    <p className="text-xs text-neutral-400 leading-relaxed flex-grow">{edu.note}</p>
-                  </div>
-                ))}
-              </div>
-              <p className="mt-5 text-center text-xs text-neutral-500">4th person and beyond: <span className="text-neutral-300 font-semibold">+$25 per person</span></p>
-            </div>
-
-            {/* Retainer */}
-            <div className="max-w-4xl mx-auto mt-16">
-              <div className="rounded-3xl border border-neutral-800 bg-neutral-900/40 p-8 flex flex-col md:flex-row md:items-center gap-6">
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-white">Ongoing Support &amp; Retainer Options</h3>
-                  <p className="mt-2 text-sm text-neutral-400 leading-relaxed">Need a reliable tech partner on an ongoing basis? We offer retainer arrangements for venues, churches, and organizations that want priority access and consistent support. Every situation is different — reach out and we'll build something that makes sense for you.</p>
-                </div>
-                <button type="button" onClick={() => jumpToContactWith("Diagnostic, Repair & Education")} className="flex-none rounded-2xl px-8 py-4 border border-neutral-700 text-white font-bold hover:border-tascosa-orange hover:text-tascosa-orange transition-all active:scale-95 whitespace-nowrap">
-                  Ask About Retainers
-                </button>
+                  )
+                })}
               </div>
             </div>
-
-          </section>
-
-          {/* ── TESTIMONIALS ────────────────────────────────────────────── */}
-          {TESTIMONIALS.length > 0 && (
-            <section id="testimonials" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
-              <div className="text-center max-w-3xl mx-auto mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold">What Clients Say</h2>
-                <p className="mt-4 text-neutral-300">Real events. Real people. Real results.</p>
-              </div>
-              <ReviewsCarousel reviews={TESTIMONIALS} />
-              <div className="mt-10 text-center">
-                <a href="https://g.page/r/CUYW782-oq-MEBM/review" target="_blank" rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-full px-5 py-2 transition-all">
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                  </svg>
-                  Leave us a Google Review
-                </a>
-                {/* NOTE: Replace YOUR_GOOGLE_PLACE_ID above with your actual Google Place ID */}
-              </div>
-            </section>
           )}
 
-          {/* ── PARTNERS BANNER STRIP ───────────────────────────────────── */}
-          <section className="border-t border-neutral-800 bg-neutral-900/30">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-tascosa-orange mb-1">Proud Partners</p>
-                  <h3 className="text-lg font-bold text-white">Knotting Hill · Iron Rose · River Falls</h3>
-                  <p className="mt-1 text-sm text-neutral-400">Tascosa Audio is a trusted audio partner at each of these venues — and exclusive pricing is available to their clients.</p>
-                </div>
-                <a href="/partners" className="flex-none rounded-2xl px-7 py-3.5 border border-neutral-700 hover:border-tascosa-orange hover:text-tascosa-orange text-white font-semibold text-sm transition-all whitespace-nowrap flex items-center gap-2">
-                  Meet Our Partners
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-                </a>
-              </div>
+          {/* ── SLIM STATS BAR ───────────────────────────────────────────── */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+              <div className="text-2xl font-black text-tascosa-orange">{upcoming.length}</div>
+              <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Upcoming Events</div>
             </div>
-          </section>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+              <div className="text-2xl font-black text-emerald-400">{plannersDoneUpcoming}/{upcoming.length}</div>
+              <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Planners Done</div>
+            </div>
+          </div>
 
-          {/* ── GALLERY ─────────────────────────────────────────────────── */}
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Gallery</h2>
-              <p className="mt-4 text-neutral-300">A look at some of the events we have had the honor of being a part of.</p>
-            </div>
-            <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-              {GALLERY.map((photo) => (
-                <div key={photo.src} className="break-inside-avoid rounded-2xl overflow-hidden border border-neutral-800 hover:border-tascosa-orange/50 transition-all duration-300 group">
-                  <img src={photo.src} alt={photo.alt} className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </section>
+          {/* ── REPORTS (collapsible) ─────────────────────────────────────── */}
+          {showReports && (
+            <div className="space-y-5 border border-neutral-800 rounded-2xl p-5 bg-neutral-900/30">
+              <h2 className="font-bold text-sm uppercase tracking-wider text-neutral-400 flex items-center gap-2">
+                <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+                Reports
+              </h2>
 
-          {/* ── FAQ ─────────────────────────────────────────────────────── */}
-          <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 border-t border-neutral-800">
-            <div className="text-center max-w-3xl mx-auto mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold">Frequently Asked Questions</h2>
-              <p className="mt-4 text-neutral-300">Everything you need to know before booking. Still have questions?{" "}<a href="#contact" className="text-tascosa-orange hover:underline">Reach out anytime.</a></p>
-            </div>
-            <div className="max-w-3xl mx-auto divide-y divide-neutral-800">
-              {FAQ_ITEMS.map(({ q, a }, i) => <FAQItem key={i} question={q} answer={a} />)}
-            </div>
-          </section>
-
-          {/* ── CONTACT ─────────────────────────────────────────────────── */}
-          <section id="contact" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 border-t border-neutral-800">
-            <div className="grid lg:grid-cols-5 gap-16">
-              <div className="lg:col-span-3">
-                <div className="mb-8">
-                  <h2 className="text-3xl md:text-4xl font-bold">Request a Quote</h2>
-                  <p className="mt-2 text-neutral-300">Tell us about your event. Whether it's a wedding, private party, or a system in need of repair, we'll get back to you within 24 hours.</p>
-                </div>
-                <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <FormInput label="Your Name" id="name" name="name" value={form.name} onChange={handleChange} required placeholder="John Doe" />
-                    <FormInput label="Email Address" id="email" name="email" type="email" value={form.email} onChange={handleChange} required placeholder="john@example.com" />
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <FormInput label="Phone Number" id="phone" name="phone" type="tel" value={form.phone} onChange={handleChange} placeholder="806-555-0123" />
-                    <div className="w-full">
-                      <label htmlFor="service" className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">Service Type</label>
-                      <select id="service" name="service" value={form.service} onChange={handleChange} className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all appearance-none cursor-pointer">
-                        <option>DJ Services</option>
-                        <option>Diagnostic, Repair & Education</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <div className="w-full">
-                      <label htmlFor="eventDate" className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">Event Date</label>
-                      <input id="eventDate" name="eventDate" type="date" value={form.eventDate} onChange={handleChange} className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all [color-scheme:dark]" />
-                    </div>
-                    {form.service === "DJ Services" && (
-                      <div className="w-full animate-in fade-in slide-in-from-top-2 duration-300">
-                        <label htmlFor="pkg" className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">Select Your Package</label>
-                        <select id="pkg" name="pkg" value={form.pkg} onChange={handleChange} required className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all appearance-none cursor-pointer">
-                          <option value="">Choose a DJ package…</option>
-                          {DJ_PACKAGES.map(label => <option key={label} value={label}>{label}</option>)}
-                        </select>
-                      </div>
-                    )}
-                  </div>
-                  <div className="w-full">
-                    <label htmlFor="message" className="block text-sm font-medium text-neutral-300 mb-1.5 ml-1">Event Details</label>
-                    <textarea id="message" name="message" value={form.message} onChange={handleChange} rows={5} placeholder="Tell us about the venue, expected hours, and any special requests..." className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-4 py-3 text-white focus:ring-2 focus:ring-tascosa-orange focus:outline-none transition-all resize-none" />
-                  </div>
-                  <button type="submit" disabled={formStatus === "sending" || formStatus === "success"} className="w-full md:w-auto rounded-2xl px-10 py-4 bg-tascosa-orange text-black font-black shadow-lg hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all uppercase tracking-wider text-sm">
-                    {formStatus === "sending" ? "Sending…" : formStatus === "success" ? "Sent!" : "Request Quote"}
-                  </button>
-                  {formStatus === "success" && <p className="mt-4 text-emerald-400 text-sm font-medium flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>Got it! We'll be in touch within 24 hours.</p>}
-                  {formStatus === "error" && <p className="mt-4 text-red-400 text-sm font-medium flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-400"></span>Something went wrong. Please call or text us directly at 806-670-7913.</p>}
-                </form>
-              </div>
-
-              <div className="lg:col-span-2 space-y-8">
+              {/* Summary stats */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  {
-                    title: "Direct Contact",
-                    content: (
-                      <ul className="space-y-6">
-                        <li className="flex gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-neutral-800 flex items-center justify-center flex-none"><svg className="h-5 w-5 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg></div>
-                          <div><p className="text-xs uppercase font-bold text-neutral-500 tracking-widest">Email</p><a href="mailto:info@tascosaaudio.com" className="text-white hover:text-tascosa-orange transition-colors">info@tascosaaudio.com</a></div>
-                        </li>
-                        <li className="flex gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-neutral-800 flex items-center justify-center flex-none"><svg className="h-5 w-5 text-tascosa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg></div>
-                          <div><p className="text-xs uppercase font-bold text-neutral-500 tracking-widest">Phone / Text</p><a href="tel:8066707913" className="text-white hover:text-tascosa-orange transition-colors">806-670-7913</a></div>
-                        </li>
-                      </ul>
-                    ),
-                  },
-                  {
-                    title: "Service Area",
-                    content: <p className="text-sm text-neutral-400 leading-relaxed">Based in Amarillo, TX. Serving Canyon, Lubbock, the Texas Panhandle, the South Plains, New Mexico, and Oklahoma.</p>,
-                  },
-                  {
-                    title: "Response Time",
-                    content: <p className="text-sm text-neutral-400 leading-relaxed">We respond to all quote requests within <span className="text-white font-semibold">24 hours</span>. For urgent inquiries, call or text us directly.</p>,
-                  },
-                ].map(({ title, content }) => (
-                  <div key={title} className="rounded-3xl border border-neutral-800 bg-neutral-900/40 p-8">
-                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2"><span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>{title}</h3>
-                    {content}
+                  { label: 'Total Clients', value: clients.length, color: 'text-white' },
+                  { label: 'Completed Events', value: completed.length, color: 'text-neutral-400' },
+                  { label: 'Total Collected', value: `$${totalCollected.toFixed(0)}`, color: 'text-emerald-400' },
+                  { label: 'Balance Due', value: `$${totalBalanceDue.toFixed(0)}`, color: 'text-yellow-400' },
+                ].map(stat => (
+                  <div key={stat.label} className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+                    <div className={`text-xl font-black ${stat.color}`}>{stat.value}</div>
+                    <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">{stat.label}</div>
                   </div>
                 ))}
               </div>
+
+              {/* Team counters */}
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Team Events</p>
+                  <div className="flex gap-2">
+                    {['upcoming', 'completed', 'all'].map(f => (
+                      <button key={f} onClick={() => setPersonFilter(f)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all capitalize ${personFilter === f ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {personStats.map(person => {
+                    const events = personFilter === 'upcoming' ? person.upcomingEvents : personFilter === 'completed' ? person.completedEvents : person.allEvents
+                    const count = personFilter === 'upcoming' ? person.upcoming : personFilter === 'completed' ? person.completed : person.total
+                    return (
+                      <div key={person.name} className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+                        <button onClick={() => setExpandedPerson(expandedPerson === person.name ? null : person.name)}
+                          className="w-full p-4 text-left hover:bg-neutral-800/50 transition-all">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-sm text-white">{person.name}</span>
+                            <span className="text-xs text-neutral-600">{expandedPerson === person.name ? '▲' : '▼'}</span>
+                          </div>
+                          <div className="text-2xl font-black text-tascosa-orange mt-1">{count}</div>
+                          <div className="text-xs text-neutral-500 capitalize">{personFilter} events</div>
+                        </button>
+                        {expandedPerson === person.name && (
+                          <div className="border-t border-neutral-800 max-h-48 overflow-y-auto">
+                            {events.length === 0 ? (
+                              <p className="text-xs text-neutral-600 p-3 text-center">No events</p>
+                            ) : (
+                              events.map(c => (
+                                <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
+                                  className="w-full text-left px-4 py-2.5 border-b border-neutral-800 last:border-0 hover:bg-neutral-800/50 transition-all">
+                                  <p className="text-xs font-medium text-white">{c.person1_first_name} & {c.person2_first_name}</p>
+                                  <p className="text-xs text-neutral-500">{formatDate(c.wedding_date)}</p>
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Monthly revenue */}
+              <div>
+                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Monthly Revenue</p>
+                  <div className="flex gap-2">
+                    {years.map(y => (
+                      <button key={y} onClick={() => setSelectedYear(y)}
+                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${selectedYear === y ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
+                        {y}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-2">
+                  {monthlyData.map((m) => (
+                    <div key={m.month} className={`rounded-xl p-2.5 text-center border ${m.count > 0 ? 'border-neutral-700 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/30'}`}>
+                      <p className="text-xs font-bold text-neutral-500">{m.month}</p>
+                      <p className={`text-base font-black mt-0.5 ${m.count > 0 ? 'text-white' : 'text-neutral-700'}`}>{m.count}</p>
+                      {m.collected > 0 && <p className="text-xs text-emerald-400 font-bold">${m.collected}</p>}
+                      {m.due > 0 && <p className="text-xs text-yellow-400">${m.due}</p>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Full client list in reports */}
+              <div>
+                <p className="text-xs text-neutral-500 uppercase tracking-wider mb-3">All Clients ({allClients.length})</p>
+                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                  {allClients.map(client => <ClientRow key={client.id} client={client} />)}
+                </div>
+              </div>
             </div>
-          </section>
+          )}
+
+          {/* ── FILTER ───────────────────────────────────────────────────── */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
+            <h2 className="font-bold text-sm mb-3 flex items-center gap-2">
+              <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+              Filter Clients
+            </h2>
+            <input
+              type="text"
+              value={search}
+              onChange={e => { setSearch(e.target.value); sessionStorage.setItem('adminSearch', e.target.value) }}
+              placeholder="Search by name or venue..."
+              className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange transition-all mb-3"
+            />
+            <div className="flex gap-2 flex-wrap">
+              {[
+                { val: 'upcoming', label: 'All Upcoming' },
+                { val: 'planner_pending', label: 'Planner Pending' },
+                { val: 'unassigned', label: 'Unassigned' },
+                { val: 'balance_due', label: 'Balance Due' },
+                { val: 'all_inclusive', label: 'All-Inclusive' },
+                { val: 'full_service', label: 'Full Service' },
+              ].map(f => (
+                <button key={f.val}
+                  onClick={() => { setFilter(f.val); sessionStorage.setItem('adminFilter', f.val) }}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${filter === f.val ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'}`}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── UPCOMING CLIENT LIST (scrollable) ────────────────────────── */}
+          <div>
+            <h2 className="font-bold mb-3 flex items-center gap-2">
+              <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+              Upcoming Clients
+              <span className="text-neutral-500 font-normal text-sm">({filteredUpcoming.length})</span>
+            </h2>
+            {filteredUpcoming.length === 0 ? (
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-10 text-center text-neutral-500">
+                No clients found.
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                {(() => {
+                  const sorted = [
+                    ...filteredUpcoming.map(c => ({ ...c, _isHold: false })),
+                    ...holdsAsRows
+                  ].sort((a, b) => new Date(a.wedding_date || a.event_date) - new Date(b.wedding_date || b.event_date))
+
+                  let lastYear = null
+                  const rows = []
+
+                  sorted.forEach(item => {
+                    const dateStr = item.wedding_date || item.event_date
+                    const year = dateStr ? new Date(dateStr + 'T12:00:00').getFullYear() : null
+
+                    if (year && year !== lastYear) {
+                      rows.push(
+                        <div key={`divider-${year}`} className="flex items-center gap-3 py-2">
+                          <div className="flex-1 h-px bg-neutral-800"></div>
+                          <span className="text-xs font-black text-neutral-500 uppercase tracking-widest">{year}</span>
+                          <div className="flex-1 h-px bg-neutral-800"></div>
+                        </div>
+                      )
+                      lastYear = year
+                    }
+
+                    rows.push(item._isHold
+                      ? <HoldRow key={item.id} hold={item} onDelete={deleteHold} />
+                      : <ClientRow key={item.id} client={item} />
+                    )
+                  })
+
+                  return rows
+                })()}
+              </div>
+            )}
+          </div>
 
         </main>
 
-        {/* ── FOOTER ──────────────────────────────────────────────────────── */}
-        <footer className="border-t border-neutral-900 bg-neutral-950 py-12">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-              <div className="flex items-center gap-4">
-                <img src="/TA Logo.png" alt="Tascosa Audio" className="h-8 w-auto opacity-50" loading="lazy" />
-                <p className="text-neutral-500 text-sm italic">Audio solutions made simple.</p>
+        {/* Add Hold Modal */}
+        {showAddHold && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-neutral-900 border border-yellow-500/30 rounded-2xl p-6 w-full max-w-md">
+              <h2 className="font-bold text-lg mb-5 flex items-center gap-2">
+                <span className="h-4 w-1 bg-yellow-400 rounded-full"></span>
+                Hold a Date
+              </h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Date *</label>
+                  <input
+                    type="date"
+                    value={holdForm.event_date}
+                    onChange={e => setHoldForm(p => ({ ...p, event_date: e.target.value }))}
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 [color-scheme:dark]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Client Name *</label>
+                  <input
+                    type="text"
+                    value={holdForm.client_name}
+                    onChange={e => setHoldForm(p => ({ ...p, client_name: e.target.value }))}
+                    placeholder="Sarah & John Smith"
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Notes</label>
+                  <textarea
+                    value={holdForm.notes}
+                    onChange={e => setHoldForm(p => ({ ...p, notes: e.target.value }))}
+                    rows={2}
+                    placeholder="Venue, event type, any details..."
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none"
+                  />
+                </div>
               </div>
-              <div className="flex gap-10 text-sm font-medium">
-                <a href="https://www.instagram.com/tascosaaudio" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white transition-colors">Instagram</a>
-                <a href="https://www.facebook.com/people/Tascosa-Audio/61583130066383/#" target="_blank" rel="noopener noreferrer" className="text-neutral-400 hover:text-white transition-colors">Facebook</a>
+              <div className="flex gap-3 mt-5">
+                <button
+                  onClick={() => { setShowAddHold(false); setHoldForm({ event_date: '', client_name: '', notes: '' }) }}
+                  className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addHold}
+                  disabled={holdSaving}
+                  className="flex-1 py-2.5 rounded-xl bg-yellow-400 text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all"
+                >
+                  {holdSaving ? 'Saving...' : '📌 Hold Date'}
+                </button>
               </div>
-              <p className="text-neutral-600 text-[10px] uppercase tracking-[0.2em]">© {new Date().getFullYear()} Tascosa Audio LLC</p>
             </div>
           </div>
-        </footer>
-
-        {/* Sticky mobile "Text Us" bar */}
-        <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 p-3 bg-neutral-950/95 backdrop-blur border-t border-neutral-800">
-          <a href="sms:+18066707913" className="flex items-center justify-center gap-3 w-full py-3.5 bg-tascosa-orange text-black font-black rounded-2xl shadow-lg active:scale-95 transition-all text-sm">
-            <IconSMS /> TEXT US NOW — 806-670-7913
-          </a>
-        </div>
+        )}
 
       </div>
     </>
-  );
+  )
 }
