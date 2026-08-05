@@ -74,8 +74,16 @@ export default function QuotesDashboard() {
 
   async function deleteQuote(id) {
     if (!confirm('Delete this quote? This cannot be undone.')) return
-    await supabase.from('quotes').delete().eq('id', id)
-    setQuotes(prev => prev.filter(q => q.id !== id))
+    const res = await fetch('/api/delete-quote', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    })
+    if (res.ok) {
+      setQuotes(prev => prev.filter(q => q.id !== id))
+    } else {
+      alert('Failed to delete quote. Please try again.')
+    }
   }
 
   const filtered = quotes.filter(q => {
