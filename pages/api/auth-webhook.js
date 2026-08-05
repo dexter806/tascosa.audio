@@ -11,7 +11,7 @@ const supabaseAdmin = createClient(
 )
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZF3UN7mhV-uNyqRCZnNzOG6I2GbWQzW_SakqiCZqdKepoKv4QvO0ZrXis7Y0jhanr/exec'
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZnSg-uYwHIkH6JT6xXSWgA-WBpioUwYTwag0ihGab-Q7Ig21PJrljlMTlSism63VL/exec'
 
 function djColor(assignedTo) {
   if (assignedTo === 'Andy') return '6'
