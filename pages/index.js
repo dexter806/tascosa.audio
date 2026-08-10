@@ -76,11 +76,11 @@ const TESTIMONIALS = [
 ];
 
 const GALLERY = [
-  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/J739.jpg", alt: "Tascosa Audio event lighting and DJ setup" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/J739%20(1).jpg", alt: "Tascosa Audio event lighting and DJ setup" },
   { src: "/gallery-02.jpg", alt: "Live event DJ services Amarillo TX" },
   { src: "/gallery-03.jpg", alt: "Wedding reception dance floor Amarillo" },
   { src: "/gallery-04.jpg", alt: "Packed wedding dance floor with colorful lighting" },
-  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/W106.jpg", alt: "DJ booth setup at Amarillo event" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/W106%20(1).jpg", alt: "DJ booth setup at Amarillo event" },
   { src: "/gallery-06.jpg", alt: "Professional event lighting Tascosa Audio" },
   { src: "/gallery-07.jpg", alt: "Wedding reception lighting and audio setup" },
   { src: "/gallery-08.jpg", alt: "Live sound production Amarillo TX" },
@@ -88,7 +88,10 @@ const GALLERY = [
   { src: "/gallery-10.jpg", alt: "Professional DJ setup and dance lighting" },
   { src: "/gallery-11.jpg", alt: "Wedding dance floor packed with guests" },
   { src: "/gallery-12.jpg", alt: "Tascosa Audio live event production" },
-  { src: "/gallery-13.jpg", alt: "Professional audio and lighting setup Amarillo" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/p1077%20(1).jpg", alt: "Professional audio and lighting setup Amarillo" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/P932%20(1).jpg", alt: "Professional audio and lighting setup Amarillo" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/P935%20(1).jpg", alt: "Professional audio and lighting setup Amarillo" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/P980%20(1).jpg", alt: "Professional audio and lighting setup Amarillo" },
 ];
 
 const FAQ_ITEMS = [
