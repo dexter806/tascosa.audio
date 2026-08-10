@@ -80,7 +80,7 @@ const GALLERY = [
   { src: "/gallery-02.jpg", alt: "Live event DJ services Amarillo TX" },
   { src: "/gallery-03.jpg", alt: "Wedding reception dance floor Amarillo" },
   { src: "/gallery-04.jpg", alt: "Packed wedding dance floor with colorful lighting" },
-  { src: "/gallery-05.jpg", alt: "DJ booth setup at Amarillo event" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/W106.jpg", alt: "DJ booth setup at Amarillo event" },
   { src: "/gallery-06.jpg", alt: "Professional event lighting Tascosa Audio" },
   { src: "/gallery-07.jpg", alt: "Wedding reception lighting and audio setup" },
   { src: "/gallery-08.jpg", alt: "Live sound production Amarillo TX" },
