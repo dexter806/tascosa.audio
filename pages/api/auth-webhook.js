@@ -56,6 +56,9 @@ export default async function handler(req, res) {
       text: `Hey Andy!\n\n${clientName} just created their Tascosa Audio client portal account.\n\nEmail: ${email}\n\nView their profile:\n${profileLink}\n\nTascosa Audio Portal`,
     })
 
+    // Respond immediately so Supabase webhook doesn't time out
+    res.status(200).json({ decision: 'continue' })
+
     // Create Google Contacts for both partners — only when person 1 signs up
     // (person 2 auto-links to existing record, contacts already created)
     if (client && isPerson1) {
@@ -123,8 +126,6 @@ export default async function handler(req, res) {
         console.error('Calendar sync error:', calErr)
       }
     }
-
-    return res.status(200).json({ decision: 'continue' })
 
   } catch (err) {
     console.error('Auth webhook error:', err)
