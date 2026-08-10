@@ -76,7 +76,7 @@ const TESTIMONIALS = [
 ];
 
 const GALLERY = [
-  { src: "/gallery-01.jpg", alt: "Tascosa Audio event lighting and DJ setup" },
+  { src: "https://yiyxbvazhfyttauhjmst.supabase.co/storage/v1/object/public/site-images/J739.jpg", alt: "Tascosa Audio event lighting and DJ setup" },
   { src: "/gallery-02.jpg", alt: "Live event DJ services Amarillo TX" },
   { src: "/gallery-03.jpg", alt: "Wedding reception dance floor Amarillo" },
   { src: "/gallery-04.jpg", alt: "Packed wedding dance floor with colorful lighting" },
