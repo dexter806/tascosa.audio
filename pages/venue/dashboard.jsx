@@ -225,11 +225,11 @@ export default function VenueDashboard() {
 
         {/* Faded watermark logo — fixed to left side like main site */}
         {venue.logo_url && (
-          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-1/4 w-96 h-96 pointer-events-none z-0 select-none">
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
             <img
               src={venue.logo_url}
               alt=""
-              className="w-full h-full object-contain opacity-[0.06]"
+              className="w-full h-full object-contain opacity-[0.50]"
             />
           </div>
         )}
@@ -239,7 +239,7 @@ export default function VenueDashboard() {
           <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {venue.logo_url ? (
-                <img src={venue.logo_url} alt={venue.name} className="h-8 w-auto object-contain" />
+                <img src={venue.logo_url} alt={venue.name} className="h-12 w-auto object-contain" />
               ) : (
                 <div className="h-8 px-3 bg-neutral-800 rounded-lg flex items-center">
                   <span className="text-sm font-bold text-white">{venue.name}</span>
