@@ -240,7 +240,7 @@ export default function AdminVenueDetail() {
               No {activeTab} clients.
             </div>
           ) : (
-            <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
               {displayed.map(client => {
                 const days = daysUntil(client.wedding_date)
                 return (
