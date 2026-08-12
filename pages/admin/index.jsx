@@ -593,7 +593,7 @@ export default function AdminDashboard() {
                 No clients found.
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
                 {(() => {
                   const sorted = [
                     ...filteredUpcoming.map(c => ({ ...c, _isHold: false })),
