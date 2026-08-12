@@ -38,7 +38,7 @@ export default function VenueDashboard() {
   const [venue, setVenue] = useState(null)
   const [clients, setClients] = useState([])
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState('list') // list | calendar
+  const [view, setView] = useState('list')
   const [showAddClient, setShowAddClient] = useState(false)
   const [saving, setSaving] = useState(false)
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear())
@@ -46,38 +46,24 @@ export default function VenueDashboard() {
   const [successMsg, setSuccessMsg] = useState('')
 
   const [form, setForm] = useState({
-    person1_first_name: '',
-    person1_last_name: '',
-    person1_email: '',
-    person1_phone: '',
-    person2_first_name: '',
-    person2_last_name: '',
-    person2_email: '',
-    person2_phone: '',
-    wedding_date: '',
-    showPerson2: false,
+    person1_first_name: '', person1_last_name: '', person1_email: '', person1_phone: '',
+    person2_first_name: '', person2_last_name: '', person2_email: '', person2_phone: '',
+    wedding_date: '', showPerson2: false,
   })
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/portal/login'); return }
 
-      // Find venue by email
       const { data: venueData, error } = await supabase
         .from('venues')
         .select('*')
         .eq('email', session.user.email)
         .single()
 
-      if (error || !venueData) {
-        // Not a venue user — redirect
-        router.push('/portal/login')
-        return
-      }
-
+      if (error || !venueData) { router.push('/portal/login'); return }
       setVenue(venueData)
 
-      // Load clients for this venue
       const { data: clientData } = await supabase
         .from('clients')
         .select('*')
@@ -128,7 +114,6 @@ export default function VenueDashboard() {
       return
     }
 
-    // Notify Andy via API
     await fetch('/api/venue-add-client', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -158,31 +143,18 @@ export default function VenueDashboard() {
 
   async function removeClient(clientId, clientName) {
     if (!confirm(`Remove ${clientName} from your bookings? Andy will be notified.`)) return
-
-    const { error } = await supabase
-      .from('clients')
-      .update({ is_active: false })
-      .eq('id', clientId)
-
+    const { error } = await supabase.from('clients').update({ is_active: false }).eq('id', clientId)
     if (error) { console.error(error); return }
-
-    // Notify Andy
     await fetch('/api/venue-remove-client', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        venueName: venue.name,
-        clientName,
-        clientId,
-      }),
+      body: JSON.stringify({ venueName: venue.name, clientName, clientId }),
     })
-
     setClients(prev => prev.filter(c => c.id !== clientId))
     setSuccessMsg(`${clientName} has been removed. Andy has been notified.`)
     setTimeout(() => setSuccessMsg(''), 5000)
   }
 
-  // Calendar helpers
   const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate()
   const firstDayOfMonth = (year, month) => new Date(year, month, 1).getDay()
 
@@ -223,14 +195,10 @@ export default function VenueDashboard() {
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100 relative overflow-x-hidden">
 
-        {/* Faded watermark logo — fixed to left side like main site */}
+        {/* Faded watermark logo */}
         {venue.logo_url && (
           <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
-            <img
-              src={venue.logo_url}
-              alt=""
-              className="w-full h-full object-contain opacity-[0.50]"
-            />
+            <img src={venue.logo_url} alt="" className="w-full h-full object-contain opacity-[0.50] mix-blend-screen" />
           </div>
         )}
 
@@ -259,28 +227,22 @@ export default function VenueDashboard() {
 
         <main className="max-w-4xl mx-auto px-4 py-6 space-y-5 relative z-10">
 
-          {/* Success message */}
           {successMsg && (
             <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-2xl px-4 py-3 text-emerald-400 text-sm font-medium">
               ✓ {successMsg}
             </div>
           )}
 
-          {/* Header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div>
               <h1 className="text-xl font-extrabold">{venue.name}</h1>
               <p className="text-neutral-400 text-sm mt-0.5">Partner Portal · {upcoming.length} upcoming booking{upcoming.length !== 1 ? 's' : ''}</p>
             </div>
-            <button
-              onClick={() => setShowAddClient(true)}
-              className="bg-tascosa-orange text-black font-black text-sm rounded-xl px-4 py-2.5 hover:brightness-110 active:scale-95 transition-all"
-            >
+            <button onClick={() => setShowAddClient(true)} className="bg-tascosa-orange text-black font-black text-sm rounded-xl px-4 py-2.5 hover:brightness-110 active:scale-95 transition-all">
               + Add Client
             </button>
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
               <div className="text-2xl font-black text-tascosa-orange">{upcoming.length}</div>
@@ -292,7 +254,6 @@ export default function VenueDashboard() {
             </div>
           </div>
 
-          {/* View toggle */}
           <div className="flex gap-2">
             {['list', 'calendar'].map(v => (
               <button key={v} onClick={() => setView(v)}
@@ -308,16 +269,14 @@ export default function VenueDashboard() {
               {clients.length === 0 ? (
                 <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-10 text-center">
                   <p className="text-neutral-500 text-sm">No clients yet.</p>
-                  <button onClick={() => setShowAddClient(true)} className="mt-4 text-tascosa-orange text-sm font-bold hover:underline">
-                    + Add your first client
-                  </button>
+                  <button onClick={() => setShowAddClient(true)} className="mt-4 text-tascosa-orange text-sm font-bold hover:underline">+ Add your first client</button>
                 </div>
               ) : (
                 <>
                   {upcoming.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 px-1">Upcoming</p>
-                      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                      <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
                         {(() => {
                           let lastYear = null
                           const rows = []
@@ -335,46 +294,37 @@ export default function VenueDashboard() {
                             }
                             const days = daysUntil(client.wedding_date)
                             rows.push(
-                            <div key={client.id} onClick={() => router.push(`/venue/client/${client.id}`)} className="bg-neutral-900 border border-neutral-800 hover:border-tascosa-orange/40 rounded-2xl px-4 py-3 transition-all cursor-pointer group">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-bold text-white text-sm">
-                                    {client.person1_first_name} {client.person1_last_name}
-                                    {client.person2_first_name && ` & ${client.person2_first_name} ${client.person2_last_name}`}
-                                  </p>
-                                  <p className="text-xs text-neutral-400 mt-0.5">{formatDate(client.wedding_date)}</p>
-                                  {client.person1_email && (
-                                    <p className="text-xs text-neutral-500 mt-0.5">{client.person1_email}</p>
-                                  )}
-                                  <div className="flex items-center gap-2 mt-1.5">
-                                    {(client.user_id || client.user_id_2) ? (
-                                      <span className="text-xs bg-emerald-400/10 text-emerald-400 px-2 py-0.5 rounded-full font-bold">✓ Portal Active</span>
-                                    ) : (
-                                      <span className="text-xs bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded-full font-bold">No Portal Yet</span>
-                                    )}
-                                    {client.package && (
-                                      <span className="text-xs bg-tascosa-orange/10 text-tascosa-orange px-2 py-0.5 rounded-full font-bold">{client.package}</span>
-                                    )}
+                              <div key={client.id} onClick={() => router.push(`/venue/client/${client.id}`)} className="bg-neutral-900 border border-neutral-800 hover:border-tascosa-orange/40 rounded-2xl px-4 py-3 transition-all cursor-pointer group">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-bold text-white text-sm group-hover:text-tascosa-orange transition-colors">
+                                      {client.person1_first_name} {client.person1_last_name}
+                                      {client.person2_first_name && ` & ${client.person2_first_name} ${client.person2_last_name}`}
+                                    </p>
+                                    <p className="text-xs text-neutral-400 mt-0.5">{formatDate(client.wedding_date)}</p>
+                                    {client.person1_email && <p className="text-xs text-neutral-500 mt-0.5">{client.person1_email}</p>}
+                                    <div className="flex items-center gap-2 mt-1.5">
+                                      {(client.user_id || client.user_id_2) ? (
+                                        <span className="text-xs bg-emerald-400/10 text-emerald-400 px-2 py-0.5 rounded-full font-bold">✓ Portal Active</span>
+                                      ) : (
+                                        <span className="text-xs bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded-full font-bold">No Portal Yet</span>
+                                      )}
+                                      {client.package && <span className="text-xs bg-tascosa-orange/10 text-tascosa-orange px-2 py-0.5 rounded-full font-bold">{client.package}</span>}
+                                    </div>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                                    <span className={`text-xs font-black ${days === 0 ? 'text-red-400' : days <= 7 ? 'text-orange-400' : days <= 30 ? 'text-yellow-400' : 'text-emerald-400'}`}>
+                                      {days === 0 ? 'TODAY!' : days === 1 ? 'Tomorrow' : `${days}d`}
+                                    </span>
+                                    <button
+                                      onClick={e => { e.stopPropagation(); removeClient(client.id, `${client.person1_first_name} ${client.person1_last_name}`) }}
+                                      className="text-xs text-red-400 border border-red-900 px-2 py-1 rounded-lg hover:bg-red-400/10 transition-all"
+                                    >
+                                      Remove
+                                    </button>
                                   </div>
                                 </div>
-                                <div className="flex flex-col items-end gap-2 flex-shrink-0">
-                                  <span className={`text-xs font-black ${
-                                    days === 0 ? 'text-red-400' :
-                                    days <= 7 ? 'text-orange-400' :
-                                    days <= 30 ? 'text-yellow-400' :
-                                    'text-emerald-400'
-                                  }`}>
-                                    {days === 0 ? 'TODAY!' : days === 1 ? 'Tomorrow' : `${days}d`}
-                                  </span>
-                                  <button
-                                    onClick={() => removeClient(client.id, `${client.person1_first_name} ${client.person1_last_name}`)}
-                                    className="text-xs text-red-400 border border-red-900 px-2 py-1 rounded-lg hover:bg-red-400/10 transition-all"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
                               </div>
-                            </div>
                             )
                           })
                           return rows
@@ -386,7 +336,7 @@ export default function VenueDashboard() {
                   {past.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 px-1 mt-4">Completed</p>
-                      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                      <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
                         {past.map(client => (
                           <div key={client.id} onClick={() => router.push(`/venue/client/${client.id}`)} className="bg-neutral-900/50 border border-neutral-800 rounded-2xl px-4 py-3 opacity-60 cursor-pointer hover:opacity-80 transition-all">
                             <div className="flex items-center justify-between gap-3">
@@ -412,59 +362,34 @@ export default function VenueDashboard() {
           {/* ── CALENDAR VIEW ─────────────────────────────────────────── */}
           {view === 'calendar' && (
             <div className="space-y-4">
-              {/* Month navigation */}
               <div className="flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    if (calendarMonth === 0) { setCalendarMonth(11); setCalendarYear(y => y - 1) }
-                    else setCalendarMonth(m => m - 1)
-                  }}
-                  className="text-neutral-400 hover:text-white border border-neutral-700 rounded-xl px-3 py-2 text-sm transition-all"
-                >
-                  ←
-                </button>
+                <button onClick={() => { if (calendarMonth === 0) { setCalendarMonth(11); setCalendarYear(y => y - 1) } else setCalendarMonth(m => m - 1) }}
+                  className="text-neutral-400 hover:text-white border border-neutral-700 rounded-xl px-3 py-2 text-sm transition-all">←</button>
                 <h2 className="font-bold text-white">{MONTHS[calendarMonth]} {calendarYear}</h2>
-                <button
-                  onClick={() => {
-                    if (calendarMonth === 11) { setCalendarMonth(0); setCalendarYear(y => y + 1) }
-                    else setCalendarMonth(m => m + 1)
-                  }}
-                  className="text-neutral-400 hover:text-white border border-neutral-700 rounded-xl px-3 py-2 text-sm transition-all"
-                >
-                  →
-                </button>
+                <button onClick={() => { if (calendarMonth === 11) { setCalendarMonth(0); setCalendarYear(y => y + 1) } else setCalendarMonth(m => m + 1) }}
+                  className="text-neutral-400 hover:text-white border border-neutral-700 rounded-xl px-3 py-2 text-sm transition-all">→</button>
               </div>
 
-              {/* Calendar grid */}
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
-                {/* Day headers */}
                 <div className="grid grid-cols-7 border-b border-neutral-800">
                   {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
-                    <div key={d} className="py-2 text-center text-xs font-bold text-neutral-500 uppercase">
-                      {d}
-                    </div>
+                    <div key={d} className="py-2 text-center text-xs font-bold text-neutral-500 uppercase">{d}</div>
                   ))}
                 </div>
-
-                {/* Days grid */}
                 <div className="grid grid-cols-7">
-                  {/* Empty cells for first day offset */}
                   {Array.from({ length: firstDayOfMonth(calendarYear, calendarMonth) }).map((_, i) => (
                     <div key={`empty-${i}`} className="border-b border-r border-neutral-800 p-1 min-h-[60px]" />
                   ))}
-
-                  {/* Day cells */}
                   {Array.from({ length: daysInMonth(calendarYear, calendarMonth) }).map((_, i) => {
                     const day = i + 1
                     const today = new Date()
                     const isToday = today.getDate() === day && today.getMonth() === calendarMonth && today.getFullYear() === calendarYear
                     const dayClients = clientsByDate[day] || []
-
                     return (
                       <div key={day} className={`border-b border-r border-neutral-800 p-1 min-h-[60px] ${isToday ? 'bg-tascosa-orange/5' : ''}`}>
                         <p className={`text-xs font-bold mb-1 ${isToday ? 'text-tascosa-orange' : 'text-neutral-400'}`}>{day}</p>
                         {dayClients.map(c => (
-                          <div key={c.id} className="bg-tascosa-orange/20 border border-tascosa-orange/30 rounded px-1 py-0.5 mb-0.5">
+                          <div key={c.id} onClick={() => router.push(`/venue/client/${c.id}`)} className="bg-tascosa-orange/20 border border-tascosa-orange/30 rounded px-1 py-0.5 mb-0.5 cursor-pointer hover:bg-tascosa-orange/30 transition-all">
                             <p className="text-xs text-tascosa-orange font-bold truncate leading-tight">
                               {c.person1_first_name}{c.person2_first_name ? ` & ${c.person2_first_name}` : ''}
                             </p>
@@ -476,13 +401,12 @@ export default function VenueDashboard() {
                 </div>
               </div>
 
-              {/* This month's bookings list */}
               {clientsThisMonth.length > 0 && (
                 <div>
                   <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 px-1">{SHORT_MONTHS[calendarMonth]} Bookings</p>
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
                     {clientsThisMonth.map(client => (
-                      <div key={client.id} className="bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                      <div key={client.id} onClick={() => router.push(`/venue/client/${client.id}`)} className="bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-3 flex items-center justify-between gap-3 cursor-pointer hover:border-tascosa-orange/40 transition-all">
                         <div>
                           <p className="font-bold text-white text-sm">
                             {client.person1_first_name} {client.person1_last_name}
@@ -521,20 +445,11 @@ export default function VenueDashboard() {
                 Add New Client
               </h2>
               <p className="text-xs text-neutral-500 mb-4">Andy will be notified when you add a client.</p>
-
               <div className="space-y-3">
-                {/* Wedding date */}
                 <div>
                   <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Wedding Date *</label>
-                  <input
-                    type="date"
-                    value={form.wedding_date}
-                    onChange={e => setForm(p => ({ ...p, wedding_date: e.target.value }))}
-                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange [color-scheme:dark]"
-                  />
+                  <input type="date" value={form.wedding_date} onChange={e => setForm(p => ({ ...p, wedding_date: e.target.value }))} className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange [color-scheme:dark]" />
                 </div>
-
-                {/* Person 1 */}
                 <div className="bg-neutral-950/50 rounded-xl p-3 border border-neutral-800 space-y-2">
                   <p className="text-xs font-bold text-tascosa-orange uppercase tracking-wider">Primary Contact</p>
                   <div className="grid grid-cols-2 gap-2">
@@ -556,13 +471,8 @@ export default function VenueDashboard() {
                     <input type="tel" value={form.person1_phone} onChange={e => setForm(p => ({ ...p, person1_phone: e.target.value }))} placeholder="(806) 555-0000" className="w-full rounded-xl bg-neutral-900 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
                   </div>
                 </div>
-
-                {/* Person 2 toggle */}
                 {!form.showPerson2 ? (
-                  <button
-                    onClick={() => setForm(p => ({ ...p, showPerson2: true }))}
-                    className="w-full py-2.5 border border-dashed border-neutral-700 rounded-xl text-neutral-400 text-sm hover:border-tascosa-orange hover:text-tascosa-orange transition-all font-bold"
-                  >
+                  <button onClick={() => setForm(p => ({ ...p, showPerson2: true }))} className="w-full py-2.5 border border-dashed border-neutral-700 rounded-xl text-neutral-400 text-sm hover:border-tascosa-orange hover:text-tascosa-orange transition-all font-bold">
                     + Add Second Person
                   </button>
                 ) : (
@@ -592,21 +502,9 @@ export default function VenueDashboard() {
                   </div>
                 )}
               </div>
-
               <div className="flex gap-3 mt-5">
-                <button
-                  onClick={() => { setShowAddClient(false); setForm({ person1_first_name: '', person1_last_name: '', person1_email: '', person1_phone: '', person2_first_name: '', person2_last_name: '', person2_email: '', person2_phone: '', wedding_date: '', showPerson2: false }) }}
-                  className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={addClient}
-                  disabled={saving}
-                  className="flex-1 py-2.5 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all"
-                >
-                  {saving ? 'Adding...' : 'Add Client'}
-                </button>
+                <button onClick={() => { setShowAddClient(false); setForm({ person1_first_name: '', person1_last_name: '', person1_email: '', person1_phone: '', person2_first_name: '', person2_last_name: '', person2_email: '', person2_phone: '', wedding_date: '', showPerson2: false }) }} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all">Cancel</button>
+                <button onClick={addClient} disabled={saving} className="flex-1 py-2.5 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all">{saving ? 'Adding...' : 'Add Client'}</button>
               </div>
             </div>
           </div>
