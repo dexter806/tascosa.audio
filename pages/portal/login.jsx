@@ -199,7 +199,10 @@ export default function PortalLogin() {
               {mode === 'login' && (
                 <>
                   <button onClick={() => { setMode('reset'); setMessage('') }} className="text-sm text-neutral-400 hover:text-tascosa-orange transition-colors block w-full">
-                    Forgot your password? Click here to set or reset it
+                    Forgot your password?
+                  </button>
+                  <button onClick={() => { setMode('signup'); setMessage('') }} className="text-sm text-neutral-400 hover:text-tascosa-orange transition-colors block w-full">
+                    New client? Create your account
                   </button>
                 </>
               )}
