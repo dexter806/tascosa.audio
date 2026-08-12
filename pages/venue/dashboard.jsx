@@ -229,7 +229,7 @@ export default function VenueDashboard() {
             <img
               src={venue.logo_url}
               alt=""
-              className="w-full h-full object-contain opacity-[0.06]"
+              className="w-full h-full object-contain opacity-[0.20]"
             />
           </div>
         )}
