@@ -225,11 +225,11 @@ export default function VenueDashboard() {
 
         {/* Faded watermark logo — fixed to left side like main site */}
         {venue.logo_url && (
-          <div className="fixed left-0 top-1/2 -translate-y-1/2 translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-1/4 w-96 h-96 pointer-events-none z-0 select-none">
             <img
               src={venue.logo_url}
               alt=""
-              className="w-full h-full object-contain opacity-[0.50] mix-blend-screen"
+              className="w-full h-full object-contain opacity-[0.06]"
             />
           </div>
         )}
@@ -239,7 +239,7 @@ export default function VenueDashboard() {
           <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-3">
               {venue.logo_url ? (
-                <img src={venue.logo_url} alt={venue.name} className="h-14 w-auto object-contain" />
+                <img src={venue.logo_url} alt={venue.name} className="h-8 w-auto object-contain" />
               ) : (
                 <div className="h-8 px-3 bg-neutral-800 rounded-lg flex items-center">
                   <span className="text-sm font-bold text-white">{venue.name}</span>
@@ -317,11 +317,25 @@ export default function VenueDashboard() {
                   {upcoming.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 px-1">Upcoming</p>
-                      <div className="space-y-2">
-                        {upcoming.map(client => {
-                          const days = daysUntil(client.wedding_date)
-                          return (
-                            <div key={client.id} className="bg-neutral-900 border border-neutral-800 hover:border-tascosa-orange/40 rounded-2xl px-4 py-3 transition-all">
+                      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+                        {(() => {
+                          let lastYear = null
+                          const rows = []
+                          upcoming.forEach(client => {
+                            const year = client.wedding_date ? new Date(client.wedding_date + 'T12:00:00').getFullYear() : null
+                            if (year && year !== lastYear) {
+                              rows.push(
+                                <div key={`divider-${year}`} className="flex items-center gap-3 py-1">
+                                  <div className="flex-1 h-px bg-neutral-800"></div>
+                                  <span className="text-xs font-black text-neutral-500 uppercase tracking-widest">{year}</span>
+                                  <div className="flex-1 h-px bg-neutral-800"></div>
+                                </div>
+                              )
+                              lastYear = year
+                            }
+                            const days = daysUntil(client.wedding_date)
+                            rows.push(
+                            <div key={client.id} onClick={() => router.push(`/venue/client/${client.id}`)} className="bg-neutral-900 border border-neutral-800 hover:border-tascosa-orange/40 rounded-2xl px-4 py-3 transition-all cursor-pointer group">
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex-1 min-w-0">
                                   <p className="font-bold text-white text-sm">
@@ -361,8 +375,10 @@ export default function VenueDashboard() {
                                 </div>
                               </div>
                             </div>
-                          )
-                        })}
+                            )
+                          })
+                          return rows
+                        })()}
                       </div>
                     </div>
                   )}
@@ -370,9 +386,9 @@ export default function VenueDashboard() {
                   {past.length > 0 && (
                     <div>
                       <p className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-2 px-1 mt-4">Completed</p>
-                      <div className="space-y-2">
+                      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
                         {past.map(client => (
-                          <div key={client.id} className="bg-neutral-900/50 border border-neutral-800 rounded-2xl px-4 py-3 opacity-60">
+                          <div key={client.id} onClick={() => router.push(`/venue/client/${client.id}`)} className="bg-neutral-900/50 border border-neutral-800 rounded-2xl px-4 py-3 opacity-60 cursor-pointer hover:opacity-80 transition-all">
                             <div className="flex items-center justify-between gap-3">
                               <div>
                                 <p className="font-bold text-white text-sm">
