@@ -284,7 +284,7 @@ export default function AdminDashboard() {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="font-bold text-white text-sm group-hover:text-tascosa-orange transition-colors flex items-center gap-1.5 flex-wrap">
-              {client.person1_first_name} {client.person1_last_name} & {client.person2_first_name} {client.person2_last_name}
+              {client.person1_first_name} {client.person1_last_name}{client.person2_first_name ? ` & ${client.person2_first_name} ${client.person2_last_name}` : ''}
               {(client.user_id || client.user_id_2) && <span className="text-emerald-400 text-xs">✓</span>}
             </div>
             <div className="text-xs text-neutral-400 mt-0.5 truncate">
@@ -416,7 +416,7 @@ export default function AdminDashboard() {
                     <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
                       className="w-full px-4 py-3 flex items-center justify-between hover:bg-tascosa-orange/10 transition-all text-left">
                       <div className="flex-1 min-w-0">
-                        <p className="font-bold text-white text-sm">{c.person1_first_name} & {c.person2_first_name} {c.person1_last_name}</p>
+                        <p className="font-bold text-white text-sm">{c.person1_first_name} {c.person1_last_name}{c.person2_first_name ? ` & ${c.person2_first_name} ${c.person2_last_name}` : ''}</p>
                         <p className="text-xs text-neutral-400 mt-0.5 truncate">{c.venue || 'Venue TBD'}{c.assigned_to && <span className="ml-1.5 text-tascosa-orange">· {c.assigned_to}</span>}</p>
                       </div>
                       <div className="text-right flex-shrink-0 ml-3">
