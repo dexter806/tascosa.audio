@@ -14,6 +14,33 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
+
+async function redirectUser(session, router) {
+  if (!session) return
+
+  // Admin
+  if (session.user.id === ADMIN_USER_ID) {
+    router.push('/admin')
+    return
+  }
+
+  // Check if venue user
+  const { data: venue } = await supabase
+    .from('venues')
+    .select('id')
+    .eq('email', session.user.email)
+    .single()
+
+  if (venue) {
+    router.push('/venue/dashboard')
+    return
+  }
+
+  // Default — client portal
+  router.push('/portal/dashboard')
+}
+
 export default function PortalLogin() {
   const router = useRouter()
   const [mode, setMode] = useState('login') // login | signup | reset
@@ -22,16 +49,16 @@ export default function PortalLogin() {
   const [status, setStatus] = useState('idle') // idle | loading | success | error
   const [message, setMessage] = useState('')
 
-  // If they're already logged in, redirect to dashboard
+  // If they're already logged in, redirect appropriately
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) router.push('/portal/dashboard')
+      if (session) redirectUser(session, router)
     })
 
     // Handle magic link / invite token from URL
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        router.push('/portal/dashboard')
+        redirectUser(session, router)
       }
     })
     return () => subscription.unsubscribe()
@@ -49,7 +76,8 @@ export default function PortalLogin() {
       setMessage('Incorrect email or password. Please try again.')
     } else {
       setStatus('success')
-      router.push('/portal/dashboard')
+      const { data: { session } } = await supabase.auth.getSession()
+      redirectUser(session, router)
     }
   }
 
@@ -171,10 +199,7 @@ export default function PortalLogin() {
               {mode === 'login' && (
                 <>
                   <button onClick={() => { setMode('reset'); setMessage('') }} className="text-sm text-neutral-400 hover:text-tascosa-orange transition-colors block w-full">
-                    Forgot your password?
-                  </button>
-                  <button onClick={() => { setMode('signup'); setMessage('') }} className="text-sm text-neutral-400 hover:text-tascosa-orange transition-colors block w-full">
-                    New client? Create your account
+                    Forgot your password? Click here to set or reset it
                   </button>
                 </>
               )}
