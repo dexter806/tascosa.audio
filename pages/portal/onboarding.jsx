@@ -17,7 +17,7 @@ const supabase = createClient(
 const ROLES = ['Bride', 'Groom', 'Partner', 'Spouse', 'Celebrant', 'Other']
 
 const VENUES = [
-  'Knotting Hill Wedding and Event Center',
+  'Knotting Hill Wedding and Event Venue',
   'Iron Rose Weddings and Events',
   'River Falls Venue + Lodges',
   'Cornerstone Ranch Event Center',
