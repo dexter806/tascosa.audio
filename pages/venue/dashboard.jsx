@@ -221,7 +221,18 @@ export default function VenueDashboard() {
         <meta name="robots" content="noindex, nofollow" />
       </Head>
 
-      <div className="min-h-screen bg-neutral-950 text-neutral-100">
+      <div className="min-h-screen bg-neutral-950 text-neutral-100 relative overflow-x-hidden">
+
+        {/* Faded watermark logo — fixed to left side like main site */}
+        {venue.logo_url && (
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-1/4 w-96 h-96 pointer-events-none z-0 select-none">
+            <img
+              src={venue.logo_url}
+              alt=""
+              className="w-full h-full object-contain opacity-[0.06]"
+            />
+          </div>
+        )}
 
         {/* Nav */}
         <header className="border-b border-neutral-800 bg-neutral-950/80 backdrop-blur sticky top-0 z-50">
@@ -246,7 +257,7 @@ export default function VenueDashboard() {
           </div>
         </header>
 
-        <main className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+        <main className="max-w-4xl mx-auto px-4 py-6 space-y-5 relative z-10">
 
           {/* Success message */}
           {successMsg && (
