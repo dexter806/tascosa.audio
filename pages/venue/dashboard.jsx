@@ -306,7 +306,7 @@ export default function VenueDashboard() {
               <h1 className="text-xl font-extrabold">{venue.name}</h1>
               <p className="text-neutral-400 text-sm mt-0.5">Partner Portal · {upcoming.length} upcoming booking{upcoming.length !== 1 ? 's' : ''}</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 ml-auto">
               <button onClick={() => setShowContactInfo(true)} className="lg:hidden border border-neutral-700 text-neutral-400 hover:text-white font-black text-sm rounded-xl px-4 py-2.5 transition-all">
                 ℹ️ Info
               </button>
