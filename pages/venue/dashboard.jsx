@@ -505,8 +505,6 @@ export default function VenueDashboard() {
           )}
             </div>{/* end left column */}
 
-            </div>{/* end left column */}
-
             {/* Right — Venue Contact Card */}
             <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
