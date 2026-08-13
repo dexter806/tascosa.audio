@@ -31,7 +31,7 @@ const VENUES = [
   'Yellow Rock Events',
   'Mack Dick Pavilion — Palo Duro Canyon',
   'Chateau Event Center',
-  'Sad Monkey',
+  'Sad Monkey Hall',
   'High Wind of Amarillo',
   "Destiny's Garden",
   'Garden Of Dreams',
