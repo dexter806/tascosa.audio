@@ -264,7 +264,25 @@ export default function Dashboard() {
                   <p className="text-neutral-400 text-sm leading-relaxed">
                     Your wedding planner helps us make sure every song, every moment, and every detail is perfect for your day.
                   </p>
-                  <div className="mt-2 h-2 rounded-full bg-neutral-800">
+                  {client?.wedding_date && (() => {
+                    const dueDate = new Date(client.wedding_date + 'T12:00:00')
+                    dueDate.setDate(dueDate.getDate() - 7)
+                    const today = new Date()
+                    today.setHours(0, 0, 0, 0)
+                    const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24))
+                    const isPastDue = daysUntilDue < 0
+                    const isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 14
+                    return (
+                      <div className={`mt-3 rounded-xl px-4 py-2.5 flex items-center justify-between ${isPastDue ? 'bg-red-400/10 border border-red-400/30' : isDueSoon ? 'bg-yellow-400/10 border border-yellow-400/30' : 'bg-neutral-800 border border-neutral-700'}`}>
+                        <span className="text-xs font-bold text-neutral-400">Due by</span>
+                        <span className={`text-sm font-black ${isPastDue ? 'text-red-400' : isDueSoon ? 'text-yellow-400' : 'text-white'}`}>
+                          {dueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                          {isPastDue ? ' — Past Due!' : daysUntilDue === 0 ? ' — Due Today!' : isDueSoon ? ` — ${daysUntilDue} days left` : ''}
+                        </span>
+                      </div>
+                    )
+                  })()}
+                  <div className="mt-3 h-2 rounded-full bg-neutral-800">
                     <div className="h-2 rounded-full bg-tascosa-orange/40" style={{ width: planner ? '40%' : '0%' }}></div>
                   </div>
                   <p className="text-xs text-neutral-500 mt-1">{planner ? 'In progress' : 'Not started yet'}</p>
