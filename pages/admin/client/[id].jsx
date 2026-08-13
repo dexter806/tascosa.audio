@@ -914,12 +914,32 @@ export default function AdminClientDetail() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-4">
-                    <span className="text-yellow-400 text-xl">⏳</span>
-                    <div>
-                      <p className="text-yellow-400 font-bold">Planner Pending</p>
-                      <p className="text-xs text-neutral-400 mt-0.5">Complete your wedding planner so we can prepare for your big day!</p>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-4">
+                      <span className="text-yellow-400 text-xl">⏳</span>
+                      <div>
+                        <p className="text-yellow-400 font-bold">Planner Pending</p>
+                        <p className="text-xs text-neutral-400 mt-0.5">Complete your wedding planner so we can prepare for your big day!</p>
+                      </div>
                     </div>
+                    {client.wedding_date && (() => {
+                      const dueDate = new Date(client.wedding_date + 'T12:00:00')
+                      dueDate.setDate(dueDate.getDate() - 7)
+                      const today = new Date()
+                      today.setHours(0, 0, 0, 0)
+                      const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24))
+                      const isPastDue = daysUntilDue < 0
+                      const isDueSoon = daysUntilDue >= 0 && daysUntilDue <= 14
+                      return (
+                        <div className={`rounded-xl px-4 py-2.5 flex items-center justify-between ${isPastDue ? 'bg-red-400/10 border border-red-400/30' : isDueSoon ? 'bg-yellow-400/10 border border-yellow-400/30' : 'bg-neutral-800 border border-neutral-700'}`}>
+                          <span className="text-xs font-bold text-neutral-400">Due by</span>
+                          <span className={`text-sm font-black ${isPastDue ? 'text-red-400' : isDueSoon ? 'text-yellow-400' : 'text-white'}`}>
+                            {dueDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                            {isPastDue ? ' — Past Due!' : daysUntilDue === 0 ? ' — Due Today!' : isDueSoon ? ` — ${daysUntilDue} days left` : ''}
+                          </span>
+                        </div>
+                      )
+                    })()}
                   </div>
                 )}
               </div>
@@ -935,4 +955,4 @@ export default function AdminClientDetail() {
       </div>
     </>
   )
-}              
+}               
