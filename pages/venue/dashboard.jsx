@@ -515,8 +515,8 @@ export default function VenueDashboard() {
           )}
             </div>{/* end left column */}
 
-            {/* Right — Venue Contact Card */}
-            <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
+            {/* Right — Venue Contact Card — desktop only */}
+            <div className="hidden lg:block w-full lg:w-80 flex-shrink-0 space-y-4">
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-sm flex items-center gap-2">
