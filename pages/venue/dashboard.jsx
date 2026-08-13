@@ -453,9 +453,9 @@ export default function VenueDashboard() {
                     <div key={d} className="py-2 text-center text-xs font-bold text-neutral-500 uppercase">{d}</div>
                   ))}
                 </div>
-                <div className="grid grid-cols-7">
+                <div className="grid grid-cols-7 w-full">
                   {Array.from({ length: firstDayOfMonth(calendarYear, calendarMonth) }).map((_, i) => (
-                    <div key={`empty-${i}`} className="border-b border-r border-neutral-800 p-1 min-h-[60px]" />
+                    <div key={`empty-${i}`} className="border-b border-r border-neutral-800 p-1 min-h-[60px] min-w-0 w-full" />
                   ))}
                   {Array.from({ length: daysInMonth(calendarYear, calendarMonth) }).map((_, i) => {
                     const day = i + 1
@@ -463,7 +463,7 @@ export default function VenueDashboard() {
                     const isToday = today.getDate() === day && today.getMonth() === calendarMonth && today.getFullYear() === calendarYear
                     const dayClients = clientsByDate[day] || []
                     return (
-                      <div key={day} className={`border-b border-r border-neutral-800 p-1 min-h-[60px] ${isToday ? 'bg-tascosa-orange/5' : ''}`}>
+                      <div key={day} className={`border-b border-r border-neutral-800 p-1 min-h-[60px] min-w-0 w-full ${isToday ? 'bg-tascosa-orange/5' : ''}`}>
                         <p className={`text-xs font-bold mb-1 ${isToday ? 'text-tascosa-orange' : 'text-neutral-400'}`}>{day}</p>
                         {dayClients.map(c => (
                           <div key={c.id} onClick={() => router.push(`/venue/client/${c.id}`)} className="bg-tascosa-orange/20 border border-tascosa-orange/30 rounded px-1 py-0.5 mb-0.5 cursor-pointer hover:bg-tascosa-orange/30 transition-all">
@@ -477,7 +477,7 @@ export default function VenueDashboard() {
                   })}
                   {/* Trailing empty cells to complete the last row */}
                   {Array.from({ length: (7 - (firstDayOfMonth(calendarYear, calendarMonth) + daysInMonth(calendarYear, calendarMonth)) % 7) % 7 }).map((_, i) => (
-                    <div key={`trail-${i}`} className="border-b border-r border-neutral-800 p-1 min-h-[60px]" />
+                    <div key={`trail-${i}`} className="border-b border-r border-neutral-800 p-1 min-h-[60px] min-w-0 w-full" />
                   ))}
                 </div>
               </div>
