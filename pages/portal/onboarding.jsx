@@ -28,7 +28,7 @@ const VENUES = [
   'Homestyle Country Weddings',
   'Rustic Meadows',
   'Mission Ranch',
-  'Yellow',
+  'Yellow Rock Events',
   'Mack Dick Pavilion — Palo Duro Canyon',
   'Chateau Event Center',
   'Sad Monkey',
