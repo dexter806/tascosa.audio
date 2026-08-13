@@ -44,6 +44,13 @@ export default function VenueDashboard() {
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear())
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth())
   const [successMsg, setSuccessMsg] = useState('')
+  const [venueContacts, setVenueContacts] = useState([])
+  const [editingProfile, setEditingProfile] = useState(false)
+  const [profileForm, setProfileForm] = useState({})
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [showAddContact, setShowAddContact] = useState(false)
+  const [contactForm, setContactForm] = useState({ name: '', title: '', phone: '', email: '' })
+  const [contactSaving, setContactSaving] = useState(false)
 
   const [form, setForm] = useState({
     person1_first_name: '', person1_last_name: '', person1_email: '', person1_phone: '',
@@ -63,6 +70,22 @@ export default function VenueDashboard() {
 
       if (error || !venueData) { router.push('/portal/login'); return }
       setVenue(venueData)
+      setProfileForm({
+        contact_name: venueData.contact_name || '',
+        contact_title: venueData.contact_title || '',
+        contact_phone: venueData.contact_phone || '',
+        contact_email: venueData.contact_email || '',
+        address: venueData.address || '',
+        notes: venueData.notes || '',
+      })
+
+      // Load additional contacts
+      const { data: contactsData } = await supabase
+        .from('venue_contacts')
+        .select('*')
+        .eq('venue_id', venueData.id)
+        .order('created_at', { ascending: true })
+      setVenueContacts(contactsData || [])
 
       const { data: clientData } = await supabase
         .from('clients')
@@ -155,6 +178,50 @@ export default function VenueDashboard() {
     setTimeout(() => setSuccessMsg(''), 5000)
   }
 
+  async function saveProfile() {
+    setProfileSaving(true)
+    const { error } = await supabase
+      .from('venues')
+      .update({
+        contact_name: profileForm.contact_name,
+        contact_title: profileForm.contact_title,
+        contact_phone: profileForm.contact_phone,
+        contact_email: profileForm.contact_email,
+        address: profileForm.address,
+        notes: profileForm.notes,
+      })
+      .eq('id', venue.id)
+
+    if (!error) {
+      setVenue(prev => ({ ...prev, ...profileForm }))
+      setEditingProfile(false)
+    }
+    setProfileSaving(false)
+  }
+
+  async function addContact() {
+    if (!contactForm.name) { alert('Please enter a contact name.'); return }
+    setContactSaving(true)
+    const { data: newContact, error } = await supabase
+      .from('venue_contacts')
+      .insert({ ...contactForm, venue_id: venue.id })
+      .select()
+      .single()
+
+    if (!error && newContact) {
+      setVenueContacts(prev => [...prev, newContact])
+      setContactForm({ name: '', title: '', phone: '', email: '' })
+      setShowAddContact(false)
+    }
+    setContactSaving(false)
+  }
+
+  async function deleteContact(id) {
+    if (!confirm('Remove this contact?')) return
+    await supabase.from('venue_contacts').delete().eq('id', id)
+    setVenueContacts(prev => prev.filter(c => c.id !== id))
+  }
+
   const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate()
   const firstDayOfMonth = (year, month) => new Date(year, month, 1).getDay()
 
@@ -197,7 +264,7 @@ export default function VenueDashboard() {
 
         {/* Faded watermark logo */}
         {venue.logo_url && (
-          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[500px] h-[500px] pointer-events-none z-0 select-none">
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
             <img src={venue.logo_url} alt="" className="w-full h-full object-contain opacity-[0.50] mix-blend-screen" />
           </div>
         )}
@@ -253,6 +320,10 @@ export default function VenueDashboard() {
               <div className="text-xs text-neutral-500 mt-0.5 uppercase tracking-wide">Completed</div>
             </div>
           </div>
+
+          {/* Two column layout — bookings left, contact card right */}
+          <div className="flex flex-col lg:flex-row gap-5 items-start">
+            <div className="flex-1 min-w-0 space-y-4">
 
           <div className="flex gap-2">
             {['list', 'calendar'].map(v => (
@@ -432,6 +503,133 @@ export default function VenueDashboard() {
               )}
             </div>
           )}
+            </div>{/* end left column */}
+
+            </div>{/* end left column */}
+
+            {/* Right — Venue Contact Card */}
+            <div className="w-full lg:w-80 flex-shrink-0 space-y-4">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-sm flex items-center gap-2">
+                    <span className="h-4 w-1 bg-tascosa-orange rounded-full flex-none"></span>
+                    Venue Info
+                  </h3>
+                  <button
+                    onClick={() => setEditingProfile(!editingProfile)}
+                    className={`text-xs border rounded-xl px-3 py-1.5 transition-all ${editingProfile ? 'border-tascosa-orange text-tascosa-orange' : 'border-neutral-700 text-neutral-400 hover:text-white'}`}
+                  >
+                    {editingProfile ? 'Cancel' : '✏️ Edit'}
+                  </button>
+                </div>
+
+                {!editingProfile ? (
+                  <div className="space-y-3">
+                    {venue.address && (
+                      <div>
+                        <p className="text-xs text-neutral-500 uppercase tracking-wider mb-0.5">Address</p>
+                        <p className="text-sm text-white">{venue.address}</p>
+                      </div>
+                    )}
+                    {venue.contact_name && (
+                      <div>
+                        <p className="text-xs text-neutral-500 uppercase tracking-wider mb-0.5">Primary Contact</p>
+                        <p className="text-sm text-white font-medium">{venue.contact_name}</p>
+                        {venue.contact_title && <p className="text-xs text-neutral-400">{venue.contact_title}</p>}
+                        {venue.contact_phone && <p className="text-xs text-neutral-400">{venue.contact_phone}</p>}
+                        {venue.contact_email && <p className="text-xs text-neutral-400">{venue.contact_email}</p>}
+                      </div>
+                    )}
+                    {!venue.contact_name && !venue.address && (
+                      <p className="text-xs text-neutral-600 italic">No contact info yet. Click Edit to add.</p>
+                    )}
+                    {venue.notes && (
+                      <div className="pt-3 border-t border-neutral-800">
+                        <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Notes</p>
+                        <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">{venue.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Address</label>
+                      <input value={profileForm.address} onChange={e => setProfileForm(p => ({...p, address: e.target.value}))} placeholder="123 Main St, Amarillo TX" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Contact Name</label>
+                      <input value={profileForm.contact_name} onChange={e => setProfileForm(p => ({...p, contact_name: e.target.value}))} placeholder="Jane Smith" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Title</label>
+                      <input value={profileForm.contact_title} onChange={e => setProfileForm(p => ({...p, contact_title: e.target.value}))} placeholder="Wedding Coordinator" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Phone</label>
+                      <input type="tel" value={profileForm.contact_phone} onChange={e => setProfileForm(p => ({...p, contact_phone: e.target.value}))} placeholder="(806) 555-0000" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Email</label>
+                      <input type="email" value={profileForm.contact_email} onChange={e => setProfileForm(p => ({...p, contact_email: e.target.value}))} placeholder="jane@venue.com" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Notes</label>
+                      <textarea value={profileForm.notes} onChange={e => setProfileForm(p => ({...p, notes: e.target.value}))} rows={3} placeholder="Parking info, load-in details, stage location..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                    </div>
+                    <button onClick={saveProfile} disabled={profileSaving} className="w-full py-2.5 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all">
+                      {profileSaving ? 'Saving...' : 'Save Info'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Contacts */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-sm flex items-center gap-2">
+                    <span className="h-4 w-1 bg-tascosa-orange rounded-full flex-none"></span>
+                    Additional Contacts
+                  </h3>
+                  <button onClick={() => setShowAddContact(!showAddContact)} className="text-xs border border-neutral-700 text-neutral-400 hover:text-white rounded-xl px-3 py-1.5 transition-all">
+                    {showAddContact ? 'Cancel' : '+ Add'}
+                  </button>
+                </div>
+
+                {showAddContact && (
+                  <div className="space-y-2 mb-4 pb-4 border-b border-neutral-800">
+                    <input value={contactForm.name} onChange={e => setContactForm(p => ({...p, name: e.target.value}))} placeholder="Contact Name *" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    <input value={contactForm.title} onChange={e => setContactForm(p => ({...p, title: e.target.value}))} placeholder="Title / Role" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    <input type="tel" value={contactForm.phone} onChange={e => setContactForm(p => ({...p, phone: e.target.value}))} placeholder="Phone" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    <input type="email" value={contactForm.email} onChange={e => setContactForm(p => ({...p, email: e.target.value}))} placeholder="Email" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                    <button onClick={addContact} disabled={contactSaving} className="w-full py-2 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 disabled:opacity-50 transition-all">
+                      {contactSaving ? 'Saving...' : 'Add Contact'}
+                    </button>
+                  </div>
+                )}
+
+                {venueContacts.length === 0 && !showAddContact && (
+                  <p className="text-xs text-neutral-600 italic">No additional contacts yet.</p>
+                )}
+
+                <div className="space-y-3">
+                  {venueContacts.map(contact => (
+                    <div key={contact.id} className="border border-neutral-800 rounded-xl p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-white">{contact.name}</p>
+                          {contact.title && <p className="text-xs text-neutral-400">{contact.title}</p>}
+                          {contact.phone && <p className="text-xs text-neutral-500 mt-0.5">{contact.phone}</p>}
+                          {contact.email && <p className="text-xs text-neutral-500">{contact.email}</p>}
+                        </div>
+                        <button onClick={() => deleteContact(contact.id)} className="text-xs text-red-400 hover:text-red-300 transition-all flex-shrink-0">✕</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>{/* end right column */}
+          </div>{/* end two column layout */}
 
           <div className="h-6" />
         </main>
