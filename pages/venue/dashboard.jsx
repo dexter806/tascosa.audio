@@ -197,7 +197,7 @@ export default function VenueDashboard() {
 
         {/* Faded watermark logo */}
         {venue.logo_url && (
-          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[500px] h-[500px] pointer-events-none z-0 select-none">
             <img src={venue.logo_url} alt="" className="w-full h-full object-contain opacity-[0.50] mix-blend-screen" />
           </div>
         )}
