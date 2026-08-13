@@ -43,6 +43,7 @@ export default function AdminVenueDetail() {
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState('idle')
   const [activeTab, setActiveTab] = useState('upcoming')
+  const [venueContacts, setVenueContacts] = useState([])
 
   useEffect(() => {
     if (!id) return
@@ -60,6 +61,15 @@ export default function AdminVenueDetail() {
 
       if (!venueData) { router.push('/admin/venues'); return }
       setVenue(venueData)
+
+      // Load additional contacts
+      const { data: contactsData } = await supabase
+        .from('venue_contacts')
+        .select('*')
+        .eq('venue_id', id)
+        .order('created_at', { ascending: true })
+      setVenueContacts(contactsData || [])
+
       setEditForm({
         name: venueData.name,
         email: venueData.email,
@@ -218,6 +228,52 @@ export default function AdminVenueDetail() {
                 <p className="text-xs text-neutral-500 uppercase tracking-wide">Removed</p>
               </div>
             </div>
+          </div>
+
+          {/* Contact Info Card */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
+            <h3 className="font-bold text-sm flex items-center gap-2 mb-3">
+              <span className="h-4 w-1 bg-tascosa-orange rounded-full flex-none"></span>
+              Venue Contact Info
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                {venue.address && (
+                  <div>
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider">Address</p>
+                    <p className="text-sm text-white">{venue.address}</p>
+                  </div>
+                )}
+                {venue.contact_name && (
+                  <div>
+                    <p className="text-xs text-neutral-500 uppercase tracking-wider">Primary Contact</p>
+                    <p className="text-sm text-white font-medium">{venue.contact_name}</p>
+                    {venue.contact_title && <p className="text-xs text-neutral-400">{venue.contact_title}</p>}
+                    {venue.contact_phone && <p className="text-xs text-neutral-400">{venue.contact_phone}</p>}
+                    {venue.contact_email && <p className="text-xs text-neutral-400">{venue.contact_email}</p>}
+                  </div>
+                )}
+                {!venue.contact_name && !venue.address && (
+                  <p className="text-xs text-neutral-600 italic">No contact info added yet — venue can add this from their portal.</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                {venueContacts.map(contact => (
+                  <div key={contact.id} className="border border-neutral-800 rounded-xl p-2.5">
+                    <p className="text-sm font-bold text-white">{contact.name}</p>
+                    {contact.title && <p className="text-xs text-neutral-400">{contact.title}</p>}
+                    {contact.phone && <p className="text-xs text-neutral-500">{contact.phone}</p>}
+                    {contact.email && <p className="text-xs text-neutral-500">{contact.email}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {venue.notes && (
+              <div className="mt-3 pt-3 border-t border-neutral-800">
+                <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Notes</p>
+                <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">{venue.notes}</p>
+              </div>
+            )}
           </div>
 
           {/* Client tabs */}
