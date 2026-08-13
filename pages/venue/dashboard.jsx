@@ -265,7 +265,7 @@ export default function VenueDashboard() {
 
         {/* Faded watermark logo */}
         {venue.logo_url && (
-          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[300px] h-[300px] lg:w-[600px] lg:h-[600px] pointer-events-none z-0 select-none opacity-0 lg:opacity-100">
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
             <img src={venue.logo_url} alt="" className="w-full h-full object-contain opacity-[0.50] mix-blend-screen" />
           </div>
         )}
@@ -447,8 +447,8 @@ export default function VenueDashboard() {
                   className="text-neutral-400 hover:text-white border border-neutral-700 rounded-xl px-3 py-2 text-sm transition-all">→</button>
               </div>
 
-              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden">
-                <div className="grid grid-cols-7 border-b border-neutral-800">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden w-full">
+                <div className="grid grid-cols-7 border-b border-neutral-800 w-full">
                   {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
                     <div key={d} className="py-2 text-center text-xs font-bold text-neutral-500 uppercase">{d}</div>
                   ))}
