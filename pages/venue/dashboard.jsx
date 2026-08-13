@@ -265,7 +265,7 @@ export default function VenueDashboard() {
 
         {/* Faded watermark logo */}
         {venue.logo_url && (
-          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[600px] h-[600px] pointer-events-none z-0 select-none">
+          <div className="fixed left-0 top-1/2 -translate-y-1/2 -translate-x-0 w-[300px] h-[300px] lg:w-[600px] lg:h-[600px] pointer-events-none z-0 select-none opacity-0 lg:opacity-100">
             <img src={venue.logo_url} alt="" className="w-full h-full object-contain opacity-[0.50] mix-blend-screen" />
           </div>
         )}
@@ -475,6 +475,10 @@ export default function VenueDashboard() {
                       </div>
                     )
                   })}
+                  {/* Trailing empty cells to complete the last row */}
+                  {Array.from({ length: (7 - (firstDayOfMonth(calendarYear, calendarMonth) + daysInMonth(calendarYear, calendarMonth)) % 7) % 7 }).map((_, i) => (
+                    <div key={`trail-${i}`} className="border-b border-r border-neutral-800 p-1 min-h-[60px]" />
+                  ))}
                 </div>
               </div>
 
