@@ -44,6 +44,7 @@ export default function VenueDashboard() {
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear())
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth())
   const [successMsg, setSuccessMsg] = useState('')
+  const [showContactInfo, setShowContactInfo] = useState(false)
   const [venueContacts, setVenueContacts] = useState([])
   const [editingProfile, setEditingProfile] = useState(false)
   const [profileForm, setProfileForm] = useState({})
@@ -305,9 +306,14 @@ export default function VenueDashboard() {
               <h1 className="text-xl font-extrabold">{venue.name}</h1>
               <p className="text-neutral-400 text-sm mt-0.5">Partner Portal · {upcoming.length} upcoming booking{upcoming.length !== 1 ? 's' : ''}</p>
             </div>
-            <button onClick={() => setShowAddClient(true)} className="bg-tascosa-orange text-black font-black text-sm rounded-xl px-4 py-2.5 hover:brightness-110 active:scale-95 transition-all">
-              + Add Client
-            </button>
+            <div className="flex gap-2">
+              <button onClick={() => setShowContactInfo(true)} className="lg:hidden border border-neutral-700 text-neutral-400 hover:text-white font-black text-sm rounded-xl px-4 py-2.5 transition-all">
+                ℹ️ Info
+              </button>
+              <button onClick={() => setShowAddClient(true)} className="bg-tascosa-orange text-black font-black text-sm rounded-xl px-4 py-2.5 hover:brightness-110 active:scale-95 transition-all">
+                + Add Client
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -631,6 +637,117 @@ export default function VenueDashboard() {
 
           <div className="h-6" />
         </main>
+
+        {/* Contact Info Modal — mobile only */}
+        {showContactInfo && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-bold text-lg flex items-center gap-2">
+                  <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
+                  Venue Info
+                </h2>
+                <button onClick={() => { setShowContactInfo(false); setEditingProfile(false) }} className="text-neutral-500 hover:text-white text-sm transition-all">✕</button>
+              </div>
+
+              {!editingProfile ? (
+                <div className="space-y-3">
+                  {venue.address && (
+                    <div>
+                      <p className="text-xs text-neutral-500 uppercase tracking-wider mb-0.5">Address</p>
+                      <p className="text-sm text-white">{venue.address}</p>
+                    </div>
+                  )}
+                  {venue.contact_name && (
+                    <div>
+                      <p className="text-xs text-neutral-500 uppercase tracking-wider mb-0.5">Primary Contact</p>
+                      <p className="text-sm text-white font-medium">{venue.contact_name}</p>
+                      {venue.contact_title && <p className="text-xs text-neutral-400">{venue.contact_title}</p>}
+                      {venue.contact_phone && <p className="text-xs text-neutral-400">{venue.contact_phone}</p>}
+                      {venue.contact_email && <p className="text-xs text-neutral-400">{venue.contact_email}</p>}
+                    </div>
+                  )}
+                  {!venue.contact_name && !venue.address && (
+                    <p className="text-xs text-neutral-600 italic">No contact info yet.</p>
+                  )}
+                  {venue.notes && (
+                    <div className="pt-3 border-t border-neutral-800">
+                      <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Notes</p>
+                      <p className="text-sm text-neutral-300 leading-relaxed whitespace-pre-wrap">{venue.notes}</p>
+                    </div>
+                  )}
+                  {venueContacts.length > 0 && (
+                    <div className="pt-3 border-t border-neutral-800 space-y-3">
+                      <p className="text-xs text-neutral-500 uppercase tracking-wider">Additional Contacts</p>
+                      {venueContacts.map(contact => (
+                        <div key={contact.id} className="border border-neutral-800 rounded-xl p-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <p className="text-sm font-bold text-white">{contact.name}</p>
+                              {contact.title && <p className="text-xs text-neutral-400">{contact.title}</p>}
+                              {contact.phone && <p className="text-xs text-neutral-500">{contact.phone}</p>}
+                              {contact.email && <p className="text-xs text-neutral-500">{contact.email}</p>}
+                            </div>
+                            <button onClick={() => deleteContact(contact.id)} className="text-xs text-red-400 hover:text-red-300 transition-all">✕</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2 pt-2">
+                    <button onClick={() => setEditingProfile(true)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-300 hover:text-white text-sm font-bold transition-all">✏️ Edit Info</button>
+                    {!showAddContact && (
+                      <button onClick={() => setShowAddContact(true)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-300 hover:text-white text-sm font-bold transition-all">+ Add Contact</button>
+                    )}
+                  </div>
+                  {showAddContact && (
+                    <div className="space-y-2 pt-2 border-t border-neutral-800">
+                      <input value={contactForm.name} onChange={e => setContactForm(p => ({...p, name: e.target.value}))} placeholder="Contact Name *" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                      <input value={contactForm.title} onChange={e => setContactForm(p => ({...p, title: e.target.value}))} placeholder="Title / Role" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                      <input type="tel" value={contactForm.phone} onChange={e => setContactForm(p => ({...p, phone: e.target.value}))} placeholder="Phone" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                      <input type="email" value={contactForm.email} onChange={e => setContactForm(p => ({...p, email: e.target.value}))} placeholder="Email" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                      <div className="flex gap-2">
+                        <button onClick={() => { setShowAddContact(false); setContactForm({ name: '', title: '', phone: '', email: '' }) }} className="flex-1 py-2 rounded-xl border border-neutral-700 text-neutral-400 text-sm font-bold transition-all">Cancel</button>
+                        <button onClick={addContact} disabled={contactSaving} className="flex-1 py-2 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 disabled:opacity-50 transition-all">{contactSaving ? 'Saving...' : 'Add'}</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Address</label>
+                    <input value={profileForm.address} onChange={e => setProfileForm(p => ({...p, address: e.target.value}))} placeholder="123 Main St, Amarillo TX" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Contact Name</label>
+                    <input value={profileForm.contact_name} onChange={e => setProfileForm(p => ({...p, contact_name: e.target.value}))} placeholder="Jane Smith" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Title</label>
+                    <input value={profileForm.contact_title} onChange={e => setProfileForm(p => ({...p, contact_title: e.target.value}))} placeholder="Wedding Coordinator" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Phone</label>
+                    <input type="tel" value={profileForm.contact_phone} onChange={e => setProfileForm(p => ({...p, contact_phone: e.target.value}))} placeholder="(806) 555-0000" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Email</label>
+                    <input type="email" value={profileForm.contact_email} onChange={e => setProfileForm(p => ({...p, contact_email: e.target.value}))} placeholder="jane@venue.com" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Notes</label>
+                    <textarea value={profileForm.notes} onChange={e => setProfileForm(p => ({...p, notes: e.target.value}))} rows={3} placeholder="Parking info, load-in details..." className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange resize-none" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => setEditingProfile(false)} className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 text-sm font-bold transition-all">Cancel</button>
+                    <button onClick={async () => { await saveProfile(); }} disabled={profileSaving} className="flex-1 py-2.5 rounded-xl bg-tascosa-orange text-black font-black text-sm hover:brightness-110 disabled:opacity-50 transition-all">{profileSaving ? 'Saving...' : 'Save'}</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Add Client Modal */}
         {showAddClient && (
