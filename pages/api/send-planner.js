@@ -45,7 +45,7 @@ function songLine(title, artist) {
 }
 
 // ─── PDF GENERATOR ────────────────────────────────────────────────────────────
-async function generatePlannerPDF(client, planner, label1, label2) {
+async function generatePlannerPDF(client, planner, label1, label2, venueInfo = null, venueContacts = []) {
   const pdfDoc = await PDFDocument.create()
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica)
@@ -213,8 +213,61 @@ async function generatePlannerPDF(client, planner, label1, label2) {
     drawSection('Wedding Planner')
     y -= 4
     drawText('The client has not yet completed their wedding planner.', { color: gray })
+
+    // Still show venue info even if no planner
+    if (venueInfo && (venueInfo.contact_name || venueInfo.address)) {
+      drawSection('Venue Contact Information')
+      y -= 4
+      if (venueInfo.address) drawInfoRow('Address', venueInfo.address)
+      if (venueInfo.contact_name) {
+        drawInfoRow('Primary Contact', venueInfo.contact_name)
+        if (venueInfo.contact_title) drawInfoRow('Title', venueInfo.contact_title)
+        if (venueInfo.contact_phone) drawInfoRow('Phone', venueInfo.contact_phone)
+        if (venueInfo.contact_email) drawInfoRow('Email', venueInfo.contact_email)
+      }
+      venueContacts.forEach((contact, i) => {
+        y -= 4
+        drawText(`Additional Contact ${i + 1}:`, { font: boldFont, color: gray, fontSize: 9 })
+        drawInfoRow('Name', contact.name)
+        if (contact.title) drawInfoRow('Title', contact.title)
+        if (contact.phone) drawInfoRow('Phone', contact.phone)
+        if (contact.email) drawInfoRow('Email', contact.email)
+      })
+      if (venueInfo.notes) {
+        y -= 4
+        drawText('Venue Notes:', { font: boldFont, color: gray, fontSize: 9 })
+        drawWrappedText(venueInfo.notes, { indent: 8, fontSize: 9 })
+      }
+    }
+
     const pdfBytes = await pdfDoc.save()
     return Buffer.from(pdfBytes)
+  }
+
+  // ── VENUE CONTACT INFO ───────────────────────────────────────────────────────
+  if (venueInfo && (venueInfo.contact_name || venueInfo.address)) {
+    drawSection('Venue Contact Information')
+    y -= 4
+    if (venueInfo.address) drawInfoRow('Address', venueInfo.address)
+    if (venueInfo.contact_name) {
+      drawInfoRow('Primary Contact', venueInfo.contact_name)
+      if (venueInfo.contact_title) drawInfoRow('Title', venueInfo.contact_title)
+      if (venueInfo.contact_phone) drawInfoRow('Phone', venueInfo.contact_phone)
+      if (venueInfo.contact_email) drawInfoRow('Email', venueInfo.contact_email)
+    }
+    venueContacts.forEach((contact, i) => {
+      y -= 4
+      drawText(`Additional Contact ${i + 1}:`, { font: boldFont, color: gray, fontSize: 9 })
+      drawInfoRow('Name', contact.name)
+      if (contact.title) drawInfoRow('Title', contact.title)
+      if (contact.phone) drawInfoRow('Phone', contact.phone)
+      if (contact.email) drawInfoRow('Email', contact.email)
+    })
+    if (venueInfo.notes) {
+      y -= 4
+      drawText('Venue Notes:', { font: boldFont, color: gray, fontSize: 9 })
+      drawWrappedText(venueInfo.notes, { indent: 8, fontSize: 9 })
+    }
   }
 
   // ── TIMELINE ────────────────────────────────────────────────────────────────
@@ -332,12 +385,22 @@ export default async function handler(req, res) {
 
     if (!client) return res.status(404).json({ error: 'Client not found' })
 
+    // Load venue contact info if client has a venue_id
+    let venueInfo = null
+    let venueContacts = []
+    if (client.venue_id) {
+      const { data: venueData } = await supabaseAdmin.from('venues').select('*').eq('id', client.venue_id).single()
+      if (venueData) venueInfo = venueData
+      const { data: contactsData } = await supabaseAdmin.from('venue_contacts').select('*').eq('venue_id', client.venue_id).order('created_at', { ascending: true })
+      if (contactsData) venueContacts = contactsData
+    }
+
     const sameRole = client.person1_role === client.person2_role
     const label1 = sameRole ? `${client.person1_first_name} (${client.person1_role})` : client.person1_role
     const label2 = sameRole ? `${client.person2_first_name} (${client.person2_role})` : client.person2_role
 
     // Generate PDF
-    const pdfBuffer = await generatePlannerPDF(client, planner, label1, label2)
+    const pdfBuffer = await generatePlannerPDF(client, planner, label1, label2, venueInfo, venueContacts)
     const pdfBase64 = pdfBuffer.toString('base64')
 
     const fileName = `${client.person1_first_name}_${client.person2_first_name}_Wedding_Planner.pdf`.replace(/\s+/g, '_')
