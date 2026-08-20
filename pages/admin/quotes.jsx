@@ -17,8 +17,8 @@ const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
 
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  return new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 function daysSince(dateStr) {
