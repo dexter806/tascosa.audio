@@ -46,6 +46,7 @@ export default function QuoteBuilder() {
   const router = useRouter()
   const [clientName, setClientName] = useState('')
   const [clientEmail, setClientEmail] = useState('')
+  const [clientEmail2, setClientEmail2] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [venue, setVenue] = useState('')
   const [eventType, setEventType] = useState('')
@@ -180,6 +181,7 @@ export default function QuoteBuilder() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: clientEmail,
+        cc: clientEmail2 || null,
         clientName,
         subject: `Your Quote from Tascosa Audio${eventDate ? ` — ${formattedDate}` : ''}`,
         html: emailHtml,
@@ -254,6 +256,10 @@ export default function QuoteBuilder() {
                   <div>
                     <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Email Address *</label>
                     <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} placeholder="client@email.com" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Second Email <span className="text-neutral-600 normal-case">(optional)</span></label>
+                    <input type="email" value={clientEmail2} onChange={e => setClientEmail2(e.target.value)} placeholder="partner@email.com" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -465,7 +471,7 @@ export default function QuoteBuilder() {
                    sendStatus === 'error' ? 'Failed — Try Again' :
                    '📧 Send Quote to Client'}
                 </button>
-                {sendStatus === 'sent' && <p className="text-emerald-400 text-xs text-center mt-2">Quote sent to {clientEmail}!</p>}
+                {sendStatus === 'sent' && <p className="text-emerald-400 text-xs text-center mt-2">Quote sent to {clientEmail}{clientEmail2 ? ` & ${clientEmail2}` : ''}!</p>}
                 {(!clientEmail || !selectedPackage) && <p className="text-neutral-600 text-xs text-center mt-2">{!clientEmail ? 'Add client email to send' : 'Select a package to send'}</p>}
               </div>
             </div>
