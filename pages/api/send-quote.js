@@ -13,7 +13,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { to, clientName, subject, html, quoteData } = req.body
+  const { to, cc, clientName, subject, html, quoteData } = req.body
   if (!to || !html) return res.status(400).json({ error: 'Missing required fields' })
 
   try {
@@ -57,6 +57,7 @@ export default async function handler(req, res) {
     const { error: emailError } = await resend.emails.send({
       from: 'info@tascosaaudio.com',
       to,
+      ...(cc ? { cc } : {}),
       replyTo: 'andy@tascosaaudio.com',
       subject: subject || 'Your Quote from Tascosa Audio',
       html: personalizedHtml,
