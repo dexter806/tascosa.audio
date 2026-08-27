@@ -232,14 +232,12 @@ export default function PayPage() {
                     </div>
                   </div>
 
-                  {quote.notes && (
-                    <div className="mt-4 pt-4 border-t border-neutral-800">
-                      <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Note from Andy</p>
-                      <p className="text-sm text-neutral-300">{quote.notes}</p>
-                    </div>
-                  )}
-                </div>
-              )}
+             {quote.notes && (
+  <div className="mt-4 pt-4 border-t border-neutral-800">
+    <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Note from Andy</p>
+    <p className="text-sm text-neutral-300 whitespace-pre-wrap leading-relaxed">{quote.notes}</p>
+  </div>
+)}
 
               {/* Contract Terms */}
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
