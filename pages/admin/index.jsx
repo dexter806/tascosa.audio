@@ -279,7 +279,7 @@ export default function AdminDashboard() {
     return (
       <div
         onClick={() => router.push(`/admin/client/${client.id}`)}
-        className="border border-neutral-800 hover:border-tascosa-orange/50 rounded-2xl px-4 py-3 cursor-pointer transition-all duration-200 group bg-neutral-900"
+        className="border border-neutral-800/60 hover:border-tascosa-orange/40 rounded-2xl px-4 py-4 cursor-pointer transition-all duration-200 group bg-neutral-900/80"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
@@ -353,22 +353,24 @@ export default function AdminDashboard() {
             </div>
             {/* Desktop nav buttons */}
             <div className="hidden md:flex items-center gap-2">
-              <button onClick={() => router.push('/admin/quotes')} className="text-xs border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white rounded-xl px-3 py-2 transition-all">
-                📋 Quotes
+              <button onClick={() => router.push('/admin/quotes')} className="text-xs text-neutral-400 hover:text-white px-3 py-2 rounded-xl hover:bg-neutral-800 transition-all flex items-center gap-1.5">
+                <span>📋</span> Quotes
               </button>
-              <button onClick={() => router.push('/admin/venues')} className="text-xs border border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white rounded-xl px-3 py-2 transition-all">
-                🏛 Venues
+              <button onClick={() => router.push('/admin/venues')} className="text-xs text-neutral-400 hover:text-white px-3 py-2 rounded-xl hover:bg-neutral-800 transition-all flex items-center gap-1.5">
+                <span>🏛</span> Venues
               </button>
-              <button onClick={() => { setShowAddHold(true) }} className="text-xs border border-yellow-500/50 text-yellow-400 hover:bg-yellow-400/10 rounded-xl px-3 py-2 transition-all">
-                📌 Hold Date
+              <button onClick={() => { setShowAddHold(true) }} className="text-xs text-yellow-400 hover:text-yellow-300 px-3 py-2 rounded-xl hover:bg-yellow-400/10 transition-all flex items-center gap-1.5">
+                <span>📌</span> Hold
               </button>
-              <button onClick={syncAllToCalendar} disabled={syncAllStatus === 'syncing'} className="text-xs border border-blue-500/50 text-blue-400 hover:bg-blue-400/10 rounded-xl px-3 py-2 transition-all disabled:opacity-50">
-                {syncAllStatus === 'syncing' ? '⏳ Syncing...' : syncAllStatus === 'done' ? '✓ Synced!' : '📅 Sync Calendar'}
+              <button onClick={syncAllToCalendar} disabled={syncAllStatus === 'syncing'} className="text-xs text-blue-400 hover:text-blue-300 px-3 py-2 rounded-xl hover:bg-blue-400/10 transition-all disabled:opacity-50 flex items-center gap-1.5">
+                <span>{syncAllStatus === 'syncing' ? '⏳' : syncAllStatus === 'done' ? '✓' : '📅'}</span>
+                {syncAllStatus === 'syncing' ? 'Syncing...' : syncAllStatus === 'done' ? 'Synced!' : 'Sync'}
               </button>
-              <button onClick={() => setShowReports(!showReports)} className={`text-xs border rounded-xl px-3 py-2 transition-all ${showReports ? 'border-tascosa-orange text-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500 hover:text-white'}`}>
-                📊 Reports
+              <button onClick={() => setShowReports(!showReports)} className={`text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 ${showReports ? 'text-tascosa-orange bg-tascosa-orange/10' : 'text-neutral-400 hover:text-white hover:bg-neutral-800'}`}>
+                <span>📊</span> Reports
               </button>
-              <button onClick={handleSignOut} className="text-xs text-neutral-500 hover:text-white border border-neutral-700 hover:border-neutral-500 rounded-xl px-3 py-2 transition-all">
+              <div className="w-px h-5 bg-neutral-700 mx-1" />
+              <button onClick={handleSignOut} className="text-xs text-neutral-500 hover:text-white px-3 py-2 rounded-xl hover:bg-neutral-800 transition-all">
                 Sign Out
               </button>
             </div>
@@ -440,11 +442,11 @@ export default function AdminDashboard() {
 
           {/* ── STATS BAR ─────────────────────────────────────────────────── */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+            <div className="bg-neutral-900/80 border border-neutral-800/50 rounded-xl p-4 text-center">
               <div className="text-2xl font-black text-tascosa-orange">{upcoming.length}</div>
               <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Upcoming</div>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 text-center">
+            <div className="bg-neutral-900/80 border border-neutral-800/50 rounded-xl p-4 text-center">
               <div className="text-2xl font-black text-emerald-400">{plannersDoneUpcoming}/{upcoming.length}</div>
               <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Planners Done</div>
             </div>
