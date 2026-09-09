@@ -566,6 +566,7 @@ export default function AdminDashboard() {
             <div className="flex gap-2 flex-wrap">
               {[
                 { val: 'upcoming', label: 'All' },
+                { val: 'holds', label: '📌 Holds' },
                 { val: 'planner_pending', label: '⏳ Pending' },
                 { val: 'unassigned', label: 'Unassigned' },
                 { val: 'balance_due', label: 'Balance Due' },
@@ -595,27 +596,48 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
                 {(() => {
+                  // Holds-only filter shows just holds, otherwise mix clients + holds
+                  const clientRows = filter === 'holds' ? [] : filteredUpcoming.map(c => ({ ...c, _isHold: false }))
+                  const holdRows = holdsAsRows
                   const sorted = [
-                    ...filteredUpcoming.map(c => ({ ...c, _isHold: false })),
-                    ...holdsAsRows
+                    ...clientRows,
+                    ...holdRows
                   ].sort((a, b) => new Date(a.wedding_date || a.event_date) - new Date(b.wedding_date || b.event_date))
 
+                  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
                   let lastYear = null
+                  let lastMonth = null
                   const rows = []
 
                   sorted.forEach(item => {
                     const dateStr = item.wedding_date || item.event_date
-                    const year = dateStr ? new Date(dateStr + 'T12:00:00').getFullYear() : null
+                    const d = dateStr ? new Date(dateStr + 'T12:00:00') : null
+                    const year = d ? d.getFullYear() : null
+                    const month = d ? d.getMonth() : null
 
+                    // Year divider
                     if (year && year !== lastYear) {
                       rows.push(
-                        <div key={`divider-${year}`} className="flex items-center gap-3 py-1">
-                          <div className="flex-1 h-px bg-neutral-800"></div>
-                          <span className="text-xs font-black text-neutral-500 uppercase tracking-widest">{year}</span>
-                          <div className="flex-1 h-px bg-neutral-800"></div>
+                        <div key={`divider-year-${year}`} className="flex items-center gap-3 py-1 mt-2">
+                          <div className="flex-1 h-px bg-neutral-700"></div>
+                          <span className="text-xs font-black text-tascosa-orange uppercase tracking-widest">{year}</span>
+                          <div className="flex-1 h-px bg-neutral-700"></div>
                         </div>
                       )
                       lastYear = year
+                      lastMonth = null
+                    }
+
+                    // Month divider
+                    if (month !== null && month !== lastMonth) {
+                      rows.push(
+                        <div key={`divider-month-${year}-${month}`} className="flex items-center gap-3 py-0.5">
+                          <div className="flex-1 h-px bg-neutral-800"></div>
+                          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{MONTHS[month]}</span>
+                          <div className="flex-1 h-px bg-neutral-800"></div>
+                        </div>
+                      )
+                      lastMonth = month
                     }
 
                     rows.push(item._isHold
