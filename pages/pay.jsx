@@ -4,25 +4,52 @@
 // Reads quote ID from URL: /pay?quote=<uuid>
 // Shows quote details, contract terms, add-ons, signature, then payment
 // ─────────────────────────────────────────────────────────────────────────────
+
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Head from 'next/head'
 import { createClient } from '@supabase/supabase-js'
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
+
+// Package definitions — used to look up what's included for each package
+const PACKAGES = [
+  {
+    id: 'private_party',
+    features: ['DJ Service', 'Dinner/Party Music', 'Wireless Mic', 'Dance Lighting'],
+  },
+  {
+    id: 'wedding_reception',
+    features: ['Up to 4 hours of MC/DJ Service', 'Reception/Dinner Music', 'Wireless Mic', 'Dance Lighting'],
+  },
+  {
+    id: 'full_service',
+    features: ['Up to 6 hours of MC/DJ Service', 'Ceremony Music', 'Reception/Dinner Music', 'Wireless Mics', 'Dance Lighting'],
+  },
+  {
+    id: 'partner_venue',
+    features: ['Up to 6 hours of MC/DJ Service', 'Ceremony Music', 'Reception/Dinner Music', 'Wireless Mics', 'Dance Lighting'],
+  },
+]
+
 function formatDate(dateStr) {
   if (!dateStr) return null
   const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
   return new Date(d).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 }
+
 export default function PayPage() {
   const router = useRouter()
   const { quote: quoteId } = router.query
+
   const [quote, setQuote] = useState(null)
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(1)
+
+  // Add-ons (client can add more on top of what was quoted)
   const [addOns, setAddOns] = useState({
     rehearsal: false,
     extraHoursBefore: 0,
@@ -35,6 +62,7 @@ export default function PayPage() {
   const [showVenmoQR, setShowVenmoQR] = useState(false)
   const [showCashAppQR, setShowCashAppQR] = useState(false)
   const [showZelleQR, setShowZelleQR] = useState(false)
+
   useEffect(() => {
     if (!quoteId) return
     supabase
@@ -45,10 +73,13 @@ export default function PayPage() {
       .then(({ data, error }) => {
         if (error) console.error(error)
         setQuote(data)
+        // Pre-check rehearsal if it was included in the quote
         if (data?.rehearsal) setAddOns(p => ({ ...p, rehearsal: true }))
         setLoading(false)
       })
   }, [quoteId])
+
+  // Only count add-ons BEYOND what was already in the quote
   const rehearsalAdded = addOns.rehearsal && !quote?.rehearsal
   const extraHoursBeforeAdded = Math.max(0, addOns.extraHoursBefore - (quote?.extra_hours_before || 0))
   const extraHoursAfterAdded = Math.max(0, addOns.extraHoursAfter - (quote?.extra_hours_after || 0))
@@ -56,11 +87,17 @@ export default function PayPage() {
     (rehearsalAdded ? 150 : 0) +
     (extraHoursBeforeAdded * 100) +
     (extraHoursAfterAdded * 200)
+
   const grandTotal = (quote?.total || 0) + addOnTotal
   const balanceDue = grandTotal - (quote?.deposit || 200)
+
+  // Look up package features from the saved package_id
+  const pkg = PACKAGES.find(p => p.id === quote?.package_id)
+
   function handleSign() {
     if (!agreed) { alert('Please check the agreement box.'); return }
     if (!signature.trim()) { alert('Please type your full name as your signature.'); return }
+
     fetch('/api/quote-signed', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -80,9 +117,11 @@ export default function PayPage() {
         deposit: quote?.deposit || 200,
       }),
     }).catch(err => console.error('Signature notification failed:', err))
+
     setStep(2)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+
   async function requestInvoice() {
     setInvoiceStatus('sending')
     const res = await fetch('/api/request-invoice', {
@@ -102,6 +141,7 @@ export default function PayPage() {
     if (res.ok) setInvoiceStatus('sent')
     else setInvoiceStatus('error')
   }
+
   if (loading && quoteId) {
     return (
       <div className="min-h-screen bg-neutral-950 flex items-center justify-center">
@@ -109,13 +149,17 @@ export default function PayPage() {
       </div>
     )
   }
+
   return (
     <>
       <Head>
         <title>Review & Sign — Tascosa Audio</title>
         <meta name="robots" content="noindex, nofollow" />
       </Head>
+
       <div className="min-h-screen bg-neutral-950 text-neutral-100">
+
+        {/* Header */}
         <header className="border-b border-neutral-800 bg-neutral-950">
           <div className="max-w-2xl mx-auto px-4 h-16 flex items-center gap-3">
             <img src="/TA Logo.png" alt="Tascosa Audio" className="h-8 w-auto object-contain" />
@@ -125,7 +169,10 @@ export default function PayPage() {
             </div>
           </div>
         </header>
+
         <main className="max-w-2xl mx-auto px-4 py-10">
+
+          {/* Step indicator */}
           <div className="flex items-center gap-3 mb-8">
             {['Review & Sign', 'Pay Deposit'].map((label, idx) => (
               <div key={label} className="flex items-center gap-3">
@@ -144,7 +191,7 @@ export default function PayPage() {
             ))}
           </div>
 
-          {/* ── STEP 1 ──────────────────────────────────────────────────── */}
+          {/* ── STEP 1: QUOTE + TERMS + SIGN ──────────────────────────────── */}
           {step === 1 && (
             <div className="space-y-6">
 
@@ -155,6 +202,7 @@ export default function PayPage() {
                   {quote.client_name && <p className="text-white font-bold text-xl mb-1">{quote.client_name}</p>}
                   {quote.event_date && <p className="text-tascosa-orange text-sm font-semibold mb-4">{formatDate(quote.event_date)}</p>}
                   {quote.venue && <p className="text-neutral-400 text-sm mb-4">📍 {quote.venue}</p>}
+
                   <div className="space-y-2 border-t border-neutral-800 pt-4">
                     <div className="flex justify-between text-sm">
                       <span className="text-neutral-400">{quote.package_name}</span>
@@ -191,6 +239,7 @@ export default function PayPage() {
                       </div>
                     )}
                   </div>
+
                   <div className="border-t border-neutral-700 mt-4 pt-4 space-y-2">
                     <div className="flex justify-between">
                       <span className="font-bold text-white">Total</span>
@@ -205,6 +254,22 @@ export default function PayPage() {
                       <span className="text-neutral-400">${balanceDue.toFixed(2)}</span>
                     </div>
                   </div>
+
+                  {/* What's Included */}
+                  {pkg && (
+                    <div className="mt-4 pt-4 border-t border-neutral-800">
+                      <p className="text-xs text-neutral-500 uppercase tracking-wider mb-3">What's Included</p>
+                      <ul className="space-y-2">
+                        {pkg.features.map(f => (
+                          <li key={f} className="flex items-center gap-2 text-sm text-neutral-300">
+                            <span className="text-tascosa-orange font-bold flex-shrink-0">✓</span>
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
                   {quote.notes && (
                     <div className="mt-4 pt-4 border-t border-neutral-800">
                       <p className="text-xs text-neutral-500 uppercase tracking-wider mb-1">Note from Andy</p>
@@ -259,6 +324,7 @@ export default function PayPage() {
                 </h2>
                 <p className="text-sm text-neutral-400 mb-4">Want to add anything to your package?</p>
                 <div className="space-y-3">
+                  {/* Rehearsal */}
                   <button
                     onClick={() => setAddOns(p => ({ ...p, rehearsal: !p.rehearsal }))}
                     disabled={quote?.rehearsal}
@@ -272,6 +338,8 @@ export default function PayPage() {
                       <span className={`font-black ${addOns.rehearsal ? 'text-tascosa-orange' : 'text-neutral-400'}`}>{quote?.rehearsal ? '✓ Included' : '+$150'}</span>
                     </div>
                   </button>
+
+                  {/* Extra hours before midnight */}
                   <div className={`p-4 rounded-xl border transition-all ${addOns.extraHoursBefore > (quote?.extra_hours_before || 0) ? 'border-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-800'}`}>
                     <div className="flex justify-between items-center">
                       <div>
@@ -288,6 +356,8 @@ export default function PayPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Extra hours after midnight */}
                   <div className={`p-4 rounded-xl border transition-all ${addOns.extraHoursAfter > (quote?.extra_hours_after || 0) ? 'border-tascosa-orange bg-tascosa-orange/10' : 'border-neutral-800'}`}>
                     <div className="flex justify-between items-center">
                       <div>
@@ -349,13 +419,14 @@ export default function PayPage() {
                   Sign & Continue to Payment →
                 </button>
               </div>
-
             </div>
           )}
 
-          {/* ── STEP 2 ──────────────────────────────────────────────────── */}
+          {/* ── STEP 2: PAYMENT ──────────────────────────────────────────── */}
           {step === 2 && (
             <div className="space-y-6">
+
+              {/* Signed confirmation */}
               <div className="bg-emerald-400/10 border border-emerald-400/30 rounded-2xl p-5 flex items-start gap-3">
                 <span className="text-emerald-400 text-xl">✓</span>
                 <div>
@@ -363,6 +434,8 @@ export default function PayPage() {
                   <p className="text-sm text-neutral-400 mt-0.5">Signed by <span className="text-white font-semibold italic" style={{ fontFamily: 'Georgia, serif' }}>{signature}</span> on {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
                 </div>
               </div>
+
+              {/* Deposit summary */}
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
                 <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
                   <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
@@ -384,6 +457,8 @@ export default function PayPage() {
                 </div>
                 <p className="text-xs text-neutral-500 mt-4">Your date is not reserved until your deposit is received within 5 days.</p>
               </div>
+
+              {/* Payment options */}
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
                 <h2 className="font-bold text-lg mb-2 flex items-center gap-2">
                   <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
@@ -391,6 +466,8 @@ export default function PayPage() {
                 </h2>
                 <p className="text-sm text-neutral-400 mb-5">Choose your preferred payment method below.</p>
                 <div className="space-y-3">
+
+                  {/* Venmo */}
                   <div className="border border-neutral-800 rounded-xl overflow-hidden">
                     <button onClick={() => { setShowVenmoQR(!showVenmoQR); setShowCashAppQR(false); setShowZelleQR(false) }}
                       className="w-full p-4 flex items-center justify-between hover:bg-neutral-800/50 transition-all">
@@ -408,6 +485,8 @@ export default function PayPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Cash App */}
                   <div className="border border-neutral-800 rounded-xl overflow-hidden">
                     <button onClick={() => { setShowCashAppQR(!showCashAppQR); setShowVenmoQR(false); setShowZelleQR(false) }}
                       className="w-full p-4 flex items-center justify-between hover:bg-neutral-800/50 transition-all">
@@ -425,6 +504,8 @@ export default function PayPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Zelle */}
                   <div className="border border-neutral-800 rounded-xl overflow-hidden">
                     <button onClick={() => { setShowZelleQR(!showZelleQR); setShowVenmoQR(false); setShowCashAppQR(false) }}
                       className="w-full p-4 flex items-center justify-between hover:bg-neutral-800/50 transition-all">
@@ -442,6 +523,8 @@ export default function PayPage() {
                       </div>
                     )}
                   </div>
+
+                  {/* Request Invoice — hide if funds sent */}
                   {!fundsSent && (
                     <div className="border border-neutral-800 rounded-xl p-4">
                       <div className="flex items-center gap-3 mb-3">
@@ -463,8 +546,11 @@ export default function PayPage() {
                       )}
                     </div>
                   )}
+
                 </div>
               </div>
+
+              {/* Sent funds — hide if invoice requested */}
               {invoiceStatus !== 'sent' && (
                 <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5">
                   <h2 className="font-bold text-sm mb-4 flex items-center gap-2">
@@ -511,12 +597,16 @@ export default function PayPage() {
                   )}
                 </div>
               )}
+
             </div>
           )}
+
         </main>
+
         <footer className="border-t border-neutral-800 mt-10 py-6 text-center">
           <p className="text-xs text-neutral-600">Tascosa Audio · Amarillo, TX · tascosaaudio.com · 806-670-7913</p>
         </footer>
+
       </div>
     </>
   )
