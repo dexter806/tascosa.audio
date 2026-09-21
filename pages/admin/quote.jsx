@@ -47,6 +47,7 @@ export default function QuoteBuilder() {
   const [clientName, setClientName] = useState('')
   const [clientEmail, setClientEmail] = useState('')
   const [clientEmail2, setClientEmail2] = useState('')
+  const [clientPhone, setClientPhone] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [venue, setVenue] = useState('')
   const [eventType, setEventType] = useState('')
@@ -188,6 +189,7 @@ export default function QuoteBuilder() {
         quoteData: {
           clientName,
           clientEmail,
+          clientPhone,
           eventDate,
           venue,
           eventType,
@@ -260,6 +262,10 @@ export default function QuoteBuilder() {
                   <div>
                     <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Second Email <span className="text-neutral-600 normal-case">(optional)</span></label>
                     <input type="email" value={clientEmail2} onChange={e => setClientEmail2(e.target.value)} placeholder="partner@email.com" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1 uppercase tracking-wider">Phone Number <span className="text-neutral-600 normal-case">(optional)</span></label>
+                    <input type="tel" value={clientPhone} onChange={e => setClientPhone(e.target.value)} placeholder="(806) 555-0000" className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-tascosa-orange" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -430,7 +436,8 @@ export default function QuoteBuilder() {
                   Quote Summary
                 </h2>
                 {clientName && <p className="text-white font-bold text-lg mb-1">{clientName}</p>}
-                {clientEmail && <p className="text-neutral-400 text-sm mb-4">{clientEmail}</p>}
+                {clientEmail && <p className="text-neutral-400 text-sm mb-0.5">{clientEmail}</p>}
+                {clientPhone && <p className="text-neutral-500 text-xs mb-4">📞 {clientPhone}</p>}
                 {eventDate && <p className="text-tascosa-orange text-sm font-semibold mb-4">{new Date(eventDate + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>}
                 <div className="space-y-2 border-t border-neutral-800 pt-4">
                   {selectedPackage && <div className="flex justify-between text-sm"><span className="text-neutral-400">{pkg?.name}</span><span className="text-white font-bold">${basePrice.toFixed(2)}</span></div>}
@@ -516,6 +523,16 @@ export default function QuoteBuilder() {
                         <tr><td style={{padding:'8px 12px'}}>Balance Due (1 week before event)</td><td style={{padding:'8px 12px',textAlign:'right'}}>${balanceDue.toFixed(2)}</td></tr>
                       </tbody>
                     </table>
+                    {pkg && (
+                      <div style={{background:'#f9f9f9',borderRadius:'6px',padding:'14px',marginBottom:'16px'}}>
+                        <p style={{fontSize:'11px',textTransform:'uppercase',letterSpacing:'1px',color:'#888',margin:'0 0 10px',fontWeight:'bold'}}>What's Included</p>
+                        {pkg.features.map(f => (
+                          <div key={f} style={{display:'flex',alignItems:'center',gap:'8px',padding:'4px 0',fontSize:'13px',color:'#333'}}>
+                            <span style={{color:'#dc5f14',fontWeight:'bold'}}>✓</span> {f}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {notes && (
                       <div style={{background:'#fffbf0',borderLeft:'3px solid #dc5f14',padding:'12px',marginBottom:'16px',fontSize:'13px',color:'#555',whiteSpace:'pre-wrap',lineHeight:'1.7'}}>
                         <strong>Notes from Andy:</strong>{'\n'}{notes}
