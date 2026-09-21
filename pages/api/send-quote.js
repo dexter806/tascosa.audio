@@ -27,6 +27,7 @@ export default async function handler(req, res) {
         venue: quoteData.venue,
         event_type: quoteData.eventType,
         package_id: quoteData.packageId,
+        client_phone: quoteData.clientPhone,
         package_name: quoteData.packageName,
         base_price: quoteData.basePrice,
         extra_hours_before: quoteData.extraHoursBefore || 0,
