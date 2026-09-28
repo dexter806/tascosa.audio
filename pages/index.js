@@ -536,7 +536,7 @@ export default function Home() {
               <div className="order-1 md:order-2 relative">
                 <div className="absolute -inset-4 bg-tascosa-orange/5 rounded-full blur-3xl -z-10"></div>
                 <div className="rounded-3xl border border-neutral-800 bg-neutral-900 aspect-square overflow-hidden shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
-                  <img src="/Party 2025.jpg" alt="Andy Martinez — owner of Tascosa Audio — at a live DJ event in Amarillo TX" className="h-full w-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" loading="lazy" />
+                  <img src="/Andy.jpg" alt="Andy Martinez — owner of Tascosa Audio — at a live DJ event in Amarillo TX" className="h-full w-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700" loading="lazy" />
                 </div>
                 <div className="absolute -bottom-4 -left-4 bg-neutral-950 border border-neutral-800 p-4 rounded-2xl shadow-xl hidden sm:block">
                   <p className="text-xs font-bold uppercase tracking-tighter text-neutral-400">Established Expertise</p>
