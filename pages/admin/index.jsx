@@ -89,6 +89,8 @@ const HoldRow = ({ hold, onDelete }) => {
 export default function AdminDashboard() {
   const router = useRouter()
   const [clients, setClients] = useState([])
+  const [cancelledClients, setCancelledClients] = useState([])
+  const [showCancelled, setShowCancelled] = useState(false)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminSearch') || '' : '')
   const [filter, setFilter] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminFilter') || 'upcoming' : 'upcoming')
@@ -121,12 +123,31 @@ export default function AdminDashboard() {
     if (error) { console.error(error); return }
     setClients(data || [])
 
+    // Also fetch archived (cancelled) clients
+    const { data: cancelled } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('is_active', false)
+      .order('wedding_date', { ascending: true })
+    setCancelledClients(cancelled || [])
+
     const { data: holdsData } = await supabase
       .from('holds')
       .select('*')
       .order('event_date', { ascending: true })
     setHolds(holdsData || [])
     setLoading(false)
+  }
+
+  async function restoreClient(id) {
+    const client = cancelledClients.find(c => c.id === id)
+    if (!client) return
+    if (!confirm(`Restore ${client.person1_first_name} & ${client.person2_first_name}? They'll reappear on the dashboard.`)) return
+    const { error } = await supabase
+      .from('clients')
+      .update({ is_active: true })
+      .eq('id', id)
+    if (!error) await loadClients()
   }
 
   async function addHold() {
@@ -653,6 +674,51 @@ export default function AdminDashboard() {
               </div>
             )}
           </div>
+
+          {/* ── CANCELLED CLIENTS ────────────────────────────────────────── */}
+          {cancelledClients.length > 0 && (
+            <div className="border border-neutral-800 rounded-2xl overflow-hidden">
+              <button
+                onClick={() => setShowCancelled(!showCancelled)}
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-neutral-900/60 transition-all"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="h-4 w-1 bg-red-500/60 rounded-full"></span>
+                  <span className="text-sm font-bold text-neutral-400">Cancelled / Archived</span>
+                  <span className="text-xs bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded-full font-bold">{cancelledClients.length}</span>
+                </div>
+                <span className="text-xs text-neutral-600">{showCancelled ? '▲' : '▼'}</span>
+              </button>
+
+              {showCancelled && (
+                <div className="border-t border-neutral-800 p-3 space-y-2 bg-neutral-950/50">
+                  <p className="text-xs text-neutral-600 px-1">Data is kept. Tap Restore to bring a client back to the dashboard.</p>
+                  {cancelledClients.map(client => (
+                    <div key={client.id} className="border border-neutral-800/60 rounded-2xl px-4 py-3 bg-neutral-900/60 flex items-center justify-between gap-3">
+                      <div
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => router.push(`/admin/client/${client.id}`)}
+                      >
+                        <p className="font-bold text-neutral-400 text-sm">
+                          {client.person1_first_name} {client.person1_last_name}
+                          {client.person2_first_name ? ` & ${client.person2_first_name} ${client.person2_last_name}` : ''}
+                        </p>
+                        <p className="text-xs text-neutral-600 mt-0.5 truncate">
+                          {client.venue || 'Venue TBD'} · {formatDate(client.wedding_date)}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => restoreClient(client.id)}
+                        className="flex-shrink-0 text-xs px-3 py-1.5 rounded-xl border border-emerald-900/60 text-emerald-500 hover:bg-emerald-400/10 hover:border-emerald-500/60 font-bold transition-all"
+                      >
+                        Restore
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Bottom padding for mobile */}
           <div className="h-6" />
