@@ -268,7 +268,7 @@ export default function AdminClientDetail() {
 
   async function savePlanner() {
     setPlannerSaveStatus('saving')
-    
+
     if (planner) {
       // Update existing planner
       const { error } = await supabase
@@ -292,6 +292,15 @@ export default function AdminClientDetail() {
 
     setPlannerSaveStatus('saved')
     setTimeout(() => setPlannerSaveStatus('idle'), 3000)
+  }
+
+  async function cancelBooking() {
+    if (!confirm(`Archive ${client.person1_first_name} & ${client.person2_first_name}? They'll be hidden from the dashboard but their data is kept.`)) return
+    const { error } = await supabase
+      .from('clients')
+      .update({ is_active: false })
+      .eq('id', id)
+    if (!error) router.push('/admin')
   }
 
   if (loading) {
@@ -517,6 +526,15 @@ export default function AdminClientDetail() {
                     {saveStatus === 'saving' ? 'Saving...' : 'Save Changes'}
                   </button>
 
+                  <div className="border-t border-neutral-800 pt-4 mt-2">
+                    <button
+                      onClick={cancelBooking}
+                      className="w-full rounded-xl py-2.5 border border-red-900/60 text-red-500 hover:bg-red-400/10 hover:border-red-500/60 font-bold text-sm transition-all"
+                    >
+                      Archive Client
+                    </button>
+                    <p className="text-xs text-neutral-600 text-center mt-1.5">Hides from dashboard · data is kept</p>
+                  </div>
 
                 </div>
               </SectionCard>
@@ -653,7 +671,7 @@ export default function AdminClientDetail() {
             </div>
           )}
 
-          {/* ── EDIT PLANNER TAB ──────────────────────────────────── */}
+          {/* ── EDIT PLANNER TAB ──────────────────────────────── */}
           {activeTab === 'edit planner' && plannerForm && (
             <div className="max-w-2xl space-y-6">
               <div className="bg-tascosa-orange/5 border border-tascosa-orange/20 rounded-2xl p-4 text-sm text-neutral-400">
@@ -955,4 +973,4 @@ export default function AdminClientDetail() {
       </div>
     </>
   )
-}               
+}
