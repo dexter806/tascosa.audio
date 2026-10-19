@@ -21,6 +21,12 @@ function formatDate(dateStr) {
   return new Date(d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })
 }
 
+function formatDateShort(dateStr) {
+  if (!dateStr) return '—'
+  const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
 function daysSince(dateStr) {
   if (!dateStr) return 0
   return Math.floor((Date.now() - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24))
@@ -44,6 +50,9 @@ export default function QuotesDashboard() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all')
   const [expandedId, setExpandedId] = useState(null)
+  const [editingContactId, setEditingContactId] = useState(null)
+  const [contactDateInput, setContactDateInput] = useState('')
+  const [savingContact, setSavingContact] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -63,6 +72,32 @@ export default function QuotesDashboard() {
     if (error) { console.error(error); return }
     setQuotes(data || [])
     setLoading(false)
+  }
+
+  async function markContactedToday(quoteId) {
+    const today = new Date().toISOString().split('T')[0]
+    const { error } = await supabase
+      .from('quotes')
+      .update({ last_contact: today })
+      .eq('id', quoteId)
+    if (!error) {
+      setQuotes(prev => prev.map(q => q.id === quoteId ? { ...q, last_contact: today } : q))
+    }
+  }
+
+  async function saveContactDate(quoteId) {
+    if (!contactDateInput) return
+    setSavingContact(true)
+    const { error } = await supabase
+      .from('quotes')
+      .update({ last_contact: contactDateInput })
+      .eq('id', quoteId)
+    if (!error) {
+      setQuotes(prev => prev.map(q => q.id === quoteId ? { ...q, last_contact: contactDateInput } : q))
+      setEditingContactId(null)
+      setContactDateInput('')
+    }
+    setSavingContact(false)
   }
 
   async function createHoldFromQuote(quote) {
@@ -198,6 +233,7 @@ export default function QuotesDashboard() {
                 const isExpanded = expandedId === quote.id
                 const daysSinceSent = daysSince(quote.created_at)
                 const needsFollowUp = status === 'sent' && daysSinceSent >= 2
+                const isEditingContact = editingContactId === quote.id
 
                 return (
                   <div
@@ -230,7 +266,12 @@ export default function QuotesDashboard() {
                         </div>
                         <p className="font-bold text-white mt-1">{quote.client_name}</p>
                         <p className="text-sm text-neutral-400 truncate">
-                          {quote.client_email} · {quote.venue} · {formatDate(quote.event_date)}
+                          {quote.client_email}
+                          {quote.client_phone && (
+                            <span className="ml-1.5 text-neutral-300">· {quote.client_phone}</span>
+                          )}
+                          {quote.venue && <span> · {quote.venue}</span>}
+                          {quote.event_date && <span> · {formatDate(quote.event_date)}</span>}
                         </p>
                       </div>
                       <div className="text-right flex-shrink-0">
@@ -271,6 +312,59 @@ export default function QuotesDashboard() {
                               <span className="text-emerald-400 font-black">${(quote.signed_grand_total || 0).toFixed(2)}</span>
                             </div>
                           )}
+                        </div>
+
+                        {/* Last Contact */}
+                        <div className="bg-neutral-800/40 border border-neutral-700/50 rounded-xl p-3">
+                          <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div>
+                              <p className="text-xs text-neutral-500 uppercase tracking-wider mb-0.5">Last Contact</p>
+                              <p className={`text-sm font-semibold ${quote.last_contact ? 'text-white' : 'text-neutral-600'}`}>
+                                {quote.last_contact ? formatDateShort(quote.last_contact) : 'Not recorded'}
+                              </p>
+                            </div>
+                            {isEditingContact ? (
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="date"
+                                  value={contactDateInput}
+                                  onChange={e => setContactDateInput(e.target.value)}
+                                  className="rounded-lg bg-neutral-950 border border-neutral-600 px-2 py-1 text-white text-xs focus:outline-none focus:ring-1 focus:ring-tascosa-orange [color-scheme:dark]"
+                                />
+                                <button
+                                  onClick={() => saveContactDate(quote.id)}
+                                  disabled={savingContact}
+                                  className="text-xs px-3 py-1.5 rounded-lg bg-tascosa-orange text-black font-bold hover:brightness-110 transition-all disabled:opacity-50"
+                                >
+                                  {savingContact ? 'Saving...' : 'Save'}
+                                </button>
+                                <button
+                                  onClick={() => { setEditingContactId(null); setContactDateInput('') }}
+                                  className="text-xs px-2 py-1.5 rounded-lg border border-neutral-700 text-neutral-400 hover:text-white transition-all"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => markContactedToday(quote.id)}
+                                  className="text-xs px-3 py-1.5 rounded-lg border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"
+                                >
+                                  Today
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setEditingContactId(quote.id)
+                                    setContactDateInput(quote.last_contact || new Date().toISOString().split('T')[0])
+                                  }}
+                                  className="text-xs px-3 py-1.5 rounded-lg border border-neutral-700 text-neutral-300 hover:border-neutral-500 transition-all"
+                                >
+                                  Edit
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Deposit claimed info */}
