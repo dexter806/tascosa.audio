@@ -136,12 +136,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminSearch') || '' : '')
   const [filter, setFilter] = useState(() => typeof window !== 'undefined' ? sessionStorage.getItem('adminFilter') || 'upcoming' : 'upcoming')
-  const [showReports, setShowReports] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
-  const [selectedMonth, setSelectedMonth] = useState('all')
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
-  const [expandedPerson, setExpandedPerson] = useState(null)
-  const [personFilter, setPersonFilter] = useState('upcoming')
   const [holds, setHolds] = useState([])
   const [events, setEvents] = useState([])
   const [showAddHold, setShowAddHold] = useState(false)
@@ -361,39 +356,11 @@ export default function AdminDashboard() {
   const upcoming = clients.filter(c => (daysUntil(c.wedding_date) ?? -1) >= 0)
   const completed = clients.filter(c => (daysUntil(c.wedding_date) ?? 0) < 0)
   const totalCollected = clients.reduce((sum, c) => sum + (c.total_paid || 0), 0)
-  const totalBalanceDue = clients.reduce((sum, c) => sum + (c.balance_due || 0), 0)
   const plannersDoneUpcoming = upcoming.filter(c => c.planner_completed).length
 
   const next7 = clients.filter(c => {
     const days = daysUntil(c.wedding_date)
     return days !== null && days >= 0 && days <= 7
-  })
-
-  const personStats = TEAM.map(person => ({
-    name: person,
-    total: clients.filter(c => c.assigned_to === person).length,
-    upcoming: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? -1) >= 0).length,
-    completed: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? 0) < 0).length,
-    upcomingEvents: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? -1) >= 0),
-    completedEvents: clients.filter(c => c.assigned_to === person && (daysUntil(c.wedding_date) ?? 0) < 0),
-    allEvents: clients.filter(c => c.assigned_to === person),
-  }))
-
-  const years = [...new Set(clients.map(c => c.wedding_date ? new Date(c.wedding_date).getFullYear() : null).filter(Boolean))].sort()
-  if (!years.includes(new Date().getFullYear())) years.push(new Date().getFullYear())
-
-  const monthlyData = MONTHS.map((month, idx) => {
-    const monthClients = clients.filter(c => {
-      if (!c.wedding_date) return false
-      const d = new Date(c.wedding_date + 'T12:00:00')
-      return d.getFullYear() === selectedYear && d.getMonth() === idx
-    })
-    return {
-      month,
-      count: monthClients.length,
-      collected: monthClients.reduce((sum, c) => sum + (c.total_paid || 0), 0),
-      due: monthClients.reduce((sum, c) => sum + (c.balance_due || 0), 0),
-    }
   })
 
   const holdsAsRows = holds.filter(h => {
@@ -416,11 +383,6 @@ export default function AdminDashboard() {
     else if (filter === 'all_inclusive') matchFilter = c.package === 'All-Inclusive Partner'
     else if (filter === 'full_service') matchFilter = c.package === 'Wedding Full Service'
     return matchSearch && matchFilter
-  })
-
-  const allClients = clients.filter(c => {
-    const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
-    return name.includes(search.toLowerCase())
   })
 
   if (loading) {
@@ -524,7 +486,7 @@ export default function AdminDashboard() {
                 <span>{syncAllStatus === 'syncing' ? '⏳' : syncAllStatus === 'done' ? '✓' : '📅'}</span>
                 {syncAllStatus === 'syncing' ? 'Syncing...' : syncAllStatus === 'done' ? 'Synced!' : 'Sync'}
               </button>
-              <button onClick={() => setShowReports(!showReports)} className={`text-xs px-3 py-2 rounded-xl transition-all flex items-center gap-1.5 ${showReports ? 'text-tascosa-orange bg-tascosa-orange/10' : 'text-neutral-400 hover:text-white hover:bg-neutral-800'}`}>
+              <button onClick={() => router.push('/admin/reports')} className="text-xs text-neutral-400 hover:text-white px-3 py-2 rounded-xl hover:bg-neutral-800 transition-all flex items-center gap-1.5">
                 <span>📊</span> Reports
               </button>
               <div className="w-px h-5 bg-neutral-700 mx-1" />
@@ -559,7 +521,7 @@ export default function AdminDashboard() {
               <button onClick={syncAllToCalendar} disabled={syncAllStatus === 'syncing'} className="w-full text-left text-sm border border-blue-500/50 text-blue-400 rounded-xl px-4 py-3 transition-all hover:bg-blue-400/10 disabled:opacity-50">
                 {syncAllStatus === 'syncing' ? '⏳ Syncing...' : syncAllStatus === 'done' ? '✓ Synced!' : '📅 Sync Calendar'}
               </button>
-              <button onClick={() => { setShowReports(!showReports); setShowMenu(false) }} className={`w-full text-left text-sm border rounded-xl px-4 py-3 transition-all ${showReports ? 'border-tascosa-orange text-tascosa-orange' : 'border-neutral-700 text-neutral-300 hover:border-neutral-500'}`}>
+              <button onClick={() => { router.push('/admin/reports'); setShowMenu(false) }} className="w-full text-left text-sm border border-neutral-700 text-neutral-300 rounded-xl px-4 py-3 transition-all hover:border-neutral-500">
                 📊 Reports
               </button>
               <button onClick={() => { handleSignOut(); setShowMenu(false) }} className="w-full text-left text-sm border border-neutral-700 text-neutral-500 rounded-xl px-4 py-3 transition-all hover:border-neutral-500 hover:text-white">
@@ -612,110 +574,6 @@ export default function AdminDashboard() {
               <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">Planners Done</div>
             </div>
           </div>
-
-          {/* ── REPORTS (collapsible) ─────────────────────────────────────── */}
-          {showReports && (
-            <div className="space-y-5 border border-neutral-800 rounded-2xl p-4 bg-neutral-900/30">
-              <h2 className="font-bold text-sm uppercase tracking-wider text-neutral-400 flex items-center gap-2">
-                <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
-                Reports
-              </h2>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: 'Total Clients', value: clients.length, color: 'text-white' },
-                  { label: 'Completed', value: completed.length, color: 'text-neutral-400' },
-                  { label: 'Collected', value: `$${totalCollected.toFixed(0)}`, color: 'text-emerald-400' },
-                  { label: 'Balance Due', value: `$${totalBalanceDue.toFixed(0)}`, color: 'text-yellow-400' },
-                ].map(stat => (
-                  <div key={stat.label} className="bg-neutral-900 border border-neutral-800 rounded-xl p-3 text-center">
-                    <div className={`text-xl font-black ${stat.color}`}>{stat.value}</div>
-                    <div className="text-xs text-neutral-600 mt-0.5 uppercase tracking-wide">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Team */}
-              <div>
-                <div className="flex items-center justify-between mb-3 gap-2 flex-wrap">
-                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Team Events</p>
-                  <div className="flex gap-1.5">
-                    {['upcoming', 'completed', 'all'].map(f => (
-                      <button key={f} onClick={() => setPersonFilter(f)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all capitalize ${personFilter === f ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400'}`}>
-                        {f}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  {personStats.map(person => {
-                    const evts = personFilter === 'upcoming' ? person.upcomingEvents : personFilter === 'completed' ? person.completedEvents : person.allEvents
-                    const count = personFilter === 'upcoming' ? person.upcoming : personFilter === 'completed' ? person.completed : person.total
-                    return (
-                      <div key={person.name} className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-                        <button onClick={() => setExpandedPerson(expandedPerson === person.name ? null : person.name)}
-                          className="w-full p-3 text-left hover:bg-neutral-800/50 transition-all">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold text-sm text-white">{person.name}</span>
-                            <span className="text-xs text-neutral-600">{expandedPerson === person.name ? '▲' : '▼'}</span>
-                          </div>
-                          <div className="text-2xl font-black text-tascosa-orange mt-1">{count}</div>
-                          <div className="text-xs text-neutral-500 capitalize">{personFilter}</div>
-                        </button>
-                        {expandedPerson === person.name && (
-                          <div className="border-t border-neutral-800 max-h-48 overflow-y-auto">
-                            {evts.length === 0 ? (
-                              <p className="text-xs text-neutral-600 p-3 text-center">No events</p>
-                            ) : (
-                              evts.map(c => (
-                                <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
-                                  className="w-full text-left px-3 py-2.5 border-b border-neutral-800 last:border-0 hover:bg-neutral-800/50 transition-all">
-                                  <p className="text-xs font-medium text-white">{c.person1_first_name} & {c.person2_first_name}</p>
-                                  <p className="text-xs text-neutral-500">{formatDate(c.wedding_date)}</p>
-                                </button>
-                              ))
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Monthly revenue */}
-              <div>
-                <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-                  <p className="text-xs text-neutral-500 uppercase tracking-wider">Monthly Revenue</p>
-                  <div className="flex gap-1.5 flex-wrap">
-                    {years.map(y => (
-                      <button key={y} onClick={() => setSelectedYear(y)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${selectedYear === y ? 'bg-tascosa-orange text-black' : 'bg-neutral-800 text-neutral-400'}`}>
-                        {y}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {monthlyData.map((m) => (
-                    <div key={m.month} className={`rounded-xl p-2 text-center border ${m.count > 0 ? 'border-neutral-700 bg-neutral-900' : 'border-neutral-800 bg-neutral-900/30'}`}>
-                      <p className="text-xs font-bold text-neutral-500">{m.month}</p>
-                      <p className={`text-sm font-black mt-0.5 ${m.count > 0 ? 'text-white' : 'text-neutral-700'}`}>{m.count}</p>
-                      {m.collected > 0 && <p className="text-xs text-emerald-400 font-bold">${(m.collected/1000).toFixed(1)}k</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* All clients in reports */}
-              <div>
-                <p className="text-xs text-neutral-500 uppercase tracking-wider mb-3">All Clients ({allClients.length})</p>
-                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-                  {allClients.map(client => <ClientRow key={client.id} client={client} />)}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* ── FILTER ───────────────────────────────────────────────────── */}
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4">
