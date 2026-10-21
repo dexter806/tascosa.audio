@@ -53,6 +53,9 @@ export default function QuotesDashboard() {
   const [editingContactId, setEditingContactId] = useState(null)
   const [contactDateInput, setContactDateInput] = useState('')
   const [savingContact, setSavingContact] = useState(false)
+  const [resendingId, setResendingId] = useState(null)
+  const [resendEmail, setResendEmail] = useState('')
+  const [resendLoading, setResendLoading] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -118,6 +121,23 @@ export default function QuotesDashboard() {
     } else {
       alert(`Hold created for ${quote.client_name} on ${formatDate(quote.event_date)}!`)
     }
+  }
+
+  async function handleResend(quote) {
+    setResendLoading(true)
+    const res = await fetch('/api/resend-quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ quoteId: quote.id, toEmail: resendEmail }),
+    })
+    if (res.ok) {
+      alert(`Quote resent to ${resendEmail}`)
+      setResendingId(null)
+      setResendEmail('')
+    } else {
+      alert('Failed to resend. Please try again.')
+    }
+    setResendLoading(false)
   }
 
   async function deleteQuote(id) {
@@ -395,6 +415,15 @@ export default function QuotesDashboard() {
                             View Quote Page
                           </a>
                           <button
+                            onClick={() => {
+                              setResendingId(quote.id)
+                              setResendEmail(quote.client_email || '')
+                            }}
+                            className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"
+                          >
+                            ✉️ Resend Quote
+                          </button>
+                          <button
                             onClick={() => router.push('/admin/quote')}
                             className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"
                           >
@@ -413,6 +442,32 @@ export default function QuotesDashboard() {
                             Delete
                           </button>
                         </div>
+
+                        {/* Resend email input */}
+                        {resendingId === quote.id && (
+                          <div className="flex items-center gap-2 pt-1 flex-wrap">
+                            <input
+                              type="email"
+                              value={resendEmail}
+                              onChange={e => setResendEmail(e.target.value)}
+                              placeholder="Email address"
+                              className="flex-1 min-w-0 rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2 text-white text-xs focus:outline-none focus:ring-1 focus:ring-tascosa-orange placeholder-neutral-600"
+                            />
+                            <button
+                              onClick={() => handleResend(quote)}
+                              disabled={resendLoading || !resendEmail}
+                              className="text-xs px-4 py-2 rounded-xl bg-tascosa-orange text-black font-bold hover:brightness-110 transition-all disabled:opacity-50"
+                            >
+                              {resendLoading ? 'Sending...' : 'Send'}
+                            </button>
+                            <button
+                              onClick={() => { setResendingId(null); setResendEmail('') }}
+                              className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white transition-all"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
 
                       </div>
                     )}
