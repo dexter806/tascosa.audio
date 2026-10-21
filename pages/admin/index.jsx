@@ -16,6 +16,8 @@ const supabase = createClient(
 const ADMIN_USER_ID = '8ce9e75b-9309-4ce9-8d01-9e840431c572'
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyZnSg-uYwHIkH6JT6xXSWgA-WBpioUwYTwag0ihGab-Q7Ig21PJrljlMTlSism63VL/exec'
 
+const EVENT_TYPES = ['Wedding', 'Private Party', 'Corporate', 'Live Sound', 'School Event', 'Other']
+
 async function calendarSync(payload) {
   try {
     await fetch(APPS_SCRIPT_URL, {
@@ -86,6 +88,43 @@ const HoldRow = ({ hold, onDelete }) => {
   )
 }
 
+const EventRow = ({ event, onDelete }) => {
+  const days = daysUntil(event.event_date)
+  const formattedDate = new Date(event.event_date + 'T12:00:00').toLocaleDateString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
+  })
+  return (
+    <div className="border border-cyan-500/40 bg-cyan-400/5 hover:border-cyan-400/70 rounded-2xl px-4 py-3 transition-all duration-200">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs bg-cyan-400/20 text-cyan-400 px-2 py-0.5 rounded-full font-bold">🎵 {event.event_type}</span>
+            <p className="font-bold text-white text-sm">{event.event_name}</p>
+          </div>
+          <p className="text-xs text-neutral-400 mt-0.5">
+            {formattedDate}
+            {event.venue ? ` · ${event.venue}` : ''}
+            {event.amount > 0 ? ` · $${event.amount.toFixed(0)}` : ''}
+            {event.contact_name ? ` · ${event.contact_name}` : ''}
+          </p>
+          {event.notes && <p className="text-xs text-neutral-500 mt-0.5 truncate">{event.notes}</p>}
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <p className={`text-sm font-bold ${days === 0 ? 'text-red-400' : days !== null && days < 0 ? 'text-neutral-500' : 'text-cyan-400'}`}>
+            {days === null ? '—' : days < 0 ? 'Past' : days === 0 ? 'Today' : `${days}d`}
+          </p>
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(event.id) }}
+            className="text-xs px-2 py-1 rounded-lg border border-red-900 text-red-400 hover:bg-red-400/10 transition-all"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const [clients, setClients] = useState([])
@@ -101,9 +140,23 @@ export default function AdminDashboard() {
   const [expandedPerson, setExpandedPerson] = useState(null)
   const [personFilter, setPersonFilter] = useState('upcoming')
   const [holds, setHolds] = useState([])
+  const [events, setEvents] = useState([])
   const [showAddHold, setShowAddHold] = useState(false)
+  const [showAddEvent, setShowAddEvent] = useState(false)
   const [holdForm, setHoldForm] = useState({ event_date: '', client_name: '', notes: '' })
+  const [eventForm, setEventForm] = useState({
+    event_date: '',
+    event_name: '',
+    event_type: 'Private Party',
+    venue: '',
+    notes: '',
+    amount: '',
+    contact_name: '',
+    contact_email: '',
+    contact_phone: '',
+  })
   const [holdSaving, setHoldSaving] = useState(false)
+  const [eventSaving, setEventSaving] = useState(false)
   const [syncAllStatus, setSyncAllStatus] = useState('idle')
 
   useEffect(() => {
@@ -123,7 +176,6 @@ export default function AdminDashboard() {
     if (error) { console.error(error); return }
     setClients(data || [])
 
-    // Also fetch archived (cancelled) clients
     const { data: cancelled } = await supabase
       .from('clients')
       .select('*')
@@ -136,6 +188,13 @@ export default function AdminDashboard() {
       .select('*')
       .order('event_date', { ascending: true })
     setHolds(holdsData || [])
+
+    const { data: eventsData } = await supabase
+      .from('events')
+      .select('*')
+      .order('event_date', { ascending: true })
+    setEvents(eventsData || [])
+
     setLoading(false)
   }
 
@@ -177,6 +236,60 @@ export default function AdminDashboard() {
     setHoldSaving(false)
   }
 
+  async function addEvent() {
+    if (!eventForm.event_date || !eventForm.event_name) {
+      alert('Please enter a date and event name.')
+      return
+    }
+    setEventSaving(true)
+    const insertData = {
+      event_date: eventForm.event_date,
+      event_name: eventForm.event_name,
+      event_type: eventForm.event_type,
+      venue: eventForm.venue || null,
+      notes: eventForm.notes || null,
+      amount: eventForm.amount ? parseFloat(eventForm.amount) : 0,
+      contact_name: eventForm.contact_name || null,
+      contact_email: eventForm.contact_email || null,
+      contact_phone: eventForm.contact_phone || null,
+    }
+    const { data: newEvent, error } = await supabase
+      .from('events')
+      .insert(insertData)
+      .select()
+      .single()
+
+    if (!error && newEvent) {
+      const calTitle = `🎵 ${eventForm.event_type.toUpperCase()} — ${eventForm.event_name}${eventForm.venue ? ` @ ${eventForm.venue}` : ''}`
+      const calNotes = [
+        eventForm.contact_name && `Contact: ${eventForm.contact_name}`,
+        eventForm.contact_phone && `Phone: ${eventForm.contact_phone}`,
+        eventForm.contact_email && `Email: ${eventForm.contact_email}`,
+        eventForm.amount && `Amount: $${eventForm.amount}`,
+        eventForm.notes,
+      ].filter(Boolean).join('\n')
+
+      await calendarSync({
+        action: 'create',
+        date: eventForm.event_date,
+        title: calTitle,
+        notes: calNotes,
+        color: '7', // teal/cyan on Google Calendar
+      })
+
+      setEventForm({
+        event_date: '', event_name: '', event_type: 'Private Party',
+        venue: '', notes: '', amount: '', contact_name: '', contact_email: '', contact_phone: '',
+      })
+      setShowAddEvent(false)
+      await loadClients()
+    } else {
+      alert('Failed to save event. Please try again.')
+      console.error(error)
+    }
+    setEventSaving(false)
+  }
+
   async function deleteHold(id) {
     if (!confirm('Remove this hold?')) return
     const hold = holds.find(h => h.id === id)
@@ -187,6 +300,21 @@ export default function AdminDashboard() {
         action: 'delete_by_title',
         date: hold.event_date,
         title: `📌 HOLD — ${hold.client_name}`,
+      })
+    }
+  }
+
+  async function deleteEvent(id) {
+    if (!confirm('Remove this event?')) return
+    const event = events.find(e => e.id === id)
+    await supabase.from('events').delete().eq('id', id)
+    setEvents(prev => prev.filter(e => e.id !== id))
+    if (event) {
+      const calTitle = `🎵 ${event.event_type.toUpperCase()} — ${event.event_name}${event.venue ? ` @ ${event.venue}` : ''}`
+      await calendarSync({
+        action: 'delete_by_title',
+        date: event.event_date,
+        title: calTitle,
       })
     }
   }
@@ -265,7 +393,12 @@ export default function AdminDashboard() {
   const holdsAsRows = holds.filter(h => {
     const d = new Date(h.event_date + 'T12:00:00')
     return d >= new Date()
-  }).map(h => ({ ...h, _isHold: true }))
+  }).map(h => ({ ...h, _type: 'hold' }))
+
+  const eventsAsRows = events.filter(e => {
+    const d = new Date(e.event_date + 'T12:00:00')
+    return d >= new Date()
+  }).map(e => ({ ...e, _type: 'event' }))
 
   const filteredUpcoming = upcoming.filter(c => {
     const name = `${c.person1_first_name} ${c.person1_last_name} ${c.person2_first_name} ${c.person2_last_name} ${c.venue}`.toLowerCase()
@@ -294,9 +427,6 @@ export default function AdminDashboard() {
 
   const ClientRow = ({ client }) => {
     const days = daysUntil(client.wedding_date)
-    const sameRole = client.person1_role === client.person2_role
-    const label1 = sameRole ? `${client.person1_first_name} (${client.person1_role})` : client.person1_role
-    const label2 = sameRole ? `${client.person2_first_name} (${client.person2_role})` : client.person2_role
     return (
       <div
         onClick={() => router.push(`/admin/client/${client.id}`)}
@@ -312,7 +442,6 @@ export default function AdminDashboard() {
               {client.venue || 'Venue TBD'}
               {client.assigned_to && <span className="ml-1.5 text-tascosa-orange/70">· {client.assigned_to}</span>}
             </div>
-            {/* Badges on their own row for mobile */}
             <div className="flex gap-1.5 flex-wrap mt-1.5">
               {client.package && (
                 <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
@@ -335,7 +464,6 @@ export default function AdminDashboard() {
               )}
             </div>
           </div>
-          {/* Date + days on right */}
           <div className="text-right flex-shrink-0">
             <div className="text-xs font-semibold text-white">{formatDate(client.wedding_date)}</div>
             {days !== null && (
@@ -364,7 +492,7 @@ export default function AdminDashboard() {
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100">
 
-        {/* Nav — mobile friendly */}
+        {/* Nav */}
         <header className="border-b border-neutral-800 bg-neutral-950/80 backdrop-blur sticky top-0 z-50">
           <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -372,7 +500,7 @@ export default function AdminDashboard() {
               <span className="font-bold text-sm">Admin</span>
               <span className="text-xs bg-tascosa-orange/20 text-tascosa-orange px-2 py-0.5 rounded-full font-bold">ANDY</span>
             </div>
-            {/* Desktop nav buttons */}
+            {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-2">
               <button onClick={() => router.push('/admin/quotes')} className="text-xs text-neutral-400 hover:text-white px-3 py-2 rounded-xl hover:bg-neutral-800 transition-all flex items-center gap-1.5">
                 <span>📋</span> Quotes
@@ -380,8 +508,11 @@ export default function AdminDashboard() {
               <button onClick={() => router.push('/admin/venues')} className="text-xs text-neutral-400 hover:text-white px-3 py-2 rounded-xl hover:bg-neutral-800 transition-all flex items-center gap-1.5">
                 <span>🏛</span> Venues
               </button>
-              <button onClick={() => { setShowAddHold(true) }} className="text-xs text-yellow-400 hover:text-yellow-300 px-3 py-2 rounded-xl hover:bg-yellow-400/10 transition-all flex items-center gap-1.5">
+              <button onClick={() => setShowAddHold(true)} className="text-xs text-yellow-400 hover:text-yellow-300 px-3 py-2 rounded-xl hover:bg-yellow-400/10 transition-all flex items-center gap-1.5">
                 <span>📌</span> Hold
+              </button>
+              <button onClick={() => setShowAddEvent(true)} className="text-xs text-cyan-400 hover:text-cyan-300 px-3 py-2 rounded-xl hover:bg-cyan-400/10 transition-all flex items-center gap-1.5">
+                <span>🎵</span> Event
               </button>
               <button onClick={syncAllToCalendar} disabled={syncAllStatus === 'syncing'} className="text-xs text-blue-400 hover:text-blue-300 px-3 py-2 rounded-xl hover:bg-blue-400/10 transition-all disabled:opacity-50 flex items-center gap-1.5">
                 <span>{syncAllStatus === 'syncing' ? '⏳' : syncAllStatus === 'done' ? '✓' : '📅'}</span>
@@ -395,7 +526,7 @@ export default function AdminDashboard() {
                 Sign Out
               </button>
             </div>
-            {/* Mobile hamburger menu */}
+            {/* Mobile hamburger */}
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="md:hidden text-neutral-400 hover:text-white border border-neutral-700 rounded-xl px-3 py-2 text-sm transition-all"
@@ -404,7 +535,7 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          {/* Mobile dropdown menu */}
+          {/* Mobile dropdown */}
           {showMenu && (
             <div className="md:hidden border-t border-neutral-800 bg-neutral-950 px-4 py-3 space-y-2">
               <button onClick={() => { router.push('/admin/quotes'); setShowMenu(false) }} className="w-full text-left text-sm border border-neutral-700 text-neutral-300 rounded-xl px-4 py-3 transition-all hover:border-neutral-500">
@@ -415,6 +546,9 @@ export default function AdminDashboard() {
               </button>
               <button onClick={() => { setShowAddHold(true); setShowMenu(false) }} className="w-full text-left text-sm border border-yellow-500/50 text-yellow-400 rounded-xl px-4 py-3 transition-all hover:bg-yellow-400/10">
                 📌 Hold Date
+              </button>
+              <button onClick={() => { setShowAddEvent(true); setShowMenu(false) }} className="w-full text-left text-sm border border-cyan-500/50 text-cyan-400 rounded-xl px-4 py-3 transition-all hover:bg-cyan-400/10">
+                🎵 Add Event
               </button>
               <button onClick={syncAllToCalendar} disabled={syncAllStatus === 'syncing'} className="w-full text-left text-sm border border-blue-500/50 text-blue-400 rounded-xl px-4 py-3 transition-all hover:bg-blue-400/10 disabled:opacity-50">
                 {syncAllStatus === 'syncing' ? '⏳ Syncing...' : syncAllStatus === 'done' ? '✓ Synced!' : '📅 Sync Calendar'}
@@ -509,7 +643,7 @@ export default function AdminDashboard() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   {personStats.map(person => {
-                    const events = personFilter === 'upcoming' ? person.upcomingEvents : personFilter === 'completed' ? person.completedEvents : person.allEvents
+                    const evts = personFilter === 'upcoming' ? person.upcomingEvents : personFilter === 'completed' ? person.completedEvents : person.allEvents
                     const count = personFilter === 'upcoming' ? person.upcoming : personFilter === 'completed' ? person.completed : person.total
                     return (
                       <div key={person.name} className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
@@ -524,10 +658,10 @@ export default function AdminDashboard() {
                         </button>
                         {expandedPerson === person.name && (
                           <div className="border-t border-neutral-800 max-h-48 overflow-y-auto">
-                            {events.length === 0 ? (
+                            {evts.length === 0 ? (
                               <p className="text-xs text-neutral-600 p-3 text-center">No events</p>
                             ) : (
-                              events.map(c => (
+                              evts.map(c => (
                                 <button key={c.id} onClick={() => router.push(`/admin/client/${c.id}`)}
                                   className="w-full text-left px-3 py-2.5 border-b border-neutral-800 last:border-0 hover:bg-neutral-800/50 transition-all">
                                   <p className="text-xs font-medium text-white">{c.person1_first_name} & {c.person2_first_name}</p>
@@ -590,6 +724,7 @@ export default function AdminDashboard() {
               {[
                 { val: 'upcoming', label: 'All' },
                 { val: 'holds', label: '📌 Holds' },
+                { val: 'events', label: '🎵 Events' },
                 { val: 'planner_pending', label: '⏳ Pending' },
                 { val: 'unassigned', label: 'Unassigned' },
                 { val: 'balance_due', label: 'Balance Due' },
@@ -612,22 +747,28 @@ export default function AdminDashboard() {
               Upcoming Clients
               <span className="text-neutral-500 font-normal">({filteredUpcoming.length})</span>
             </h2>
-            {filteredUpcoming.length === 0 ? (
+            {filteredUpcoming.length === 0 && holdsAsRows.length === 0 && eventsAsRows.length === 0 ? (
               <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-10 text-center text-neutral-500 text-sm">
                 No clients found.
               </div>
             ) : (
               <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
                 {(() => {
-                  // Holds-only filter shows just holds, otherwise mix clients + holds
-                  const clientRows = filter === 'holds' ? [] : filteredUpcoming.map(c => ({ ...c, _isHold: false }))
-                  const holdRows = holdsAsRows
+                  const clientRows = (filter === 'holds' || filter === 'events') ? [] : filteredUpcoming.map(c => ({ ...c, _type: 'client' }))
+                  const holdRows = filter === 'events' ? [] : holdsAsRows
+                  const eventRows = filter === 'holds' ? [] : eventsAsRows
+
                   const sorted = [
                     ...clientRows,
-                    ...holdRows
-                  ].sort((a, b) => new Date(a.wedding_date || a.event_date) - new Date(b.wedding_date || b.event_date))
+                    ...holdRows,
+                    ...eventRows,
+                  ].sort((a, b) => {
+                    const dateA = a.wedding_date || a.event_date
+                    const dateB = b.wedding_date || b.event_date
+                    return new Date(dateA) - new Date(dateB)
+                  })
 
-                  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December']
+                  const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December']
                   let lastYear = null
                   let lastMonth = null
                   const rows = []
@@ -638,7 +779,6 @@ export default function AdminDashboard() {
                     const year = d ? d.getFullYear() : null
                     const month = d ? d.getMonth() : null
 
-                    // Year divider
                     if (year && year !== lastYear) {
                       rows.push(
                         <div key={`divider-year-${year}`} className="flex items-center gap-3 py-1 mt-2">
@@ -651,22 +791,24 @@ export default function AdminDashboard() {
                       lastMonth = null
                     }
 
-                    // Month divider
                     if (month !== null && month !== lastMonth) {
                       rows.push(
                         <div key={`divider-month-${year}-${month}`} className="flex items-center gap-3 py-0.5">
                           <div className="flex-1 h-px bg-neutral-800"></div>
-                          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{MONTHS[month]}</span>
+                          <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{MONTH_NAMES[month]}</span>
                           <div className="flex-1 h-px bg-neutral-800"></div>
                         </div>
                       )
                       lastMonth = month
                     }
 
-                    rows.push(item._isHold
-                      ? <HoldRow key={item.id} hold={item} onDelete={deleteHold} />
-                      : <ClientRow key={item.id} client={item} />
-                    )
+                    if (item._type === 'hold') {
+                      rows.push(<HoldRow key={`hold-${item.id}`} hold={item} onDelete={deleteHold} />)
+                    } else if (item._type === 'event') {
+                      rows.push(<EventRow key={`event-${item.id}`} event={item} onDelete={deleteEvent} />)
+                    } else {
+                      rows.push(<ClientRow key={`client-${item.id}`} client={item} />)
+                    }
                   })
 
                   return rows
@@ -712,7 +854,7 @@ export default function AdminDashboard() {
                         className="flex-shrink-0 text-xs px-3 py-1.5 rounded-xl border border-emerald-900/60 text-emerald-500 hover:bg-emerald-400/10 hover:border-emerald-500/60 font-bold transition-all"
                       >
                         Restore
-                      </button>
+      </button>
                     </div>
                   ))}
                 </div>
@@ -720,12 +862,10 @@ export default function AdminDashboard() {
             </div>
           )}
 
-          {/* Bottom padding for mobile */}
           <div className="h-6" />
-
         </main>
 
-        {/* Add Hold Modal */}
+        {/* ── ADD HOLD MODAL ─────────────────────────────────────────────── */}
         {showAddHold && (
           <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
             <div className="bg-neutral-900 border border-yellow-500/30 rounded-2xl p-5 w-full max-w-md">
@@ -777,6 +917,131 @@ export default function AdminDashboard() {
                   className="flex-1 py-2.5 rounded-xl bg-yellow-400 text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all"
                 >
                   {holdSaving ? 'Saving...' : '📌 Hold Date'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── ADD EVENT MODAL ────────────────────────────────────────────── */}
+        {showAddEvent && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+            <div className="bg-neutral-900 border border-cyan-500/30 rounded-2xl p-5 w-full max-w-md max-h-[90vh] overflow-y-auto">
+              <h2 className="font-bold text-lg mb-4 flex items-center gap-2">
+                <span className="h-4 w-1 bg-cyan-400 rounded-full"></span>
+                Add Booked Event
+              </h2>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Date *</label>
+                    <input
+                      type="date"
+                      value={eventForm.event_date}
+                      onChange={e => setEventForm(p => ({ ...p, event_date: e.target.value }))}
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 [color-scheme:dark]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Type</label>
+                    <select
+                      value={eventForm.event_type}
+                      onChange={e => setEventForm(p => ({ ...p, event_type: e.target.value }))}
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 appearance-none"
+                    >
+                      {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Name *</label>
+                  <input
+                    type="text"
+                    value={eventForm.event_name}
+                    onChange={e => setEventForm(p => ({ ...p, event_name: e.target.value }))}
+                    placeholder="Smith Birthday Party"
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Venue</label>
+                  <input
+                    type="text"
+                    value={eventForm.venue}
+                    onChange={e => setEventForm(p => ({ ...p, venue: e.target.value }))}
+                    placeholder="Iron Rose, Knotting Hill, etc."
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Amount ($)</label>
+                  <input
+                    type="number"
+                    value={eventForm.amount}
+                    onChange={e => setEventForm(p => ({ ...p, amount: e.target.value }))}
+                    placeholder="600"
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Contact Name</label>
+                    <input
+                      type="text"
+                      value={eventForm.contact_name}
+                      onChange={e => setEventForm(p => ({ ...p, contact_name: e.target.value }))}
+                      placeholder="Jane Smith"
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Contact Phone</label>
+                    <input
+                      type="tel"
+                      value={eventForm.contact_phone}
+                      onChange={e => setEventForm(p => ({ ...p, contact_phone: e.target.value }))}
+                      placeholder="806-555-0123"
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Contact Email</label>
+                  <input
+                    type="email"
+                    value={eventForm.contact_email}
+                    onChange={e => setEventForm(p => ({ ...p, contact_email: e.target.value }))}
+                    placeholder="jane@example.com"
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Notes</label>
+                  <textarea
+                    value={eventForm.notes}
+                    onChange={e => setEventForm(p => ({ ...p, notes: e.target.value }))}
+                    rows={2}
+                    placeholder="Any details, special requests, setup notes..."
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 resize-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    setShowAddEvent(false)
+                    setEventForm({ event_date: '', event_name: '', event_type: 'Private Party', venue: '', notes: '', amount: '', contact_name: '', contact_email: '', contact_phone: '' })
+                  }}
+                  className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={addEvent}
+                  disabled={eventSaving}
+                  className="flex-1 py-2.5 rounded-xl bg-cyan-400 text-black font-black text-sm hover:brightness-110 active:scale-95 disabled:opacity-50 transition-all"
+                >
+                  {eventSaving ? 'Saving...' : '🎵 Add Event'}
                 </button>
               </div>
             </div>
