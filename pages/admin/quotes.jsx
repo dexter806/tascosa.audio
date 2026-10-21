@@ -424,6 +424,12 @@ export default function QuotesDashboard() {
                             ✉️ Resend Quote
                           </button>
                           <button
+                            onClick={() => router.push(`/admin/quote/edit/${quote.id}`)}
+                            className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"
+                          >
+                            ✏️ Edit Quote
+                          </button>
+                          <button
                             onClick={() => router.push('/admin/quote')}
                             className="text-xs px-3 py-2 rounded-xl border border-neutral-700 text-neutral-300 hover:border-tascosa-orange hover:text-tascosa-orange transition-all"
                           >
