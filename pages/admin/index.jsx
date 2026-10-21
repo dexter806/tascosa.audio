@@ -93,6 +93,9 @@ const EventRow = ({ event, onDelete }) => {
   const formattedDate = new Date(event.event_date + 'T12:00:00').toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
   })
+  const formattedTime = event.event_time
+    ? new Date(`${event.event_date}T${event.event_time}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+    : null
   return (
     <div className="border border-cyan-500/40 bg-cyan-400/5 hover:border-cyan-400/70 rounded-2xl px-4 py-3 transition-all duration-200">
       <div className="flex items-center justify-between gap-3">
@@ -102,7 +105,7 @@ const EventRow = ({ event, onDelete }) => {
             <p className="font-bold text-white text-sm">{event.event_name}</p>
           </div>
           <p className="text-xs text-neutral-400 mt-0.5">
-            {formattedDate}
+            {formattedDate}{formattedTime ? ` @ ${formattedTime}` : ''}
             {event.venue ? ` · ${event.venue}` : ''}
             {event.amount > 0 ? ` · $${event.amount.toFixed(0)}` : ''}
             {event.contact_name ? ` · ${event.contact_name}` : ''}
@@ -146,6 +149,7 @@ export default function AdminDashboard() {
   const [holdForm, setHoldForm] = useState({ event_date: '', client_name: '', notes: '' })
   const [eventForm, setEventForm] = useState({
     event_date: '',
+    event_time: '',
     event_name: '',
     event_type: 'Private Party',
     venue: '',
@@ -244,6 +248,7 @@ export default function AdminDashboard() {
     setEventSaving(true)
     const insertData = {
       event_date: eventForm.event_date,
+      event_time: eventForm.event_time || null,
       event_name: eventForm.event_name,
       event_type: eventForm.event_type,
       venue: eventForm.venue || null,
@@ -272,13 +277,14 @@ export default function AdminDashboard() {
       await calendarSync({
         action: 'create',
         date: eventForm.event_date,
+        time: eventForm.event_time || null,
         title: calTitle,
         notes: calNotes,
         color: '7', // teal/cyan on Google Calendar
       })
 
       setEventForm({
-        event_date: '', event_name: '', event_type: 'Private Party',
+        event_date: '', event_time: '', event_name: '', event_type: 'Private Party',
         venue: '', notes: '', amount: '', contact_name: '', contact_email: '', contact_phone: '',
       })
       setShowAddEvent(false)
@@ -943,15 +949,24 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Type</label>
-                    <select
-                      value={eventForm.event_type}
-                      onChange={e => setEventForm(p => ({ ...p, event_type: e.target.value }))}
-                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 appearance-none"
-                    >
-                      {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
-                    </select>
+                    <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Start Time</label>
+                    <input
+                      type="time"
+                      value={eventForm.event_time}
+                      onChange={e => setEventForm(p => ({ ...p, event_time: e.target.value }))}
+                      className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 [color-scheme:dark]"
+                    />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Type</label>
+                  <select
+                    value={eventForm.event_type}
+                    onChange={e => setEventForm(p => ({ ...p, event_type: e.target.value }))}
+                    className="w-full rounded-xl bg-neutral-950 border border-neutral-700 px-3 py-2.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 appearance-none"
+                  >
+                    {EVENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-xs text-neutral-500 mb-1.5 uppercase tracking-wider">Event Name *</label>
@@ -1030,7 +1045,7 @@ export default function AdminDashboard() {
                 <button
                   onClick={() => {
                     setShowAddEvent(false)
-                    setEventForm({ event_date: '', event_name: '', event_type: 'Private Party', venue: '', notes: '', amount: '', contact_name: '', contact_email: '', contact_phone: '' })
+                    setEventForm({ event_date: '', event_time: '', event_name: '', event_type: 'Private Party', venue: '', notes: '', amount: '', contact_name: '', contact_email: '', contact_phone: '' })
                   }}
                   className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all"
                 >
