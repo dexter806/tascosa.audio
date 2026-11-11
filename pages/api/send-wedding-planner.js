@@ -152,8 +152,10 @@ async function generateWeddingPlannerPDF(client, data) {
   drawSection('Our Wedding')
   y -= 2
 
-  if (client.person1_first_name) drawInfoRow('Bride / Partner 1', `${client.person1_first_name} ${client.person1_last_name || ''}`.trim())
-  if (client.person2_first_name) drawInfoRow('Bride / Partner 2', `${client.person2_first_name} ${client.person2_last_name || ''}`.trim())
+  const role1 = client.person1_role || 'Partner 1'
+  const role2 = client.person2_role || 'Partner 2'
+  if (client.person1_first_name) drawInfoRow(role1, `${client.person1_first_name} ${client.person1_last_name || ''}`.trim())
+  if (client.person2_first_name) drawInfoRow(role2, `${client.person2_first_name} ${client.person2_last_name || ''}`.trim())
   if (client.wedding_date)        drawInfoRow('Wedding Date', formatDate(client.wedding_date))
   if (client.venue)               drawInfoRow('Venue', client.venue)
   if (client.person1_email)       drawInfoRow('Email', client.person1_email)
