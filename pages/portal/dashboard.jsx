@@ -35,26 +35,35 @@ export default function Dashboard() {
   const [weddingData, setWeddingData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [displayDays, setDisplayDays] = useState(0)
+  const [flipped, setFlipped] = useState(false)
 
   useEffect(() => {
     if (!loading && client?.wedding_date) {
       const target = daysUntil(client.wedding_date)
       if (!target || target <= 0) return
-      let current = 0
-      const duration = 1200 // ms
-      const steps = Math.min(target, 60)
-      const interval = duration / steps
-      const increment = target / steps
-      const timer = setInterval(() => {
-        current += increment
-        if (current >= target) {
-          setDisplayDays(target)
-          clearInterval(timer)
-        } else {
-          setDisplayDays(Math.floor(current))
-        }
-      }, interval)
-      return () => clearInterval(timer)
+
+      // Trigger flip immediately
+      const flipTimer = setTimeout(() => setFlipped(true), 300)
+
+      // Start count-up after flip animation finishes (~900ms total)
+      const countTimer = setTimeout(() => {
+        let current = 0
+        const duration = 1000
+        const steps = Math.min(target, 60)
+        const interval = duration / steps
+        const increment = target / steps
+        const timer = setInterval(() => {
+          current += increment
+          if (current >= target) {
+            setDisplayDays(target)
+            clearInterval(timer)
+          } else {
+            setDisplayDays(Math.floor(current))
+          }
+        }, interval)
+      }, 900)
+
+      return () => { clearTimeout(flipTimer); clearTimeout(countTimer) }
     }
   }, [loading, client])
 
@@ -148,7 +157,14 @@ export default function Dashboard() {
       <Head>
         <title>My Dashboard — Tascosa Audio</title>
         <meta name="robots" content="noindex, nofollow" />
-
+        <style>{`
+          @keyframes flipIn {
+            0%   { opacity: 0; transform: rotateX(90deg) scale(0.85); }
+            65%  { opacity: 1; transform: rotateX(-6deg) scale(1.03); }
+            85%  { transform: rotateX(2deg) scale(0.99); }
+            100% { opacity: 1; transform: rotateX(0deg) scale(1); }
+          }
+        `}</style>
       </Head>
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -183,7 +199,14 @@ export default function Dashboard() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-tascosa-orange mb-3">Your Big Day</p>
               {days > 0 ? (
                 <>
-                  <div className="text-6xl md:text-8xl font-extrabold text-white">
+                  <div
+                    className="text-6xl md:text-8xl font-extrabold text-white"
+                    style={{
+                      display: 'inline-block',
+                      animation: flipped ? 'flipIn 0.6s cubic-bezier(0.23,1,0.32,1) both' : 'none',
+                      transformOrigin: 'center top',
+                    }}
+                  >
                     {displayDays}
                   </div>
                   <div className="text-neutral-400 mt-2 text-lg">days to go</div>
