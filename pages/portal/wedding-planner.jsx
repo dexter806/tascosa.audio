@@ -114,6 +114,13 @@ export default function WeddingPlanner() {
   const [timelineForm, setTimelineForm] = useState(null)
   const [guestSearch, setGuestSearch] = useState('')
 
+  // Export state
+  const [showExport, setShowExport] = useState(false)
+  const [exportAction, setExportAction] = useState('both') // 'download' | 'email' | 'both'
+  const [exporting, setExporting] = useState(false)
+  const [exportStatus, setExportStatus] = useState(null) // null | 'success' | 'error'
+  const [exportMessage, setExportMessage] = useState('')
+
   const saveTimerRef = useRef(null)
 
   // ── Load data ───────────────────────────────────────────────────────────────
@@ -199,6 +206,57 @@ export default function WeddingPlanner() {
   function scheduleNotesSave(val) {
     clearTimeout(saveTimerRef.current)
     saveTimerRef.current = setTimeout(() => save({ notes: val }), 1500)
+  }
+
+  // ── Export / PDF ─────────────────────────────────────────────────────────
+  async function handleExport() {
+    if (!client || !plannerId) return
+    setExporting(true)
+    setExportStatus(null)
+    setExportMessage('')
+
+    try {
+      const res = await fetch('/api/send-wedding-planner', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: client.id, action: exportAction }),
+      })
+
+      if (exportAction === 'download' || exportAction === 'both') {
+        if (res.ok) {
+          const blob = await res.blob()
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${client.person1_first_name || ''}_${client.person2_first_name || ''}_Wedding_Planner.pdf`.replace(/\s+/g, '_').replace(/^_|_$/g, '') || 'Wedding_Planner.pdf'
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+          setExportStatus('success')
+          setExportMessage(exportAction === 'both' ? 'PDF downloaded & emailed!' : 'PDF downloaded!')
+        } else {
+          const err = await res.json().catch(() => ({}))
+          setExportStatus('error')
+          setExportMessage(err.error || 'Something went wrong. Please try again.')
+        }
+      } else {
+        // email only
+        const data = await res.json()
+        if (res.ok && data.success) {
+          setExportStatus('success')
+          setExportMessage(`Sent to ${(data.sentTo || []).join(' & ')}`)
+        } else {
+          setExportStatus('error')
+          setExportMessage(data.error || 'Something went wrong. Please try again.')
+        }
+      }
+    } catch (err) {
+      setExportStatus('error')
+      setExportMessage('Something went wrong. Please try again.')
+    } finally {
+      setExporting(false)
+    }
   }
 
   // ── Checklist helpers ────────────────────────────────────────────────────
@@ -348,12 +406,16 @@ export default function WeddingPlanner() {
                 <span className="text-xs bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded-full flex-shrink-0">Your Personal Tool</span>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0 text-xs text-neutral-600">
-              {saving ? (
-                <span className="animate-pulse">Saving...</span>
-              ) : savedAt ? (
-                <span>Saved ✓</span>
-              ) : null}
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <span className="text-xs text-neutral-600">
+                {saving ? <span className="animate-pulse">Saving...</span> : savedAt ? <span>Saved ✓</span> : null}
+              </span>
+              <button
+                onClick={() => { setShowExport(true); setExportStatus(null); setExportMessage('') }}
+                className="text-xs rounded-xl bg-pink-500/20 text-pink-300 border border-pink-500/30 px-3 py-1.5 font-bold hover:bg-pink-500/30 transition-all flex items-center gap-1.5"
+              >
+                📄 Export PDF
+              </button>
             </div>
           </div>
         </header>
@@ -794,6 +856,66 @@ export default function WeddingPlanner() {
           <div className="h-6" />
         </main>
       </div>
+
+      {/* ── Export Modal ──────────────────────────────────────────────────── */}
+      {showExport && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-2xl p-5 w-full max-w-sm">
+            <h3 className="font-bold text-base mb-1 flex items-center gap-2">
+              <span className="h-4 w-1 bg-pink-400 rounded-full"></span>
+              Export Your Planner
+            </h3>
+            <p className="text-xs text-neutral-500 mb-5">We'll generate a PDF of everything in your planner.</p>
+
+            <div className="space-y-2 mb-5">
+              {[
+                { value: 'download', label: '⬇️  Download PDF', desc: 'Save it directly to your device' },
+                { value: 'email',    label: '✉️  Email to me',   desc: 'Send to the email(s) on your account' },
+                { value: 'both',     label: '✨  Download & Email', desc: 'Do both at once' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setExportAction(opt.value)}
+                  className={`w-full text-left rounded-xl px-4 py-3 border transition-all ${
+                    exportAction === opt.value
+                      ? 'border-pink-500/50 bg-pink-500/10'
+                      : 'border-neutral-700 hover:border-neutral-600'
+                  }`}
+                >
+                  <div className="text-sm font-bold text-white">{opt.label}</div>
+                  <div className="text-xs text-neutral-500 mt-0.5">{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+
+            {exportStatus && (
+              <div className={`text-sm font-medium flex items-center gap-2 mb-4 ${exportStatus === 'error' ? 'text-red-400' : 'text-emerald-400'}`}>
+                <span className={`h-2 w-2 rounded-full flex-none ${exportStatus === 'error' ? 'bg-red-400' : 'bg-emerald-400'}`} />
+                {exportMessage}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setShowExport(false); setExportStatus(null) }}
+                className="flex-1 py-2.5 rounded-xl border border-neutral-700 text-neutral-400 hover:text-white text-sm font-bold transition-all"
+              >
+                {exportStatus === 'success' ? 'Done' : 'Cancel'}
+              </button>
+              {exportStatus !== 'success' && (
+                <button
+                  onClick={handleExport}
+                  disabled={exporting}
+                  className="flex-1 py-2.5 rounded-xl bg-pink-500/20 text-pink-300 border border-pink-500/30 font-bold text-sm hover:bg-pink-500/30 transition-all disabled:opacity-50"
+                >
+                  {exporting ? 'Working...' : 'Export →'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </>
   )
 }
