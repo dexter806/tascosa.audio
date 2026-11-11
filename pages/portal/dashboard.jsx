@@ -1,8 +1,4 @@
 // FILE LOCATION: pages/portal/dashboard.jsx
-// ─────────────────────────────────────────────────────────────────────────────
-// Client portal dashboard — main hub after onboarding is complete
-// Shows event summary, countdown, and links to wedding planner
-// ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@supabase/supabase-js'
@@ -36,20 +32,20 @@ export default function Dashboard() {
   const router = useRouter()
   const [client, setClient] = useState(null)
   const [planner, setPlanner] = useState(null)
+  const [weddingData, setWeddingData] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/portal/login'); return }
 
-      // Get client data — check both user_id (person 1) and user_id_2 (person 2)
       let clientData = null
       const { data: data1 } = await supabase
         .from('clients')
         .select('*')
         .eq('user_id', session.user.id)
         .single()
-      
+
       if (data1) {
         clientData = data1
       } else {
@@ -68,14 +64,22 @@ export default function Dashboard() {
 
       setClient(clientData)
 
-      // Get wedding planner completion status
+      // Music planner status
       const { data: plannerData } = await supabase
         .from('wedding_planner')
         .select('id, updated_at')
         .eq('client_id', clientData.id)
         .single()
-
       setPlanner(plannerData)
+
+      // Wedding planning tools snapshot
+      const { data: wedding } = await supabase
+        .from('wedding_planner_data')
+        .select('checklist, vendors, guests, budget')
+        .eq('client_id', clientData.id)
+        .single()
+      setWeddingData(wedding)
+
       setLoading(false)
     })
   }, [])
@@ -99,8 +103,6 @@ export default function Dashboard() {
   const person1Role = client?.person1_role || 'Person 1'
   const person2Role = client?.person2_role || 'Person 2'
   const sameRole = person1Role === person2Role
-
-  // Use first names if both have same role
   const label1 = sameRole ? `${person1Name} (${person1Role})` : person1Role
   const label2 = sameRole ? `${person2Name} (${person2Role})` : person2Role
 
@@ -108,6 +110,15 @@ export default function Dashboard() {
   const balanceDue = client?.balance_due || 0
   const totalContract = client?.total_contract || 0
   const totalPaid = client?.total_paid || 0
+
+  // Wedding planner tools stats
+  let wChecklistPct = 0, wVendors = 0, wGuests = 0
+  if (weddingData) {
+    const cl = weddingData.checklist || []
+    wChecklistPct = cl.length ? Math.round((cl.filter(i => i.checked).length / cl.length) * 100) : 0
+    wVendors = (weddingData.vendors || []).length
+    wGuests = (weddingData.guests || []).length
+  }
 
   return (
     <>
@@ -160,7 +171,7 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Event summary grid */}
+          {/* Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             {/* Event details */}
@@ -244,11 +255,11 @@ export default function Dashboard() {
               </p>
             </div>
 
-            {/* Wedding planner status */}
+            {/* ── 🎵 Music Planner (was "Wedding Planner") ── */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 space-y-4">
               <h2 className="font-bold flex items-center gap-2">
                 <span className="h-4 w-1 bg-tascosa-orange rounded-full"></span>
-                Wedding Planner
+                🎵 Music Planner
               </h2>
               {plannerComplete ? (
                 <div className="text-center py-2">
@@ -262,7 +273,7 @@ export default function Dashboard() {
               ) : (
                 <div>
                   <p className="text-neutral-400 text-sm leading-relaxed">
-                    Your wedding planner helps us make sure every song, every moment, and every detail is perfect for your day.
+                    Your music planner helps us make sure every song, every moment, and every detail is perfect for your day.
                   </p>
                   {client?.wedding_date && (() => {
                     const dueDate = new Date(client.wedding_date + 'T12:00:00')
@@ -292,9 +303,58 @@ export default function Dashboard() {
                 onClick={() => router.push('/portal/planner')}
                 className="w-full rounded-2xl py-3 bg-tascosa-orange text-black font-black hover:brightness-110 active:scale-95 transition-all text-sm"
               >
-                {plannerComplete ? 'Review Wedding Planner' : planner ? 'Continue Wedding Planner →' : 'Start Wedding Planner →'}
+                {plannerComplete ? 'Review Music Planner' : planner ? 'Continue Music Planner →' : 'Start Music Planner →'}
               </button>
             </div>
+
+            {/* ── 💍 Wedding Planning Tools (new) ── */}
+            <button
+              onClick={() => router.push('/portal/wedding-planner')}
+              className="bg-neutral-900 border border-neutral-800 rounded-3xl p-6 text-left hover:border-pink-500/40 hover:bg-neutral-800/50 transition-all group md:col-span-2"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="font-bold flex items-center gap-2 mb-1">
+                    <span className="h-4 w-1 bg-pink-400 rounded-full"></span>
+                    💍 Wedding Planning Tools
+                    <span className="text-xs bg-pink-500/10 text-pink-400 border border-pink-500/20 px-2 py-0.5 rounded-full font-bold">Free Resource</span>
+                  </h2>
+                  <p className="text-neutral-500 text-sm ml-3">Checklist · Vendors · Guest list · Budget · Day-of timeline</p>
+                </div>
+                <span className="text-neutral-700 group-hover:text-pink-400 transition-colors text-lg mt-1">→</span>
+              </div>
+
+              {weddingData ? (
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 ml-3">
+                  <div className="bg-neutral-800/60 rounded-xl p-3 text-center">
+                    <div className="text-lg font-black text-emerald-400">{wChecklistPct}%</div>
+                    <div className="text-xs text-neutral-500 mt-0.5">Checklist</div>
+                  </div>
+                  <div className="bg-neutral-800/60 rounded-xl p-3 text-center">
+                    <div className="text-lg font-black text-blue-400">{wVendors}</div>
+                    <div className="text-xs text-neutral-500 mt-0.5">Vendors</div>
+                  </div>
+                  <div className="bg-neutral-800/60 rounded-xl p-3 text-center">
+                    <div className="text-lg font-black text-purple-400">{wGuests}</div>
+                    <div className="text-xs text-neutral-500 mt-0.5">Guests</div>
+                  </div>
+                  {weddingData?.budget?.total > 0 && (
+                    <div className="bg-neutral-800/60 rounded-xl p-3 text-center">
+                      <div className="text-lg font-black text-yellow-400">${(weddingData.budget.total / 1000).toFixed(0)}k</div>
+                      <div className="text-xs text-neutral-500 mt-0.5">Budget</div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-neutral-500 text-sm ml-3">
+                  A free planning tool — checklist, vendor contacts, guest list, budget tracker, and day-of timeline. Use as much or as little as you'd like.
+                </p>
+              )}
+
+              <div className="mt-4 ml-3 inline-flex items-center gap-1.5 text-xs font-bold text-pink-400 bg-pink-500/10 border border-pink-500/20 rounded-lg px-3 py-1.5">
+                {weddingData ? 'Open Planner →' : 'Get Started →'}
+              </div>
+            </button>
 
           </div>
 
