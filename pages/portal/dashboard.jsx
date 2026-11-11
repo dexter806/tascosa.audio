@@ -34,21 +34,17 @@ export default function Dashboard() {
   const [planner, setPlanner] = useState(null)
   const [weddingData, setWeddingData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [displayDays, setDisplayDays] = useState(0)
-  const [flipped, setFlipped] = useState(false)
+  const [displayDays, setDisplayDays] = useState(null)
 
   useEffect(() => {
     if (!loading && client?.wedding_date) {
       const target = daysUntil(client.wedding_date)
-      if (!target || target <= 0) return
+      if (!target || target <= 0) { setDisplayDays(target); return }
 
-      // Trigger flip immediately
-      const flipTimer = setTimeout(() => setFlipped(true), 300)
-
-      // Start count-up after flip animation finishes (~900ms total)
-      const countTimer = setTimeout(() => {
+      // Short delay, then start counting — number fades/flips in on first render
+      const startTimer = setTimeout(() => {
         let current = 0
-        const duration = 1000
+        const duration = 1200
         const steps = Math.min(target, 60)
         const interval = duration / steps
         const increment = target / steps
@@ -61,9 +57,9 @@ export default function Dashboard() {
             setDisplayDays(Math.floor(current))
           }
         }, interval)
-      }, 900)
+      }, 400)
 
-      return () => { clearTimeout(flipTimer); clearTimeout(countTimer) }
+      return () => clearTimeout(startTimer)
     }
   }, [loading, client])
 
@@ -203,11 +199,12 @@ export default function Dashboard() {
                     className="text-6xl md:text-8xl font-extrabold text-white"
                     style={{
                       display: 'inline-block',
-                      animation: flipped ? 'flipIn 0.6s cubic-bezier(0.23,1,0.32,1) both' : 'none',
+                      opacity: displayDays === null ? 0 : 1,
+                      animation: displayDays !== null ? 'flipIn 0.5s cubic-bezier(0.23,1,0.32,1) both' : 'none',
                       transformOrigin: 'center top',
                     }}
                   >
-                    {displayDays}
+                    {displayDays ?? 0}
                   </div>
                   <div className="text-neutral-400 mt-2 text-lg">days to go</div>
                 </>
