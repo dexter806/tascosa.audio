@@ -191,11 +191,11 @@ async function generateWeddingPlannerPDF(client, data) {
       drawText(cat, { fontSize: 9, font: boldFont, color: gray, indent: 8 })
       for (const item of items) {
         checkPage(14)
-        const mark = item.checked ? '☑' : '☐'
+        const mark = item.checked ? '[x]' : '[ ]'
         const textColor = item.checked ? gray : black
         page.drawText(mark, { x: margin + 16, y, size: 9, font: regularFont, color: item.checked ? pink : gray })
         const safe = (item.text || '').replace(/[^\x20-\x7E]/g, ' ').substring(0, 90)
-        page.drawText(safe, { x: margin + 30, y, size: 9, font: regularFont, color: textColor })
+        page.drawText(safe, { x: margin + 40, y, size: 9, font: regularFont, color: textColor })
         y -= 14
       }
     }
@@ -218,18 +218,18 @@ async function generateWeddingPlannerPDF(client, data) {
       const nameStr = (v.name || 'Unnamed Vendor').replace(/[^\x20-\x7E]/g, ' ').substring(0, 40)
       page.drawText(nameStr, { x: margin + 8, y, size: 10, font: boldFont, color: black })
       if (v.booked) {
-        const bw = boldFont.widthOfTextAtSize('✓ BOOKED', 7)
+        const bw = boldFont.widthOfTextAtSize('BOOKED', 7)
         page.drawRectangle({ x: pageWidth - margin - bw - 10, y: y - 2, width: bw + 10, height: 13, color: rgb(0.9, 1, 0.9) })
-        page.drawText('✓ BOOKED', { x: pageWidth - margin - bw - 5, y: y + 1, size: 7, font: boldFont, color: rgb(0.1, 0.6, 0.2) })
+        page.drawText('BOOKED', { x: pageWidth - margin - bw - 5, y: y + 1, size: 7, font: boldFont, color: rgb(0.1, 0.6, 0.2) })
       }
       y -= 13
 
       page.drawText((v.category || '').replace(/[^\x20-\x7E]/g, ' '), { x: margin + 8, y, size: 8, font: regularFont, color: gray })
       y -= 12
 
-      if (v.phone)   { page.drawText(`📞 ${v.phone}`,   { x: margin + 16, y, size: 8, font: regularFont, color: black }); y -= 11 }
-      if (v.email)   { page.drawText(`✉  ${v.email}`,   { x: margin + 16, y, size: 8, font: regularFont, color: black }); y -= 11 }
-      if (v.website) { page.drawText(`🌐 ${v.website}`, { x: margin + 16, y, size: 8, font: regularFont, color: black }); y -= 11 }
+      if (v.phone)   { page.drawText(`Ph: ${v.phone.replace(/[^\x20-\x7E]/g, ' ')}`,   { x: margin + 16, y, size: 8, font: regularFont, color: black }); y -= 11 }
+      if (v.email)   { page.drawText(`Email: ${v.email.replace(/[^\x20-\x7E]/g, ' ')}`,   { x: margin + 16, y, size: 8, font: regularFont, color: black }); y -= 11 }
+      if (v.website) { page.drawText(`Web: ${v.website.replace(/[^\x20-\x7E]/g, ' ')}`, { x: margin + 16, y, size: 8, font: regularFont, color: black }); y -= 11 }
       if (v.notes) {
         drawWrappedText(v.notes, { fontSize: 8, color: gray, indent: 16 })
       }
@@ -307,7 +307,7 @@ async function generateWeddingPlannerPDF(client, data) {
         page.drawText((item.label || '—').replace(/[^\x20-\x7E]/g, ' ').substring(0, 35), { x: margin + 8, y, size: 9, font: regularFont, color: black })
         page.drawText(item.estimated ? `$${parseFloat(item.estimated).toFixed(0)}` : '—', { x: margin + colWidth - 170, y, size: 9, font: regularFont, color: black })
         page.drawText(item.actual    ? `$${parseFloat(item.actual).toFixed(0)}` : '—',    { x: margin + colWidth - 90,  y, size: 9, font: regularFont, color: black })
-        page.drawText(item.paid ? '✓' : '—', { x: margin + colWidth - 18, y, size: 9, font: regularFont, color: item.paid ? rgb(0.1, 0.6, 0.2) : gray })
+        page.drawText(item.paid ? 'Y' : '-', { x: margin + colWidth - 18, y, size: 9, font: regularFont, color: item.paid ? rgb(0.1, 0.6, 0.2) : gray })
         y -= 13
         drawLine()
       }
