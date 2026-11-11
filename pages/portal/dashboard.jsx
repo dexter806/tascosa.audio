@@ -34,6 +34,15 @@ export default function Dashboard() {
   const [planner, setPlanner] = useState(null)
   const [weddingData, setWeddingData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [countFlipped, setCountFlipped] = useState(false)
+
+  useEffect(() => {
+    if (!loading && client?.wedding_date) {
+      // slight delay so the page paints first, then flip
+      const t = setTimeout(() => setCountFlipped(true), 300)
+      return () => clearTimeout(t)
+    }
+  }, [loading, client])
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -125,6 +134,18 @@ export default function Dashboard() {
       <Head>
         <title>My Dashboard — Tascosa Audio</title>
         <meta name="robots" content="noindex, nofollow" />
+        <style>{`
+          @keyframes flipIn {
+            0%   { opacity: 0; transform: rotateX(90deg) scale(0.8); }
+            60%  { opacity: 1; transform: rotateX(-8deg) scale(1.05); }
+            80%  { transform: rotateX(4deg) scale(0.98); }
+            100% { opacity: 1; transform: rotateX(0deg) scale(1); }
+          }
+          @keyframes gentlePulse {
+            0%, 100% { transform: scale(1);    opacity: 1; }
+            50%       { transform: scale(1.04); opacity: 0.85; }
+          }
+        `}</style>
       </Head>
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -159,7 +180,18 @@ export default function Dashboard() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-tascosa-orange mb-3">Your Big Day</p>
               {days > 0 ? (
                 <>
-                  <div className="text-6xl md:text-8xl font-extrabold text-white">{days}</div>
+                  <div
+                    className="text-6xl md:text-8xl font-extrabold text-white"
+                    style={{
+                      display: 'inline-block',
+                      animation: countFlipped
+                        ? 'flipIn 0.6s cubic-bezier(0.23,1,0.32,1) both, gentlePulse 3s ease-in-out 1s infinite'
+                        : 'none',
+                      transformOrigin: 'center',
+                    }}
+                  >
+                    {days}
+                  </div>
                   <div className="text-neutral-400 mt-2 text-lg">days to go</div>
                 </>
               ) : days === 0 ? (
