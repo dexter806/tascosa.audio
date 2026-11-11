@@ -34,13 +34,27 @@ export default function Dashboard() {
   const [planner, setPlanner] = useState(null)
   const [weddingData, setWeddingData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [countFlipped, setCountFlipped] = useState(false)
+  const [displayDays, setDisplayDays] = useState(0)
 
   useEffect(() => {
     if (!loading && client?.wedding_date) {
-      // slight delay so the page paints first, then flip
-      const t = setTimeout(() => setCountFlipped(true), 300)
-      return () => clearTimeout(t)
+      const target = daysUntil(client.wedding_date)
+      if (!target || target <= 0) return
+      let current = 0
+      const duration = 1200 // ms
+      const steps = Math.min(target, 60)
+      const interval = duration / steps
+      const increment = target / steps
+      const timer = setInterval(() => {
+        current += increment
+        if (current >= target) {
+          setDisplayDays(target)
+          clearInterval(timer)
+        } else {
+          setDisplayDays(Math.floor(current))
+        }
+      }, interval)
+      return () => clearInterval(timer)
     }
   }, [loading, client])
 
@@ -134,18 +148,7 @@ export default function Dashboard() {
       <Head>
         <title>My Dashboard — Tascosa Audio</title>
         <meta name="robots" content="noindex, nofollow" />
-        <style>{`
-          @keyframes flipIn {
-            0%   { opacity: 0; transform: rotateX(90deg) scale(0.8); }
-            60%  { opacity: 1; transform: rotateX(-8deg) scale(1.05); }
-            80%  { transform: rotateX(4deg) scale(0.98); }
-            100% { opacity: 1; transform: rotateX(0deg) scale(1); }
-          }
-          @keyframes gentlePulse {
-            0%, 100% { transform: scale(1);    opacity: 1; }
-            50%       { transform: scale(1.04); opacity: 0.85; }
-          }
-        `}</style>
+
       </Head>
 
       <div className="min-h-screen bg-neutral-950 text-neutral-100">
@@ -180,17 +183,8 @@ export default function Dashboard() {
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-tascosa-orange mb-3">Your Big Day</p>
               {days > 0 ? (
                 <>
-                  <div
-                    className="text-6xl md:text-8xl font-extrabold text-white"
-                    style={{
-                      display: 'inline-block',
-                      animation: countFlipped
-                        ? 'flipIn 0.6s cubic-bezier(0.23,1,0.32,1) both, gentlePulse 3s ease-in-out 1s infinite'
-                        : 'none',
-                      transformOrigin: 'center',
-                    }}
-                  >
-                    {days}
+                  <div className="text-6xl md:text-8xl font-extrabold text-white">
+                    {displayDays}
                   </div>
                   <div className="text-neutral-400 mt-2 text-lg">days to go</div>
                 </>
