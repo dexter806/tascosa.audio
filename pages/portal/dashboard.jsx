@@ -71,8 +71,16 @@ export default function Dashboard() {
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!session) { router.push('/portal/login'); return }
+      if (!session) {
+        if (event === 'SIGNED_OUT') router.push('/portal/login')
+        return
+      }
       await loadClient(session)
+    })
+
+    // Also check immediately in case session already exists
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) router.push('/portal/login')
     })
 
     return () => subscription.unsubscribe()
