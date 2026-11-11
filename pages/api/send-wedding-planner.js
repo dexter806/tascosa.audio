@@ -19,8 +19,12 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+function sanitize(str) {
+  return (str || '').replace(/[^\x20-\x7E]/g, '-')
+}
+
 function formatDate(dateStr) {
-  if (!dateStr) return '—'
+  if (!dateStr) return '-'
   const d = dateStr.includes('T') ? dateStr : dateStr + 'T12:00:00'
   return new Date(d).toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
@@ -28,7 +32,7 @@ function formatDate(dateStr) {
 }
 
 function formatTime(timeStr) {
-  if (!timeStr) return '—'
+  if (!timeStr) return '-'
   const [h, m] = timeStr.split(':')
   const hour = parseInt(h)
   const period = hour >= 12 ? 'PM' : 'AM'
@@ -76,7 +80,7 @@ async function generateWeddingPlannerPDF(client, data) {
   }
 
   function wrapText(text, font, fontSize, maxWidth) {
-    const safe = (text || '').replace(/[^\x20-\x7E\n]/g, ' ')
+    const safe = sanitize(text || '').replace(/\n/g, '\n')
     const paragraphs = safe.split('\n')
     const lines = []
     for (const para of paragraphs) {
@@ -99,7 +103,7 @@ async function generateWeddingPlannerPDF(client, data) {
 
   function drawText(text, { fontSize = 10, font = regularFont, color = black, indent = 0 } = {}) {
     checkPage(fontSize + 6)
-    const safe = (text || '').replace(/[^\x20-\x7E]/g, ' ').substring(0, 200)
+    const safe = sanitize(text || '').substring(0, 200)
     page.drawText(safe, { x: margin + indent, y, size: fontSize, font, color })
     y -= fontSize + 6
   }
@@ -123,8 +127,8 @@ async function generateWeddingPlannerPDF(client, data) {
 
   function drawInfoRow(label, value) {
     checkPage(18)
-    page.drawText((label + ':').substring(0, 30), { x: margin + 8, y, size: 9, font: boldFont, color: gray })
-    page.drawText((value || '—').replace(/[^\x20-\x7E]/g, ' ').substring(0, 70), { x: margin + 150, y, size: 9, font: regularFont, color: black })
+    page.drawText(sanitize(label + ':').substring(0, 30), { x: margin + 8, y, size: 9, font: boldFont, color: gray })
+    page.drawText(sanitize(value || '-').substring(0, 70), { x: margin + 150, y, size: 9, font: regularFont, color: black })
     y -= 15
     drawLine()
   }
@@ -207,7 +211,7 @@ async function generateWeddingPlannerPDF(client, data) {
     y -= 2
 
     const booked = vendors.filter(v => v.booked).length
-    drawText(`${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} · ${booked} booked`, { fontSize: 9, color: gray, indent: 8 })
+    drawText(`${vendors.length} vendor${vendors.length !== 1 ? 's' : ''} - ${booked} booked`, { fontSize: 9, color: gray, indent: 8 })
     y -= 4
 
     for (const v of vendors) {
@@ -247,7 +251,7 @@ async function generateWeddingPlannerPDF(client, data) {
     const pending = guests.filter(g => !g.rsvp || g.rsvp === 'Pending').length
     const plusOnes = guests.filter(g => g.plusOne).length
 
-    drawText(`${guests.length} guests  ·  ${yes} confirmed  ·  ${no} declined  ·  ${pending} pending  ·  ${plusOnes} +1s`, { fontSize: 9, color: gray, indent: 8 })
+    drawText(`${guests.length} guests - ${yes} confirmed - ${no} declined - ${pending} pending - ${plusOnes} +1s`, { fontSize: 9, color: gray, indent: 8 })
     y -= 6
 
     // Header row
@@ -261,9 +265,9 @@ async function generateWeddingPlannerPDF(client, data) {
     for (const g of guests) {
       checkPage(14)
       const rsvpColor = g.rsvp === 'Yes' ? rgb(0.1, 0.6, 0.2) : g.rsvp === 'No' ? rgb(0.8, 0.1, 0.1) : gray
-      page.drawText((g.name || '—').replace(/[^\x20-\x7E]/g, ' ').substring(0, 45), { x: margin + 8, y, size: 9, font: regularFont, color: black })
-      page.drawText(g.rsvp || 'Pending', { x: margin + colWidth - 110, y, size: 9, font: regularFont, color: rsvpColor })
-      page.drawText(g.plusOne ? '✓' : '—', { x: margin + colWidth - 55, y, size: 9, font: regularFont, color: g.plusOne ? pink : gray })
+      page.drawText(sanitize(g.name || '-').substring(0, 45), { x: margin + 8, y, size: 9, font: regularFont, color: black })
+      page.drawText(sanitize(g.rsvp || 'Pending'), { x: margin + colWidth - 110, y, size: 9, font: regularFont, color: rsvpColor })
+      page.drawText(g.plusOne ? 'Y' : '-', { x: margin + colWidth - 55, y, size: 9, font: regularFont, color: g.plusOne ? pink : gray })
       y -= 13
       if (g.notes) {
         page.drawText(g.notes.replace(/[^\x20-\x7E]/g, ' ').substring(0, 70), { x: margin + 16, y, size: 7, font: regularFont, color: gray })
@@ -304,9 +308,9 @@ async function generateWeddingPlannerPDF(client, data) {
 
       for (const item of budget.items) {
         checkPage(14)
-        page.drawText((item.label || '—').replace(/[^\x20-\x7E]/g, ' ').substring(0, 35), { x: margin + 8, y, size: 9, font: regularFont, color: black })
-        page.drawText(item.estimated ? `$${parseFloat(item.estimated).toFixed(0)}` : '—', { x: margin + colWidth - 170, y, size: 9, font: regularFont, color: black })
-        page.drawText(item.actual    ? `$${parseFloat(item.actual).toFixed(0)}` : '—',    { x: margin + colWidth - 90,  y, size: 9, font: regularFont, color: black })
+        page.drawText(sanitize(item.label || '-').substring(0, 35), { x: margin + 8, y, size: 9, font: regularFont, color: black })
+        page.drawText(item.estimated ? `$${parseFloat(item.estimated).toFixed(0)}` : '-', { x: margin + colWidth - 170, y, size: 9, font: regularFont, color: black })
+        page.drawText(item.actual    ? `$${parseFloat(item.actual).toFixed(0)}` : '-',    { x: margin + colWidth - 90,  y, size: 9, font: regularFont, color: black })
         page.drawText(item.paid ? 'Y' : '-', { x: margin + colWidth - 18, y, size: 9, font: regularFont, color: item.paid ? rgb(0.1, 0.6, 0.2) : gray })
         y -= 13
         drawLine()
@@ -329,7 +333,7 @@ async function generateWeddingPlannerPDF(client, data) {
 
     for (const item of timeline) {
       checkPage(22)
-      const timeStr = item.time ? formatTime(item.time) : '—'
+      const timeStr = item.time ? formatTime(item.time) : '-'
       page.drawText(timeStr, { x: margin + 8, y, size: 9, font: boldFont, color: pink })
       page.drawText((item.label || '').replace(/[^\x20-\x7E]/g, ' ').substring(0, 55), { x: margin + 80, y, size: 9, font: regularFont, color: black })
       y -= 13
@@ -350,7 +354,7 @@ async function generateWeddingPlannerPDF(client, data) {
 
   // ── FOOTER ────────────────────────────────────────────────────────────────
   page.drawLine({ start: { x: margin, y: 40 }, end: { x: pageWidth - margin, y: 40 }, thickness: 0.5, color: lightGray })
-  page.drawText('Tascosa Audio  ·  andy@tascosaaudio.com  ·  806-670-7913  ·  tascosaaudio.com', {
+  page.drawText('Tascosa Audio  |  andy@tascosaaudio.com  |  806-670-7913  |  tascosaaudio.com', {
     x: margin, y: 26, size: 8, font: regularFont, color: gray
   })
 
