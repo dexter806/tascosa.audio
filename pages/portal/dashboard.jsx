@@ -21,58 +21,7 @@ export default function Dashboard() {
   const [daysUntil, setDaysUntil] = useState(null)
 
   useEffect(() => {
-    // onAuthStateChange fires reliably on hydration; getSession alone can miss it
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!session) { router.push('/portal/login'); return }
-
-      let clientData = null
-      const { data: d1 } = await supabase
-        .from('clients')
-        .select('*, quotes(*)')
-        .eq('user_id', session.user.id)
-        .single()
-      if (d1) clientData = d1
-      else {
-        const { data: d2 } = await supabase
-          .from('clients')
-          .select('*, quotes(*)')
-          .eq('user_id_2', session.user.id)
-          .single()
-        clientData = d2
-      }
-
-      if (!clientData) { router.push('/portal/login'); return }
-      setClient(clientData)
-
-      // Days until wedding
-      if (clientData.event_date) {
-        const today = new Date()
-        today.setHours(0, 0, 0, 0)
-        const event = new Date(clientData.event_date + 'T00:00:00')
-        const diff = Math.round((event - today) / (1000 * 60 * 60 * 24))
-        setDaysUntil(diff)
-      }
-
-      const { data: planner } = await supabase
-        .from('wedding_planner')
-        .select('*')
-        .eq('client_id', clientData.id)
-        .single()
-      setPlannerData(planner)
-
-      const { data: wedding } = await supabase
-        .from('wedding_planner_data')
-        .select('checklist, vendors, guests, budget, timeline')
-        .eq('client_id', clientData.id)
-        .single()
-      setWeddingData(wedding)
-
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
+    async function loadClient(session) {
       // Find client by either partner email
       let clientData = null
       const { data: d1 } = await supabase
@@ -119,7 +68,14 @@ export default function Dashboard() {
       setWeddingData(wedding)
 
       setLoading(false)
+    }
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!session) { router.push('/portal/login'); return }
+      await loadClient(session)
     })
+
+    return () => subscription.unsubscribe()
   }, [])
 
   if (loading) return (
