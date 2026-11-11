@@ -210,7 +210,7 @@ export default function WeddingPlanner() {
 
   // ── Export / PDF ─────────────────────────────────────────────────────────
   async function handleExport() {
-    if (!client || !plannerId) return
+    if (!client) return
     setExporting(true)
     setExportStatus(null)
     setExportMessage('')
@@ -237,8 +237,9 @@ export default function WeddingPlanner() {
           setExportMessage(exportAction === 'both' ? 'PDF downloaded & emailed!' : 'PDF downloaded!')
         } else {
           const err = await res.json().catch(() => ({}))
+          console.error('Export error:', res.status, err)
           setExportStatus('error')
-          setExportMessage(err.error || 'Something went wrong. Please try again.')
+          setExportMessage(err.error || `Error ${res.status}. Please try again.`)
         }
       } else {
         // email only
@@ -247,13 +248,15 @@ export default function WeddingPlanner() {
           setExportStatus('success')
           setExportMessage(`Sent to ${(data.sentTo || []).join(' & ')}`)
         } else {
+          console.error('Export email error:', res.status, data)
           setExportStatus('error')
-          setExportMessage(data.error || 'Something went wrong. Please try again.')
+          setExportMessage(data.error || `Error ${res.status}. Please try again.`)
         }
       }
     } catch (err) {
+      console.error('Export fetch error:', err)
       setExportStatus('error')
-      setExportMessage('Something went wrong. Please try again.')
+      setExportMessage(err.message || 'Something went wrong. Please try again.')
     } finally {
       setExporting(false)
     }
